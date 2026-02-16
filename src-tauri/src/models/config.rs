@@ -1,0 +1,74 @@
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AppConfig {
+    pub notes_folder: PathBuf,
+}
+
+impl Default for AppConfig {
+    fn default() -> Self {
+        let app_data_dir = get_app_data_dir();
+        let notes_folder = app_data_dir.join("notes");
+        Self { notes_folder }
+    }
+}
+
+impl AppConfig {
+    pub fn get_config_path() -> PathBuf {
+        get_app_data_dir().join("config.json")
+    }
+
+    pub fn load() -> Self {
+        let config_path = Self::get_config_path();
+
+        if config_path.exists() {
+            match std::fs::read_to_string(&config_path) {
+                Ok(config_content) => {
+                    match serde_json::from_str(&config_content) {
+                        Ok(config) => config,
+                        Err(_) => {
+                            // If parsing fails, create default config
+                            let config = AppConfig::default();
+                            config.save();
+                            config
+                        }
+                    }
+                }
+                Err(_) => {
+                    // If reading fails, create default config
+                    let config = AppConfig::default();
+                    config.save();
+                    config
+                }
+            }
+        } else {
+            // Config doesn't exist, create default
+            let config = AppConfig::default();
+            config.save();
+            config
+        }
+    }
+
+    pub fn save(&self) {
+        let config_path = Self::get_config_path();
+
+        // Create parent directory if needed
+        if let Some(parent) = config_path.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+
+        // Serialize and save
+        if let Ok(config_content) = serde_json::to_string_pretty(self) {
+            let _ = std::fs::write(&config_path, config_content);
+        }
+    }
+}
+
+fn get_app_data_dir() -> PathBuf {
+    if let Some(home_dir) = dirs::home_dir() {
+        return home_dir.join(".todaylist");
+    }
+
+    PathBuf::from(".todaylist")
+}
