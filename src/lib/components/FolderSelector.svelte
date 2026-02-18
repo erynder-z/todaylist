@@ -1,15 +1,27 @@
 <script lang="ts">
-import { config, selectFolder } from '$lib';
+import { config, createNewNote, selectFolder } from "$lib";
 
 let currentDate = $state(new Date().toLocaleDateString());
 
 async function handleSelectFolder() {
-    const selectedPath = await selectFolder();
-    
-    if (selectedPath) {
-        const currentConfig = $config;
-        await config.save({ ...currentConfig, notes_folder: selectedPath });
-    }
+	const selectedPath = await selectFolder();
+
+	if (selectedPath) {
+		const currentConfig = $config;
+		await config.save({ ...currentConfig, notes_folder: selectedPath });
+	}
+}
+
+async function handleCreateNote() {
+	if (!$config.notes_folder) {
+		alert("Please select a folder first");
+		return;
+	}
+
+	const filePath = await createNewNote();
+	if (filePath) {
+		alert(`Created new note: ${filePath}`);
+	}
 }
 </script>
 
@@ -20,6 +32,10 @@ async function handleSelectFolder() {
     <button onclick={handleSelectFolder} class="folder-button">
       Select Folder       
     </button> 
+    
+    <button onclick={handleCreateNote} class="folder-button" style="margin-top: 1rem;">
+      Create New Note
+    </button>
       
     {#if $config.notes_folder}
       <p class="folder-path">Selected folder: {$config.notes_folder}</p>
