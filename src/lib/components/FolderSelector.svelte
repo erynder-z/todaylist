@@ -1,78 +1,39 @@
 <script lang="ts">
-import { config, createNewNote, selectFolder } from "$lib";
+  import {
+    checkTodaysNoteExists,
+    createTodaysNote,
+    config,
+    selectFolder,
+  } from '$lib';
 
-let currentDate = $state(new Date().toLocaleDateString());
+  const handleSelectFolder = async () => {
+    const selectedPath = await selectFolder();
 
-async function handleSelectFolder() {
-	const selectedPath = await selectFolder();
+    if (selectedPath) {
+      const currentConfig = $config;
+      await config.save({ ...currentConfig, notes_folder: selectedPath });
 
-	if (selectedPath) {
-		const currentConfig = $config;
-		await config.save({ ...currentConfig, notes_folder: selectedPath });
-	}
-}
-
-async function handleCreateNote() {
-	if (!$config.notes_folder) {
-		alert("Please select a folder first");
-		return;
-	}
-
-	const filePath = await createNewNote();
-	if (filePath) {
-		alert(`Created new note: ${filePath}`);
-	}
-}
+      const exists = await checkTodaysNoteExists();
+      if (!exists) await createTodaysNote();
+    }
+  };
 </script>
 
-<main class="container">
-  <h1>Today is: {currentDate}</h1>  
-                  
-  <div class="folder-section">        
-    <button onclick={handleSelectFolder} class="folder-button">
-      Select Folder       
-    </button> 
-    
-    <button onclick={handleCreateNote} class="folder-button" style="margin-top: 1rem;">
-      Create New Note
-    </button>
-      
+<div class="folder-section">
+  <button onclick={handleSelectFolder} class="folder-button">
     {#if $config.notes_folder}
-      <p class="folder-path">Selected folder: {$config.notes_folder}</p>
+      Change Folder
+    {:else}
+      Select Folder
     {/if}
-  </div>
-</main>
+  </button>
+
+  {#if $config.notes_folder}
+    <p class="folder-path">Selected folder: {$config.notes_folder}</p>
+  {/if}
+</div>
 
 <style>
-  :root {
-    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    line-height: 24px;
-    font-weight: 400;
-
-    color: #0f0f0f;
-    background-color: #f6f6f6;
-
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  .container {
-    margin: 0;
-    padding-top: 10vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-  }
-
-  h1 {
-    text-align: center;
-  }
-
   .folder-section {
     margin-top: 2rem;
     display: flex;
@@ -90,7 +51,9 @@ async function handleCreateNote() {
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    transition:
+      background-color 0.2s,
+      transform 0.1s;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
@@ -113,11 +76,6 @@ async function handleCreateNote() {
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
-      color: #f6f6f6;
-      background-color: #2f2f2f;
-    }
-
     .folder-button {
       background-color: #747bff;
     }

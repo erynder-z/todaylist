@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { writable } from "svelte/store";
-import type { AppConfig } from "$lib/types/app";
+import type { AppConfig } from "$lib/types/config";
 
 const createConfigStore = () => {
 	const { subscribe, set } = writable<AppConfig>({ notes_folder: "" });

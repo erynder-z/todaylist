@@ -4,7 +4,10 @@ mod commands;
 mod models;
 mod utils;
 
-use commands::config::{create_new_note, get_config, set_notes_folder};
+use commands::config::{
+    check_todays_note_exists, create_new_note, create_todays_note, get_config, list_notes,
+    set_notes_folder,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -12,8 +15,11 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
+            check_todays_note_exists,
+            create_todays_note,
             create_new_note,
             get_config,
+            list_notes,
             set_notes_folder
         ])
         .run(tauri::generate_context!())
