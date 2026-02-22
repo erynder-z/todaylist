@@ -1,9 +1,5 @@
 <script lang="ts">
   import { settings } from '$lib';
-  import {
-    checkTodaysNoteExists,
-    createTodaysNote,
-  } from '$lib/utils/dailyNote';
   import { selectFolder } from '$lib/utils/folder';
 
   let selectedFolderPath: string | null = $state(null);
@@ -23,15 +19,7 @@
 
   const handleUseFolder = async () => {
     if (selectedFolderPath) {
-      const currentConfig = $settings;
-      await settings.save({
-        ...currentConfig,
-        notes_folder: selectedFolderPath,
-      });
-
-      const exists = await checkTodaysNoteExists();
-      if (!exists) await createTodaysNote(selectedFolderPath);
-
+      await settings.switchNotesFolder(selectedFolderPath);
       selectedFolderPath = null;
     }
   };

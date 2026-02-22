@@ -6,6 +6,10 @@ use std::path::PathBuf;
 #[tauri::command]
 pub async fn initialize_app() -> Result<InitialAppState, String> {
     let config = AppConfig::load();
+    Ok(get_initial_state(config))
+}
+
+pub fn get_initial_state(config: AppConfig) -> InitialAppState {
     let notes_folder =
         if config.notes_folder.exists() || fs::create_dir_all(&config.notes_folder).is_ok() {
             Some(config.notes_folder.to_string_lossy().into_owned())
@@ -36,5 +40,5 @@ pub async fn initialize_app() -> Result<InitialAppState, String> {
         }
     }
 
-    Ok(state)
+    state
 }
