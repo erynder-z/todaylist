@@ -1,29 +1,24 @@
-import { get } from "svelte/store";
-import { appState, config } from "$lib";
-import {
-	checkTodaysNoteExists,
-	createTodaysNote,
-	getTodayNotePath,
-} from "$lib/utils/dailyNote";
-import { readNoteContent } from "$lib/utils/notes";
+import { invoke } from "@tauri-apps/api/core";
+import { appState, settings } from "$lib";
 
 export const initializeApp = async () => {
-	await config.load();
+	try {
+		const initialState: {
+			notes_folder: string | null;
+			today_note_path: string | null;
+			today_note_content: string | null;
+		} = await invoke("initialize_app");
 
-	const currentConfig = get(config);
-	if (currentConfig.notes_folder) {
-		const todayNotePath = await getTodayNotePath();
-
-		if (todayNotePath) {
-			const exists = await checkTodaysNoteExists();
-			if (!exists) await createTodaysNote(todayNotePath);
-
-			const content = await readNoteContent(todayNotePath);
-			appState.update((state) => ({
-				...state,
-				todayNotePath: todayNotePath,
-				todayNoteContent: content,
-			}));
+		if (initialState.notes_folder) {
+			settings.set({ notes_folder: initialState.notes_folder });
 		}
+
+		appState.update((state) => ({
+			...state,
+			todayNotePath: initialState.today_note_path,
+			todayNoteContent: initialState.today_note_content,
+		}));
+	} catch (error) {
+		console.error("Failed to initialize app:", error);
 	}
 };
