@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { config } from '$lib';
+  import { settings } from '$lib';
   import type { FormattedNote } from '$lib/types/notes';
   import { listNotes } from '$lib/utils/folder';
 
@@ -9,8 +9,8 @@
   let error = $state<string | null>(null);
 
   onMount(() => {
-    const unsubscribe = config.subscribe(($config) => {
-      if ($config.notes_folder) {
+    const unsubscribe = settings.subscribe(($settings) => {
+      if ($settings.notes_folder) {
         loadNotes();
       } else {
         notes = [];
@@ -26,7 +26,7 @@
       isLoading = true;
       error = null;
 
-      if (!$config.notes_folder) {
+      if (!$settings.notes_folder) {
         isLoading = false;
         return;
       }
@@ -43,11 +43,11 @@
 </script>
 
 <div class="notes-section">
-  {#if isLoading && $config.notes_folder}
+  {#if isLoading && $settings.notes_folder}
     <div class="loading">Loading notes...</div>
   {:else if error}
     <div class="error">{error}</div>
-  {:else if $config.notes_folder && notes.length > 0}
+  {:else if $settings.notes_folder && notes.length > 0}
     <h2>Your Notes</h2>
     <div class="notes-list">
       {#each notes as note (note.filename)}
@@ -56,7 +56,7 @@
         </div>
       {/each}
     </div>
-  {:else if $config.notes_folder}
+  {:else if $settings.notes_folder}
     <div class="empty-notes">No notes found. Create your first note!</div>
   {/if}
 </div>

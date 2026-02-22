@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { config } from '$lib';
+  import { settings } from '$lib';
   import {
     checkTodaysNoteExists,
     createTodaysNote,
@@ -9,7 +9,8 @@
   let selectedFolderPath: string | null = $state(null);
 
   let isUseFolderButtonEnabled = $derived(
-    selectedFolderPath !== null && selectedFolderPath !== $config.notes_folder,
+    selectedFolderPath !== null &&
+      selectedFolderPath !== $settings.notes_folder,
   );
 
   const handleSelectFolder = async () => {
@@ -22,8 +23,11 @@
 
   const handleUseFolder = async () => {
     if (selectedFolderPath) {
-      const currentConfig = $config;
-      await config.save({ ...currentConfig, notes_folder: selectedFolderPath });
+      const currentConfig = $settings;
+      await settings.save({
+        ...currentConfig,
+        notes_folder: selectedFolderPath,
+      });
 
       const exists = await checkTodaysNoteExists();
       if (!exists) await createTodaysNote(selectedFolderPath);
@@ -36,7 +40,7 @@
 <div class="folder-section">
   <div class="button-container">
     <button onclick={handleSelectFolder} class="folder-button">
-      {#if $config.notes_folder}
+      {#if $settings.notes_folder}
         Change Folder
       {:else}
         Select Folder
@@ -52,10 +56,10 @@
     </button>
   </div>
 
-  {#if selectedFolderPath && selectedFolderPath !== $config.notes_folder}
+  {#if selectedFolderPath && selectedFolderPath !== $settings.notes_folder}
     <p class="folder-path">Selected (pending): {selectedFolderPath}</p>
-  {:else if $config.notes_folder}
-    <p class="folder-path">Current folder: {$config.notes_folder}</p>
+  {:else if $settings.notes_folder}
+    <p class="folder-path">Current folder: {$settings.notes_folder}</p>
   {:else}
     <p class="folder-path">No folder selected</p>
   {/if}

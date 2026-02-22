@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { appState, config, FolderSelector, NoteDisplay } from '$lib';
+  import { appState, FolderSelector, NoteDisplay, settings } from '$lib';
 
-  let currentConfig = $derived($config);
+  let currentSettings = $derived($settings);
 </script>
 
-{#if currentConfig.notes_folder === null}
+{#if currentSettings.notes_folder === null}
   <div class="welcome-screen">
     <h1>Welcome to TodayList</h1>
     <p>Please select a folder to start your daily notes journey.</p>

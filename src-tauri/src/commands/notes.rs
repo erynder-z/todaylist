@@ -1,8 +1,14 @@
 use crate::models::config::AppConfig;
-use crate::models::response_types::FormattedNote;
+use crate::models::response_types::{FormattedNote, SearchResult}; // Removed InitialAppState
 use chrono::NaiveDate;
 use std::fs;
 use std::path::PathBuf;
+
+#[tauri::command]
+pub async fn search_notes(_query: String) -> Result<Vec<SearchResult>, String> {
+    // TODO: Implement note search
+    Ok(vec![])
+}
 
 fn ensure_notes_folder_exists(config: &AppConfig) -> Result<(), String> {
     if !config.notes_folder.exists() {
