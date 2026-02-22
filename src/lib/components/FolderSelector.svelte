@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
     checkTodaysNoteExists,
-    createTodaysNote,
     config,
+    createTodaysNote,
     selectFolder,
   } from '$lib';
 
