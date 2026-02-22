@@ -1,11 +1,6 @@
 use crate::models::config::AppConfig;
-use serde::{Deserialize, Serialize};
+use crate::models::response_types::ConfigResponse;
 use std::path::PathBuf;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ConfigResponse {
-    pub notes_folder: String,
-}
 
 #[tauri::command]
 pub async fn get_config() -> Result<ConfigResponse, String> {

@@ -1,14 +1,8 @@
 use crate::models::config::AppConfig;
+use crate::models::response_types::FormattedNote;
 use chrono::NaiveDate;
-use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct FormattedNote {
-    pub filename: String,
-    pub formatted_name: String,
-}
 
 #[tauri::command]
 pub async fn create_new_note() -> Result<String, String> {
@@ -112,7 +106,6 @@ pub async fn list_notes() -> Result<Vec<FormattedNote>, String> {
         })
         .collect();
 
-    // Sort by filename (or by parsed date if you prefer)
     notes.sort_by(|a, b| a.filename.cmp(&b.filename));
     notes.reverse();
 
