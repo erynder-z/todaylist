@@ -12,7 +12,7 @@ fn ensure_notes_folder_exists(config: &AppConfig) -> Result<(), String> {
     Ok(())
 }
 
-fn get_todays_note_path(config: &AppConfig, current_date: &str) -> PathBuf {
+fn get_todays_note_path_internal(config: &AppConfig, current_date: &str) -> PathBuf {
     let file_name = format!("{}.md", current_date);
     config.notes_folder.join(&file_name)
 }
@@ -23,32 +23,45 @@ fn create_note(file_path: &PathBuf, note_content: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub async fn get_today_note_path() -> Result<String, String> {
+    let config = AppConfig::load();
+    let current_date = crate::utils::date::get_current_date();
+
+    ensure_notes_folder_exists(&config)?;
+    let file_path = get_todays_note_path_internal(&config, &current_date);
+    Ok(file_path.to_string_lossy().into_owned())
+}
+
+#[tauri::command]
 pub async fn check_todays_note_exists() -> Result<bool, String> {
     let config = AppConfig::load();
     let current_date = crate::utils::date::get_current_date();
 
     ensure_notes_folder_exists(&config)?;
-    let file_path = get_todays_note_path(&config, &current_date);
+    let file_path = get_todays_note_path_internal(&config, &current_date);
 
     Ok(file_path.exists())
 }
 
 #[tauri::command]
-pub async fn create_todays_note() -> Result<String, String> {
-    let config = AppConfig::load();
-    let current_date = crate::utils::date::get_current_date();
-
-    ensure_notes_folder_exists(&config)?;
-    let file_path = get_todays_note_path(&config, &current_date);
+pub async fn create_todays_note(path: String) -> Result<(), String> {
+    let file_path = PathBuf::from(path);
 
     if file_path.exists() {
-        return Err("Note for today already exists".to_string());
+        return Ok(()); // return early if file already exists
     }
 
+    let current_date = crate::utils::date::get_current_date();
     let note_content = format!("# Note: {}", current_date);
     create_note(&file_path, &note_content)?;
 
-    Ok(file_path.to_string_lossy().into_owned())
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn read_note_content(path: String) -> Result<String, String> {
+    fs::read_to_string(&path)
+        .map_err(|e| format!("Failed to read note content from {}: {}", path, e))
 }
 
 fn format_note_name(note_name: &str) -> String {

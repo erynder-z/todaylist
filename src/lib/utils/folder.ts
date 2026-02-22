@@ -26,26 +26,6 @@ export const createNewNote = async () => {
 	}
 };
 
-export const checkTodaysNoteExists = async () => {
-	try {
-		const exists = (await invoke("check_todays_note_exists")) as boolean;
-		return exists;
-	} catch (error) {
-		console.error("Error checking today's note:", error);
-		return false;
-	}
-};
-
-export const createTodaysNote = async () => {
-	try {
-		const filePath = (await invoke("create_todays_note")) as string;
-		return filePath;
-	} catch (error) {
-		console.error("Error creating today's note:", error);
-		return null;
-	}
-};
-
 export const listNotes = async () => {
 	try {
 		const notes = (await invoke("list_notes")) as FormattedNote[];

@@ -3,7 +3,10 @@ mod models;
 mod utils;
 
 use commands::config::{get_config, set_notes_folder};
-use commands::notes::{check_todays_note_exists, create_todays_note, list_notes};
+use commands::notes::{
+    check_todays_note_exists, create_todays_note, get_today_note_path, list_notes,
+    read_note_content,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -13,6 +16,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             check_todays_note_exists,
             create_todays_note,
+            get_today_note_path,
+            read_note_content,
             get_config,
             list_notes,
             set_notes_folder

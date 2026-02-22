@@ -1,5 +1,15 @@
 export { default as FolderSelector } from "./components/FolderSelector.svelte";
+export { default as MainView } from "./components/MainView.svelte";
+export { default as Modal } from "./components/Modal.svelte";
+export { default as Navigation } from "./components/Navigation.svelte";
+export { default as NoteDisplay } from "./components/NoteDisplay.svelte";
 export { default as NotesList } from "./components/NotesList.svelte";
+export { default as PopupManager } from "./components/PopupManager.svelte";
+export { default as SearchNotes } from "./components/SearchNotes.svelte";
+export * from "./stores/appState";
 export * from "./stores/config";
 export * from "./types/config";
+export * from "./utils/appSetup";
+export * from "./utils/dailyNote";
 export * from "./utils/folder";
+export * from "./utils/notes";

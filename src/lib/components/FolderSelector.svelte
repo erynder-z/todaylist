@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { config } from '$lib';
   import {
     checkTodaysNoteExists,
-    config,
     createTodaysNote,
-    selectFolder,
-  } from '$lib';
+  } from '$lib/utils/dailyNote';
+  import { selectFolder } from '$lib/utils/folder';
 
   let selectedFolderPath: string | null = $state(null);
 
@@ -26,7 +26,7 @@
       await config.save({ ...currentConfig, notes_folder: selectedFolderPath });
 
       const exists = await checkTodaysNoteExists();
-      if (!exists) await createTodaysNote();
+      if (!exists) await createTodaysNote(selectedFolderPath);
 
       selectedFolderPath = null;
     }

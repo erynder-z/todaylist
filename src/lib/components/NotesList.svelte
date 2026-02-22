@@ -1,12 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import {
-    checkTodaysNoteExists,
-    config,
-    createTodaysNote,
-    listNotes,
-  } from '$lib';
+  import { config } from '$lib';
   import type { FormattedNote } from '$lib/types/notes';
+  import { listNotes } from '$lib/utils/folder';
 
   let notes: FormattedNote[] = $state([]);
   let isLoading = $state(true);
@@ -34,9 +30,6 @@
         isLoading = false;
         return;
       }
-
-      const exists = await checkTodaysNoteExists();
-      if (!exists) await createTodaysNote();
 
       const loadedNotes = await listNotes();
       if (loadedNotes) notes = loadedNotes;
