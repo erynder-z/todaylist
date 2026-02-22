@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
+import type { FormattedNote } from "$lib/types/notes";
 
 export const selectFolder = async () => {
 	try {
@@ -47,7 +48,7 @@ export const createTodaysNote = async () => {
 
 export const listNotes = async () => {
 	try {
-		const notes = (await invoke("list_notes")) as string[];
+		const notes = (await invoke("list_notes")) as FormattedNote[];
 		return notes;
 	} catch (error) {
 		console.error("Frontend: Error listing notes:", error);

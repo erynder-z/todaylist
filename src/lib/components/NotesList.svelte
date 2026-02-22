@@ -2,12 +2,13 @@
   import { onMount } from 'svelte';
   import {
     checkTodaysNoteExists,
-    createTodaysNote,
     config,
+    createTodaysNote,
     listNotes,
   } from '$lib';
+  import type { FormattedNote } from '$lib/types/notes';
 
-  let notes: string[] = $state([]);
+  let notes: FormattedNote[] = $state([]);
   let isLoading = $state(true);
   let error = $state<string | null>(null);
 
@@ -46,22 +47,6 @@
       isLoading = false;
     }
   };
-
-  const formatNoteName = (noteName: string) => {
-    const withoutExt = noteName.replace('.md', '');
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(withoutExt)) {
-      const date = new Date(withoutExt);
-      return date.toLocaleDateString(undefined, {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    }
-
-    return withoutExt;
-  };
 </script>
 
 <div class="notes-section">
@@ -72,9 +57,9 @@
   {:else if $config.notes_folder && notes.length > 0}
     <h2>Your Notes</h2>
     <div class="notes-list">
-      {#each notes as note (note)}
+      {#each notes as note (note.filename)}
         <div class="note-item">
-          <span class="note-name">{formatNoteName(note)}</span>
+          <span class="note-name">{note.formatted_name}</span>
         </div>
       {/each}
     </div>
