@@ -6,30 +6,58 @@
     selectFolder,
   } from '$lib';
 
-  const handleSelectFolder = async () => {
-    const selectedPath = await selectFolder();
+  let selectedFolderPath: string | null = $state(null);
 
-    if (selectedPath) {
+  let isUseFolderButtonEnabled = $derived(
+    selectedFolderPath !== null && selectedFolderPath !== $config.notes_folder,
+  );
+
+  const handleSelectFolder = async () => {
+    const path = await selectFolder();
+
+    if (path) {
+      selectedFolderPath = path;
+    }
+  };
+
+  const handleUseFolder = async () => {
+    if (selectedFolderPath) {
       const currentConfig = $config;
-      await config.save({ ...currentConfig, notes_folder: selectedPath });
+      await config.save({ ...currentConfig, notes_folder: selectedFolderPath });
 
       const exists = await checkTodaysNoteExists();
       if (!exists) await createTodaysNote();
+
+      selectedFolderPath = null;
     }
   };
 </script>
 
 <div class="folder-section">
-  <button onclick={handleSelectFolder} class="folder-button">
-    {#if $config.notes_folder}
-      Change Folder
-    {:else}
-      Select Folder
-    {/if}
-  </button>
+  <div class="button-container">
+    <button onclick={handleSelectFolder} class="folder-button">
+      {#if $config.notes_folder}
+        Change Folder
+      {:else}
+        Select Folder
+      {/if}
+    </button>
 
-  {#if $config.notes_folder}
-    <p class="folder-path">Selected folder: {$config.notes_folder}</p>
+    <button
+      onclick={handleUseFolder}
+      class="folder-button use-folder-button"
+      disabled={!isUseFolderButtonEnabled}
+    >
+      Use This Folder
+    </button>
+  </div>
+
+  {#if selectedFolderPath && selectedFolderPath !== $config.notes_folder}
+    <p class="folder-path">Selected (pending): {selectedFolderPath}</p>
+  {:else if $config.notes_folder}
+    <p class="folder-path">Current folder: {$config.notes_folder}</p>
+  {:else}
+    <p class="folder-path">No folder selected</p>
   {/if}
 </div>
 
@@ -57,12 +85,18 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .folder-button:hover {
+  .folder-button:hover:not(:disabled) {
     background-color: #535bf2;
   }
 
-  .folder-button:active {
+  .folder-button:active:not(:disabled) {
     transform: scale(0.98);
+  }
+
+  .folder-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
   }
 
   .folder-path {
@@ -75,18 +109,34 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
   }
 
+  .use-folder-button {
+    background-color: #28a745; /* Green color for action */
+  }
+
+  .use-folder-button:hover:not(:disabled) {
+    background-color: #218838;
+  }
+
   @media (prefers-color-scheme: dark) {
     .folder-button {
       background-color: #747bff;
     }
 
-    .folder-button:hover {
+    .folder-button:hover:not(:disabled) {
       background-color: #646cff;
     }
 
     .folder-path {
       background-color: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .use-folder-button {
+      background-color: #2ed14d;
+    }
+
+    .use-folder-button:hover:not(:disabled) {
+      background-color: #28a745;
     }
   }
 </style>
