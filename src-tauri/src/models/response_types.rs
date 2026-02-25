@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfigResponse {
     pub notes_folder: String,
+    pub locale: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

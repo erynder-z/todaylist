@@ -10,7 +10,7 @@ export const initializeApp = async () => {
 		} = await invoke("initialize_app");
 
 		if (initialState.notes_folder) {
-			settings.set({ notes_folder: initialState.notes_folder });
+			settings.set({ notes_folder: initialState.notes_folder, locale: "en" });
 		}
 
 		appState.update((state) => ({

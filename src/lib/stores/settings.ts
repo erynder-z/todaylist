@@ -4,7 +4,7 @@ import type { AppSettings } from "$lib/types/settings";
 import { appState } from "./appState";
 
 const createSettingsStore = () => {
-	const { subscribe, set } = writable<AppSettings>({ notes_folder: "" });
+	const { subscribe, set } = writable<AppSettings>({ notes_folder: "", locale: "en" });
 
 	return {
 		subscribe,
@@ -17,13 +17,18 @@ const createSettingsStore = () => {
 				return settings;
 			} catch (error) {
 				console.error("Error loading settings:", error);
-				return { notes_folder: "" };
+				return { notes_folder: "", locale: "en" };
 			}
 		},
 
 		async save(settings: AppSettings) {
 			try {
-				await invoke("set_notes_folder", { path: settings.notes_folder });
+				if (settings.notes_folder) {
+					await invoke("set_notes_folder", { path: settings.notes_folder });
+				}
+				if (settings.locale) {
+					await invoke("set_locale", { locale: settings.locale });
+				}
 				set(settings);
 				return true;
 			} catch (error) {
@@ -41,7 +46,7 @@ const createSettingsStore = () => {
 				} = await invoke("switch_notes_folder", { path });
 
 				if (newState.notes_folder) {
-					set({ notes_folder: newState.notes_folder });
+					set({ notes_folder: newState.notes_folder, locale: "en" });
 				}
 
 				appState.update((state) => ({
