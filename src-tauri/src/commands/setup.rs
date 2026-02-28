@@ -18,6 +18,8 @@ pub fn get_initial_state(config: AppConfig) -> InitialAppState {
             None
         };
 
+    let translations = get_translations(config.locale.clone());
+
     let mut state = InitialAppState {
         notes_folder,
         locale: config.locale.clone(),
@@ -35,7 +37,7 @@ pub fn get_initial_state(config: AppConfig) -> InitialAppState {
                 name: "日本語".into(),
             },
         ],
-        translations: get_translations(config.locale),
+        translations,
         today_note_path: None,
         today_note_content: None,
     };
@@ -48,7 +50,12 @@ pub fn get_initial_state(config: AppConfig) -> InitialAppState {
         state.today_note_path = Some(path_str.clone());
 
         if !file_path.exists() {
-            let note_content = format!("# Note: {}", current_date);
+            let note_header = state
+                .translations
+                .get("note.header")
+                .map(|s| s.as_str())
+                .unwrap_or("Note");
+            let note_content = format!("# {}: {}", note_header, current_date);
             let _ = fs::write(&file_path, note_content);
         }
 

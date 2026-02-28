@@ -3,6 +3,7 @@
 	"navigation.home": "Startseite",
 	"navigation.search": "Notizen suchen",
 	"navigation.settings": "Einstellungen",
+	"search.title": "Suchen",
 	"settings.title": "Einstellungen",
 	"settings.folder.title": "Notizen Ordner",
 	"settings.folder.select": "Ordner auswahlen",
@@ -17,8 +18,8 @@
 	"folder.select": "Ordner auswählen",
 	"notes.empty": "Keine Notizen gefunden",
 	"notes.list.title": "Deine Notizen",
-	"notes.search.title": "Suchen",
 	"notes.loading": "Notizen werden geladen...",
 	"notes.error.load": "Notizen konnten nicht geladen werden",
-	"notes.list.empty": "Keine Notizen gefunden. Erstelle deine erste Notiz!"
+	"notes.list.empty": "Keine Notizen gefunden",
+	"note.header": "Notiz"
 }

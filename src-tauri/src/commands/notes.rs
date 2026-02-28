@@ -1,6 +1,6 @@
 use crate::models::config::AppConfig;
-use crate::models::response_types::{FormattedNote, SearchResult}; // Removed InitialAppState
-use chrono::NaiveDate;
+use crate::models::response_types::{FormattedNote, SearchResult};
+use chrono::{Locale, NaiveDate};
 use std::fs;
 use std::path::PathBuf;
 
@@ -57,8 +57,15 @@ pub async fn create_todays_note(path: String) -> Result<(), String> {
         return Ok(()); // return early if file already exists
     }
 
+    let config = AppConfig::load();
+    let translations = crate::commands::settings::get_translations(config.locale);
+    let note_header = translations
+        .get("note.header")
+        .map(|s| s.as_str())
+        .unwrap_or("Note");
+
     let current_date = crate::utils::date::get_current_date();
-    let note_content = format!("# Note: {}", current_date);
+    let note_content = format!("# {}: {}", note_header, current_date);
     create_note(&file_path, &note_content)?;
 
     Ok(())
@@ -70,11 +77,22 @@ pub async fn read_note_content(path: String) -> Result<String, String> {
         .map_err(|e| format!("Failed to read note content from {}: {}", path, e))
 }
 
-fn format_note_name(note_name: &str) -> String {
+fn format_note_name(note_name: &str, locale_str: &str) -> String {
     let without_ext = note_name.replace(".md", "");
 
     if let Ok(date) = NaiveDate::parse_from_str(&without_ext, "%Y-%m-%d") {
-        format!("{}", date.format("%A, %B %e, %Y"))
+        let locale = match locale_str {
+            "de" => Locale::de_DE,
+            "jp" => Locale::ja_JP,
+            _ => Locale::en_US,
+        };
+
+        // Format based on locale preference
+        match locale_str {
+            "de" => format!("{}", date.format_localized("%A, %e. %B %Y", locale)),
+            "jp" => format!("{}", date.format_localized("%Y年%m月%d日 (%A)", locale)),
+            _ => format!("{}", date.format_localized("%A, %B %e, %Y", locale)),
+        }
     } else {
         without_ext
     }
@@ -94,7 +112,7 @@ pub async fn list_notes() -> Result<Vec<FormattedNote>, String> {
             if file_name.ends_with(".md") && !file_name.starts_with(".") {
                 Some(FormattedNote {
                     filename: file_name.clone(),
-                    formatted_name: format_note_name(&file_name),
+                    formatted_name: format_note_name(&file_name, &config.locale),
                 })
             } else {
                 None

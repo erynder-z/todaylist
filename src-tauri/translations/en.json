@@ -3,6 +3,7 @@
 	"navigation.home": "Home",
 	"navigation.search": "Search Notes",
 	"navigation.settings": "Settings",
+	"search.title": "Search",
 	"settings.title": "Settings",
 	"settings.folder.title": "Notes Folder",
 	"settings.folder.select": "Select Folder",
@@ -17,8 +18,8 @@
 	"folder.select": "Select Folder",
 	"notes.empty": "No notes found",
 	"notes.list.title": "Your Notes",
-	"notes.search.title": "Search",
 	"notes.loading": "Loading notes...",
 	"notes.error.load": "Failed to load notes",
-	"notes.list.empty": "No notes found. Create your first note!"
+	"notes.list.empty": "No notes found",
+	"note.header": "Note"
 }
