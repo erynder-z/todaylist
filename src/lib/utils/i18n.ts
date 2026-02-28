@@ -1,9 +1,16 @@
 import { invoke } from "@tauri-apps/api/core";
 import { derived, writable } from "svelte/store";
 
+export type LocaleInfo = {
+	id: string;
+	name: string;
+};
+
 export const translations = writable<Record<string, string>>({});
 
 export const locale = writable<string>("en");
+
+export const availableLocales = writable<LocaleInfo[]>([]);
 
 export async function updateTranslations(newLocale: string) {
 	try {

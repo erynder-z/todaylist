@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { settings, t } from '$lib';
+  import { availableLocales, settings, t } from '$lib';
 
   const handleLocaleChange = async (e: Event) => {
     const target = e.target as HTMLSelectElement;
@@ -16,9 +16,9 @@
     value={$settings.locale}
     onchange={handleLocaleChange}
   >
-    <option value="en">English</option>
-    <option value="de">Deutsch</option>
-    <option value="jp">日本語</option>
+    {#each $availableLocales as locale}
+      <option value={locale.id}>{locale.name}</option>
+    {/each}
   </select>
 </div>
 

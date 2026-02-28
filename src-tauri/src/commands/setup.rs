@@ -1,6 +1,6 @@
 use crate::commands::settings::get_translations;
 use crate::models::config::AppConfig;
-use crate::models::response_types::InitialAppState;
+use crate::models::response_types::{InitialAppState, LocaleInfo};
 use std::fs;
 use std::path::PathBuf;
 
@@ -21,6 +21,20 @@ pub fn get_initial_state(config: AppConfig) -> InitialAppState {
     let mut state = InitialAppState {
         notes_folder,
         locale: config.locale.clone(),
+        available_locales: vec![
+            LocaleInfo {
+                id: "en".into(),
+                name: "English".into(),
+            },
+            LocaleInfo {
+                id: "de".into(),
+                name: "Deutsch".into(),
+            },
+            LocaleInfo {
+                id: "jp".into(),
+                name: "日本語".into(),
+            },
+        ],
         translations: get_translations(config.locale),
         today_note_path: None,
         today_note_content: None,

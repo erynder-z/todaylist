@@ -1,7 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 import { writable } from "svelte/store";
 import type { AppSettings } from "$lib/types/settings";
-import { translations, updateTranslations } from "../utils/i18n";
+import {
+	availableLocales,
+	type LocaleInfo,
+	locale,
+	translations,
+	updateTranslations,
+} from "../utils/i18n";
 import { appState } from "./appState";
 
 const createSettingsStore = () => {
@@ -48,6 +54,7 @@ const createSettingsStore = () => {
 				const newState: {
 					notes_folder: string | null;
 					locale: string;
+					available_locales: LocaleInfo[];
 					translations: Record<string, string>;
 					today_note_path: string | null;
 					today_note_content: string | null;
@@ -55,6 +62,8 @@ const createSettingsStore = () => {
 
 				if (newState.notes_folder) {
 					translations.set(newState.translations);
+					availableLocales.set(newState.available_locales);
+					locale.set(newState.locale);
 					set({ notes_folder: newState.notes_folder, locale: newState.locale });
 				}
 

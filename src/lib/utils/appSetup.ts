@@ -1,11 +1,19 @@
 import { invoke } from "@tauri-apps/api/core";
-import { appState, locale, settings, translations } from "$lib";
+import {
+	appState,
+	availableLocales,
+	locale,
+	settings,
+	translations,
+} from "$lib";
+import type { LocaleInfo } from "./i18n";
 
 export const initializeApp = async () => {
 	try {
 		const initialState: {
 			notes_folder: string | null;
 			locale: string;
+			available_locales: LocaleInfo[];
 			translations: Record<string, string>;
 			today_note_path: string | null;
 			today_note_content: string | null;
@@ -14,6 +22,7 @@ export const initializeApp = async () => {
 		if (initialState.notes_folder) {
 			translations.set(initialState.translations);
 			locale.set(initialState.locale);
+			availableLocales.set(initialState.available_locales);
 			settings.set({
 				notes_folder: initialState.notes_folder,
 				locale: initialState.locale,

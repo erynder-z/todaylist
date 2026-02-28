@@ -24,7 +24,14 @@ use std::collections::HashMap;
 pub struct InitialAppState {
     pub notes_folder: Option<String>,
     pub locale: String,
+    pub available_locales: Vec<LocaleInfo>,
     pub translations: HashMap<String, String>,
     pub today_note_path: Option<String>,
     pub today_note_content: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LocaleInfo {
+    pub id: String,
+    pub name: String,
 }
