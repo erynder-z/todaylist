@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfigResponse {
@@ -18,8 +19,6 @@ pub struct SearchResult {
     pub excerpt: String,
 }
 
-use std::collections::HashMap;
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InitialAppState {
     pub notes_folder: Option<String>,
@@ -28,6 +27,15 @@ pub struct InitialAppState {
     pub translations: HashMap<String, String>,
     pub today_note_path: Option<String>,
     pub today_note_content: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FolderValidation {
+    pub is_valid: bool,
+    pub is_writable: bool,
+    pub exists: bool,
+    pub note_count: usize,
+    pub error: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -8,6 +8,7 @@ use commands::notes::{
 };
 use commands::settings::{
     get_config, get_translations, set_locale, set_notes_folder, switch_notes_folder,
+    validate_folder,
 };
 use commands::setup::initialize_app;
 
@@ -28,7 +29,8 @@ pub fn run() {
             list_notes,
             set_locale,
             set_notes_folder,
-            switch_notes_folder
+            switch_notes_folder,
+            validate_folder
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
