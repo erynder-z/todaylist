@@ -17,7 +17,7 @@ use commands::theme::{get_theme_colors, set_theme};
 use models::config::AppConfig;
 use services::note_manager::NoteManager;
 use std::sync::Mutex;
-use tauri::Manager;
+use utils::window::show_window;
 
 pub struct AppState {
     pub note_manager: Mutex<NoteManager>,
@@ -33,7 +33,14 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init());
 
     if config.remember_window_size {
-        builder = builder.plugin(tauri_plugin_window_state::Builder::default().build());
+        builder = builder.plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(
+                    tauri_plugin_window_state::StateFlags::all()
+                        & !tauri_plugin_window_state::StateFlags::VISIBLE,
+                )
+                .build(),
+        );
     }
 
     builder
@@ -46,6 +53,7 @@ pub fn run() {
             get_today_note_path,
             read_note_content,
             initialize_app,
+            show_window,
             search_notes,
             get_config,
             get_translations,
@@ -62,9 +70,8 @@ pub fn run() {
             let config = AppConfig::load();
             if !config.remember_window_size {
                 let _ = utils::window::setup_main_window(app.handle());
-            } else if let Some(window) = app.get_webview_window("main") {
-                let _ = window.show();
             }
+
             Ok(())
         })
         .run(tauri::generate_context!())

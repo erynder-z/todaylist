@@ -33,9 +33,6 @@
     font-weight: 600;
     background-color: var(--bg-base);
     color: var(--text-main);
-    transition:
-      background-color 0.3s,
-      color 0.3s;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
@@ -47,5 +44,8 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
   }
 </style>

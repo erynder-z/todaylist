@@ -46,6 +46,10 @@ export const initializeApp = async () => {
 				todayNoteContent: initialState.today_note_content,
 			}));
 		}
+
+		setTimeout(async () => {
+			await invoke("show_window");
+		}, 100);
 	} catch (error) {
 		console.error("Failed to initialize app:", error);
 	}

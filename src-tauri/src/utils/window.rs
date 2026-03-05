@@ -1,5 +1,13 @@
 use tauri::{AppHandle, Manager, PhysicalSize};
 
+#[tauri::command]
+pub async fn show_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    if let Some(window) = app_handle.get_webview_window("main") {
+        window.show().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 /// Configures the initial size and centers the main window.
 /// This is only called when "Remember Window Size" is disabled.
 pub fn setup_main_window(app_handle: &AppHandle) -> Result<(), String> {
@@ -28,10 +36,6 @@ pub fn setup_main_window(app_handle: &AppHandle) -> Result<(), String> {
         window
             .center()
             .map_err(|e| format!("Failed to center window: {}", e))?;
-
-        window
-            .show()
-            .map_err(|e| format!("Failed to show window: {}", e))?;
     }
 
     Ok(())
