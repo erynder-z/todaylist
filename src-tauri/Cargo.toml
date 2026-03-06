@@ -27,4 +27,5 @@ dirs = "6"
 include_dir = "0"
 chrono = { version = "0", features = ["serde", "unstable-locales"] }
 tauri-plugin-window-state = "2"
+pulldown-cmark = "0"
 
