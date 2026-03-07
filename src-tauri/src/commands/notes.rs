@@ -1,7 +1,18 @@
+use crate::models::app_state::AppState;
 use crate::models::response_types::{FormattedNote, SearchResult};
-use crate::AppState;
+use std::fs;
 use std::path::PathBuf;
 use tauri::State;
+
+#[tauri::command]
+pub async fn save_note_content(
+    path: String,
+    content: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let _note_manager = state.note_manager.lock().unwrap();
+    fs::write(PathBuf::from(path), content).map_err(|e| format!("Failed to save note: {}", e))
+}
 
 #[tauri::command]
 pub async fn search_notes(_query: String) -> Result<Vec<SearchResult>, String> {

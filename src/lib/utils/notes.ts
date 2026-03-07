@@ -9,3 +9,13 @@ export const readNoteContent = async (path: string) => {
 		return null;
 	}
 };
+
+export const saveNoteContent = async (path: string, content: string) => {
+	try {
+		await invoke("save_note_content", { path, content });
+		return true;
+	} catch (error) {
+		console.error(`Error saving note content to ${path}:`, error);
+		return false;
+	}
+};
