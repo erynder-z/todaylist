@@ -1,5 +1,5 @@
+use crate::models::app_state::AppState;
 use crate::models::config::AppConfig;
-use crate::AppState;
 use include_dir::{include_dir, Dir};
 use std::collections::HashMap;
 use tauri::State;

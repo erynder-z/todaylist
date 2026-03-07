@@ -1,8 +1,8 @@
 use crate::commands::i18n::{get_available_locales, get_translations};
 use crate::commands::theme::{get_available_themes, get_theme_colors};
+use crate::models::app_state::AppState;
 use crate::models::config::AppConfig;
 use crate::models::response_types::{InitialAppState, LocaleInfo, ThemeInfo};
-use crate::AppState;
 use tauri::State;
 
 #[tauri::command]

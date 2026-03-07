@@ -1,7 +1,7 @@
 use crate::commands::setup;
+use crate::models::app_state::AppState;
 use crate::models::config::AppConfig;
 use crate::models::response_types::{ConfigResponse, InitialAppState};
-use crate::AppState;
 use std::path::PathBuf;
 use tauri::State;
 
