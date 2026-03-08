@@ -8,10 +8,53 @@ use tauri::State;
 pub async fn save_note_content(
     path: String,
     content: String,
+    _state: State<'_, AppState>,
+) -> Result<(), String> {
+    fs::write(PathBuf::from(path), content).map_err(|e| format!("Failed to save note: {}", e))
+}
+
+#[tauri::command]
+pub async fn update_note_line(
+    index: usize,
+    content: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    let _note_manager = state.note_manager.lock().unwrap();
-    fs::write(PathBuf::from(path), content).map_err(|e| format!("Failed to save note: {}", e))
+    let mut session = state.note_session.lock().unwrap();
+    session.update_line(index, content);
+
+    if let Some(path) = &session.path {
+        let full_content = session.get_full_content();
+        fs::write(path, full_content).map_err(|e| format!("Failed to save note: {}", e))?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn insert_note_line(
+    index: usize,
+    content: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let mut session = state.note_session.lock().unwrap();
+    session.insert_line(index, content);
+
+    if let Some(path) = &session.path {
+        let full_content = session.get_full_content();
+        fs::write(path, full_content).map_err(|e| format!("Failed to save note: {}", e))?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn delete_note_line(index: usize, state: State<'_, AppState>) -> Result<(), String> {
+    let mut session = state.note_session.lock().unwrap();
+    session.delete_line(index);
+
+    if let Some(path) = &session.path {
+        let full_content = session.get_full_content();
+        fs::write(path, full_content).map_err(|e| format!("Failed to save note: {}", e))?;
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -50,15 +93,28 @@ pub async fn create_todays_note(path: String, state: State<'_, AppState>) -> Res
         .map(|s| s.as_str())
         .unwrap_or("Note");
 
-    note_manager.create_todays_note(note_header)?;
+    let created_path = note_manager.create_todays_note(note_header)?;
+
+    // Load into session so auto-save works immediately
+    if let Ok(content) = note_manager.read_note_content(&created_path) {
+        let mut session = state.note_session.lock().unwrap();
+        session.load(created_path, content);
+    }
 
     Ok(())
 }
 
 #[tauri::command]
 pub async fn read_note_content(path: String, state: State<'_, AppState>) -> Result<String, String> {
-    let note_manager = state.note_manager.lock().unwrap();
-    note_manager.read_note_content(&PathBuf::from(path))
+    let content = {
+        let note_manager = state.note_manager.lock().unwrap();
+        note_manager.read_note_content(&PathBuf::from(&path))?
+    };
+
+    let mut session = state.note_session.lock().unwrap();
+    session.load(PathBuf::from(path), content.clone());
+
+    Ok(content)
 }
 
 #[tauri::command]

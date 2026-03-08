@@ -7,8 +7,9 @@ use commands::folder::validate_folder;
 use commands::i18n::get_translations;
 use commands::markdown::render_markdown;
 use commands::notes::{
-    check_todays_note_exists, create_todays_note, get_today_note_path, list_notes,
-    read_note_content, save_note_content, search_notes,
+    check_todays_note_exists, create_todays_note, delete_note_line, get_today_note_path,
+    insert_note_line, list_notes, read_note_content, save_note_content, search_notes,
+    update_note_line,
 };
 use commands::settings::{
     get_config, set_locale, set_notes_folder, set_remember_window_size, switch_notes_folder,
@@ -17,6 +18,7 @@ use commands::setup::initialize_app;
 use commands::theme::{get_theme_colors, set_theme};
 use models::app_state::AppState;
 use models::config::AppConfig;
+use models::note_session::NoteSession;
 use services::note_manager::NoteManager;
 use std::sync::Mutex;
 use utils::window::show_window;
@@ -44,6 +46,7 @@ pub fn run() {
     builder
         .manage(AppState {
             note_manager: Mutex::new(note_manager),
+            note_session: Mutex::new(NoteSession::new()),
         })
         .invoke_handler(tauri::generate_handler![
             check_todays_note_exists,
@@ -52,6 +55,9 @@ pub fn run() {
             read_note_content,
             render_markdown,
             save_note_content,
+            update_note_line,
+            insert_note_line,
+            delete_note_line,
             initialize_app,
             show_window,
             search_notes,

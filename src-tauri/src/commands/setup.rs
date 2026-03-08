@@ -60,7 +60,10 @@ pub fn get_initial_state(config: AppConfig, state: State<'_, AppState>) -> Initi
 
         if let Ok(created_path) = note_manager.create_todays_note(note_header) {
             if let Ok(content) = note_manager.read_note_content(&created_path) {
-                response.today_note_content = Some(content);
+                response.today_note_content = Some(content.clone());
+
+                let mut session = state.note_session.lock().unwrap();
+                session.load(created_path, content);
             }
         }
     }

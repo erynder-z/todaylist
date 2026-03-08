@@ -1,8 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { MarkdownRenderCache } from "./renderCache";
 
-const renderCacheSize = 500;
-const renderCache = new MarkdownRenderCache<string, string>(renderCacheSize);
+const renderCache = new MarkdownRenderCache<string, string>(500);
 
 export const readNoteContent = async (path: string) => {
 	try {
@@ -17,7 +16,7 @@ export const readNoteContent = async (path: string) => {
 export const renderMarkdown = async (markdown: string) => {
 	if (!markdown || !markdown.trim()) return "&nbsp;";
 
-	// Return from cache if string is cached
+	// Return from cache if string is in cache
 	const cached = renderCache.get(markdown);
 	if (cached !== undefined) return cached;
 
@@ -39,6 +38,36 @@ export const saveNoteContent = async (path: string, content: string) => {
 		return true;
 	} catch (error) {
 		console.error(`Error saving note content to ${path}:`, error);
+		return false;
+	}
+};
+
+export const updateNoteLine = async (index: number, content: string) => {
+	try {
+		await invoke("update_note_line", { index, content });
+		return true;
+	} catch (error) {
+		console.error("Error updating note line:", error);
+		return false;
+	}
+};
+
+export const insertNoteLine = async (index: number, content: string) => {
+	try {
+		await invoke("insert_note_line", { index, content });
+		return true;
+	} catch (error) {
+		console.error("Error inserting note line:", error);
+		return false;
+	}
+};
+
+export const deleteNoteLine = async (index: number) => {
+	try {
+		await invoke("delete_note_line", { index });
+		return true;
+	} catch (error) {
+		console.error("Error deleting note line:", error);
 		return false;
 	}
 };

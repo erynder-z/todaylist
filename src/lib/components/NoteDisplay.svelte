@@ -2,82 +2,119 @@
   import { untrack } from 'svelte';
   import { NoteLine } from '$lib';
   import type { NoteLineData } from '$lib/types/notes';
-  import { saveNoteContent } from '$lib/utils/notes';
+  import {
+    deleteNoteLine,
+    insertNoteLine,
+    updateNoteLine,
+  } from '$lib/utils/notes';
 
   let { noteContent, notePath } = $props<{
     noteContent: string;
     notePath: string | null;
   }>();
 
-  // Initial state
   let lines = $state<NoteLineData[]>([]);
   let activeIndex = $state<number | null>(null);
   let lastLoadedPath = $state<string | null>(null);
+  let changedLineIndex = $state<number | null>(null);
 
-  // Derived markdown for comparison and saving
-  const currentMarkdown = $derived(lines.map((l) => l.markdown).join('\n'));
+  const flush = async (index: number) => {
+    if (lines[index]) {
+      const content = lines[index].markdown;
+      if (changedLineIndex === index) changedLineIndex = null;
+      await updateNoteLine(index, content);
+    }
+  };
 
   const syncProps = () => {
-    const isNewPath = notePath !== lastLoadedPath;
-    const isExternalUpdate = noteContent !== untrack(() => currentMarkdown);
-
-    if (isNewPath || isExternalUpdate) {
+    if (notePath !== lastLoadedPath) {
       lines = (noteContent || '')
         .split('\n')
         .map((m: string) => ({ markdown: m, html: '' }));
       lastLoadedPath = notePath;
-      if (isNewPath) activeIndex = null;
+      activeIndex = null;
+      changedLineIndex = null;
     }
   };
 
-  const debounceSave = () => {
-    if (!notePath || lines.length === 0) return;
+  const autoFlushOnLineSwitch = () => {
+    const current = activeIndex;
+    untrack(() => {
+      if (changedLineIndex !== null && changedLineIndex !== current) {
+        flush(changedLineIndex);
+      }
+    });
+  };
 
-    const contentToSave = currentMarkdown;
+  const debouncedAutoSave = () => {
+    if (changedLineIndex === null || !lines[changedLineIndex]) return;
+
+    const index = changedLineIndex;
+    // Access markdown here so Svelte tracks it and resets the timer on every keystroke
+    const _content = lines[index].markdown;
+
     const timeout = setTimeout(() => {
-      untrack(() => saveNoteContent(notePath, contentToSave));
+      untrack(() => {
+        if (changedLineIndex === index) flush(index);
+      });
     }, 500);
 
     return () => clearTimeout(timeout);
   };
 
-  const insertLine = (e: KeyboardEvent, i: number) => {
-    e.preventDefault();
+  const insertLine = async (i: number) => {
     lines.splice(i + 1, 0, { markdown: '', html: '' });
     activeIndex = i + 1;
+    await insertNoteLine(i + 1, '');
   };
 
-  const deleteLine = (e: KeyboardEvent, i: number) => {
-    if (lines[i].markdown === '' && lines.length > 1) {
-      e.preventDefault();
-      lines.splice(i, 1);
-      activeIndex = Math.max(0, i - 1);
+  const deleteLine = async (i: number) => {
+    lines.splice(i, 1);
+    activeIndex = Math.max(0, i - 1);
+    await deleteNoteLine(i);
+  };
+
+  const navigateLines = (i: number, direction: 'up' | 'down') => {
+    activeIndex = direction === 'up' ? i - 1 : i + 1;
+  };
+
+  const handleKeyDown = async (e: KeyboardEvent, i: number) => {
+    switch (e.key) {
+      case 'Enter':
+        e.preventDefault();
+        await insertLine(i);
+        break;
+      case 'Backspace':
+        if (lines[i].markdown === '' && lines.length > 1) {
+          e.preventDefault();
+          await deleteLine(i);
+        }
+        break;
+      case 'ArrowUp':
+        if (i > 0) {
+          e.preventDefault();
+          navigateLines(i, 'up');
+        }
+        break;
+      case 'ArrowDown':
+        if (i < lines.length - 1) {
+          e.preventDefault();
+          navigateLines(i, 'down');
+        }
+        break;
     }
   };
 
-  const navigateLines = (e: KeyboardEvent, i: number) => {
-    const direction = e.key === 'ArrowUp' ? -1 : 1;
-    const newIndex = i + direction;
-
-    if (newIndex >= 0 && newIndex < lines.length) {
-      e.preventDefault();
-      activeIndex = newIndex;
-    }
-  };
-
-  const handleKeyDown = (e: KeyboardEvent, i: number) => {
-    if (e.key === 'Enter') {
-      insertLine(e, i);
-    } else if (e.key === 'Backspace') {
-      deleteLine(e, i);
-    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      navigateLines(e, i);
+  const handleLineChange = (i: number, markdown: string) => {
+    if (lines[i]) {
+      lines[i].markdown = markdown;
+      changedLineIndex = i;
     }
   };
 
   $effect.pre(() => syncProps());
-
-  $effect(() => debounceSave());
+  $effect(() => autoFlushOnLineSwitch());
+  $effect(() => debouncedAutoSave());
 </script>
 
 <div class="note-container">
@@ -90,7 +127,7 @@
         const target = e.relatedTarget as HTMLElement;
         if (!target?.closest('.note-container')) activeIndex = null;
       }}
-      onChange={(_, html) => (line.html = html)}
+      onChange={(markdown) => handleLineChange(i, markdown)}
       onKeyDown={(e) => handleKeyDown(e, i)}
     />
   {/each}
