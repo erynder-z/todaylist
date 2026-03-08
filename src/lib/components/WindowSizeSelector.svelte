@@ -4,7 +4,7 @@
   const handleToggle = async (e: Event) => {
     const target = e.target as HTMLInputElement;
     const remember = target.checked;
-    await settings.save({ ...$settings, remember_window_size: remember });
+    await settings.save({ ...settings, remember_window_size: remember });
   };
 </script>
 
@@ -13,7 +13,7 @@
     <input
       type="checkbox"
       id="remember-window-size"
-      checked={$settings.remember_window_size}
+      checked={settings.remember_window_size}
       onchange={handleToggle}
     />
     <label for="remember-window-size"

@@ -3,10 +3,7 @@
   import type { PopupType } from '$lib/types/ui';
 
   const togglePopup = (type: PopupType) => {
-    appState.update((state) => ({
-      ...state,
-      activePopup: state.activePopup === type ? null : type,
-    }));
+    appState.activePopup = appState.activePopup === type ? null : type;
   };
 </script>
 

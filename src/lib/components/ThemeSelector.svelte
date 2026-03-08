@@ -5,7 +5,7 @@
   const handleThemeChange = async (e: Event) => {
     const target = e.target as HTMLSelectElement;
     const newTheme = target.value;
-    await settings.save({ ...$settings, theme: newTheme });
+    await settings.save({ ...settings, theme: newTheme });
   };
 </script>
 
@@ -14,7 +14,7 @@
   <select
     id="theme-select"
     class="theme-input"
-    value={$settings.theme}
+    value={settings.theme}
     onchange={handleThemeChange}
   >
     {#each $availableThemes as theme}

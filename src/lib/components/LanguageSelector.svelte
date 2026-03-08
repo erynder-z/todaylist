@@ -4,7 +4,7 @@
   const handleLocaleChange = async (e: Event) => {
     const target = e.target as HTMLSelectElement;
     const newLocale = target.value;
-    await settings.save({ ...$settings, locale: newLocale });
+    await settings.save({ ...settings, locale: newLocale });
   };
 </script>
 
@@ -13,7 +13,7 @@
   <select
     id="locale-select"
     class="theme-input"
-    value={$settings.locale}
+    value={settings.locale}
     onchange={handleLocaleChange}
   >
     {#each $availableLocales as locale}

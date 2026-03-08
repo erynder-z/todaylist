@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { appState, settings, t } from '$lib';
   import type { FormattedNote } from '$lib/types/notes';
   import { listNotes } from '$lib/utils/folder';
@@ -8,11 +7,10 @@
   let notes: FormattedNote[] = $state([]);
   let isLoading = $state(true);
 
-  onMount(() => {
-    const unsubscribe = settings.subscribe(($settings) => {
-      if ($settings.notes_folder) loadNotes();
-    });
-    return unsubscribe;
+  $effect(() => {
+    if (settings.notes_folder) {
+      loadNotes();
+    }
   });
 
   const loadNotes = async () => {
@@ -23,16 +21,13 @@
   };
 
   const selectNote = async (note: FormattedNote) => {
-    if (!$settings.notes_folder) return;
-    const path = `${$settings.notes_folder}/${note.filename}`;
+    if (!settings.notes_folder) return;
+    const path = `${settings.notes_folder}/${note.filename}`;
     const content = await readNoteContent(path);
     if (content !== null) {
-      appState.update((state) => ({
-        ...state,
-        todayNotePath: path,
-        todayNoteContent: content,
-        activePopup: null,
-      }));
+      appState.todayNotePath = path;
+      appState.todayNoteContent = content;
+      appState.activePopup = null;
     }
   };
 </script>
@@ -54,7 +49,7 @@
         </div>
       {/each}
     </div>
-    ...
+  {:else}
     <div class="status-msg">{$t('notes.list.empty')}</div>
   {/if}
 </div>

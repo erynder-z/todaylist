@@ -12,7 +12,7 @@
       validationResult !== null &&
       validationResult.is_valid &&
       validationResult.is_writable &&
-      selectedFolderPath !== $settings.notes_folder,
+      selectedFolderPath !== settings.notes_folder,
   );
 
   const handleSelectFolder = async () => {
@@ -88,10 +88,10 @@
           {/if}
         </p>
       {/if}
-    {:else if $settings.notes_folder}
+    {:else if settings.notes_folder}
       <p class="folder-path">
         <strong>{$t('settings.folder.current')}</strong>
-        <span class="path-text">{$settings.notes_folder}</span>
+        <span class="path-text">{settings.notes_folder}</span>
       </p>
     {:else}
       <p class="folder-path">{$t('settings.folder.no_folder')}</p>

@@ -32,19 +32,13 @@ export const initializeApp = async () => {
 		currentTheme.set(initialState.theme);
 		applyThemeColors(initialState.theme_colors);
 
-		settings.update((s) => ({
-			...s,
-			notes_folder: initialState.notes_folder || "",
-			locale: initialState.locale,
-			theme: initialState.theme,
-		}));
+		settings.notes_folder = initialState.notes_folder || "";
+		settings.locale = initialState.locale;
+		settings.theme = initialState.theme;
 
 		if (initialState.notes_folder) {
-			appState.update((state) => ({
-				...state,
-				todayNotePath: initialState.today_note_path,
-				todayNoteContent: initialState.today_note_content,
-			}));
+			appState.todayNotePath = initialState.today_note_path;
+			appState.todayNoteContent = initialState.today_note_content;
 		}
 
 		setTimeout(async () => {
