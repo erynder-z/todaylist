@@ -1,8 +1,14 @@
 <script lang="ts">
+  /**
+   * Wrapper that handles displaying a modal popup as a child component.
+   */
   import { appState } from '$lib';
 
   let { title, children } = $props();
 
+  /**
+   * Clears the active popup state to hide the modal.
+   */
   const close = () => (appState.activePopup = null);
 </script>
 

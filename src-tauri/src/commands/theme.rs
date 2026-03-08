@@ -1,11 +1,17 @@
+//! Tauri commands for theme management and visual customization.
+
 use crate::models::app_state::AppState;
 use crate::models::config::AppConfig;
 use include_dir::{include_dir, Dir};
 use std::collections::HashMap;
 use tauri::State;
 
+/// Directory containing JSON theme definition files.
 static THEMES_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/themes");
 
+/// Returns the color mapping for a specific theme.
+///
+/// If the requested theme is not found, it defaults to the 'light' theme.
 #[tauri::command]
 pub fn get_theme_colors(theme: String) -> HashMap<String, String> {
     let filename = format!("{}.json", theme);
@@ -23,6 +29,7 @@ pub fn get_theme_colors(theme: String) -> HashMap<String, String> {
         })
 }
 
+/// Updates the current application theme.
 #[tauri::command]
 pub async fn set_theme(theme: String, state: State<'_, AppState>) -> Result<(), String> {
     let mut config = AppConfig::load();
@@ -35,6 +42,7 @@ pub async fn set_theme(theme: String, state: State<'_, AppState>) -> Result<(), 
     Ok(())
 }
 
+/// Returns a list of all available themes based on the JSON files in the themes directory.
 pub fn get_available_themes() -> Vec<(String, String)> {
     THEMES_DIR
         .files()

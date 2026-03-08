@@ -10,6 +10,10 @@ import type { ThemeInfo } from "../types/settings";
 import type { LocaleInfo } from "./i18n";
 import { applyThemeColors, availableThemes, currentTheme } from "./theme";
 
+/**
+ * Fetches the initial application state from the Tauri backend and synchronizes 
+ * all frontend stores (settings, theme, i18n, and app state).
+ */
 export const initializeApp = async () => {
 	try {
 		const initialState: {

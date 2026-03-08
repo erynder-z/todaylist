@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * Displays list of all notes found in the user's notes folder.
+   */
   import { appState, settings, t } from '$lib';
   import type { FormattedNote } from '$lib/types/notes';
   import { listNotes } from '$lib/utils/folder';
@@ -7,12 +10,9 @@
   let notes: FormattedNote[] = $state([]);
   let isLoading = $state(true);
 
-  $effect(() => {
-    if (settings.notes_folder) {
-      loadNotes();
-    }
-  });
-
+  /**
+   * Fetches the list of all available notes from the backend.
+   */
   const loadNotes = async () => {
     isLoading = true;
     const loadedNotes = await listNotes();
@@ -20,6 +20,9 @@
     isLoading = false;
   };
 
+  /**
+   * Loads the content of a specific note and sets it as active in the app.
+   */
   const selectNote = async (note: FormattedNote) => {
     if (!settings.notes_folder) return;
     const path = `${settings.notes_folder}/${note.filename}`;
@@ -30,6 +33,10 @@
       appState.activePopup = null;
     }
   };
+
+  $effect(() => {
+    if (settings.notes_folder) loadNotes();
+  });
 </script>
 
 <div class="notes-section">

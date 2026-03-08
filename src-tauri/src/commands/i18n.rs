@@ -1,8 +1,14 @@
+//! Tauri commands for internationalization (i18n).
+
 use include_dir::{include_dir, Dir};
 use std::collections::HashMap;
 
+/// Directory containing JSON translation files.
 static TRANSLATIONS_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/translations");
 
+/// Returns the translation map for a specific locale.
+///
+/// If the requested locale is not found, it defaults to English ('en').
 #[tauri::command]
 pub fn get_translations(locale: String) -> HashMap<String, String> {
     let filename = format!("{}.json", locale);
@@ -20,6 +26,7 @@ pub fn get_translations(locale: String) -> HashMap<String, String> {
         })
 }
 
+/// Returns a list of all available locales based on the JSON files in the translations directory.
 pub fn get_available_locales() -> Vec<(String, String)> {
     TRANSLATIONS_DIR
         .files()

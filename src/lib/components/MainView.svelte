@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Primary view orchestrator that decides whether to show the editor, 
+   * the welcome screen (for first-time setup), or a loading state.
+   */
   import { appState, FolderSelector, NoteDisplay, settings } from '$lib';
 </script>
 

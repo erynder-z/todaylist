@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * Provides a UI for selecting and validating a directory as the root for notes.
+   */
   import { invoke } from '@tauri-apps/api/core';
   import { settings, t } from '$lib';
   import type { FolderValidation } from '$lib/types/folder';
@@ -7,6 +10,9 @@
   let selectedFolderPath = $state<string | null>(null);
   let validationResult = $state<FolderValidation | null>(null);
 
+  /**
+   * Derived boolean indicating if the currently selected folder is valid and can be applied.
+   */
   let isUseFolderButtonEnabled = $derived(
     selectedFolderPath !== null &&
       validationResult !== null &&
@@ -15,6 +21,9 @@
       selectedFolderPath !== settings.notes_folder,
   );
 
+  /**
+   * Opens the file dialog and triggers backend validation for the selected path.
+   */
   const handleSelectFolder = async () => {
     const path = await selectFolder();
 
@@ -38,6 +47,9 @@
     }
   };
 
+  /**
+   * Finalizes the folder selection and updates the application settings.
+   */
   const handleUseFolder = async () => {
     if (selectedFolderPath && isUseFolderButtonEnabled) {
       await settings.switchNotesFolder(selectedFolderPath);

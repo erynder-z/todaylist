@@ -1,9 +1,14 @@
+//! Tauri commands for note-related operations.
+//!
+//! This module provides functions for reading, writing, and manipulating note files, as well as managing the current note editing session.
+
 use crate::models::app_state::AppState;
 use crate::models::response_types::{FormattedNote, SearchResult};
 use std::fs;
 use std::path::PathBuf;
 use tauri::State;
 
+/// Saves the complete content of a note to the specified path.
 #[tauri::command]
 pub async fn save_note_content(
     path: String,
@@ -13,6 +18,9 @@ pub async fn save_note_content(
     fs::write(PathBuf::from(path), content).map_err(|e| format!("Failed to save note: {}", e))
 }
 
+/// Updates the content of a specific line in the current note session.
+///
+/// This operation also persists the entire note to disk.
 #[tauri::command]
 pub async fn update_note_line(
     index: usize,
@@ -29,6 +37,9 @@ pub async fn update_note_line(
     Ok(())
 }
 
+/// Inserts a new line into the current note session at the specified index.
+///
+/// This operation also persists the entire note to disk.
 #[tauri::command]
 pub async fn insert_note_line(
     index: usize,
@@ -45,6 +56,9 @@ pub async fn insert_note_line(
     Ok(())
 }
 
+/// Deletes the line at the specified index from the current note session.
+///
+/// This operation also persists the entire note to disk.
 #[tauri::command]
 pub async fn delete_note_line(index: usize, state: State<'_, AppState>) -> Result<(), String> {
     let mut session = state.note_session.lock().unwrap();
@@ -57,12 +71,14 @@ pub async fn delete_note_line(index: usize, state: State<'_, AppState>) -> Resul
     Ok(())
 }
 
+/// Performs a full-text search across all notes. (Currently not implemented)
 #[tauri::command]
 pub async fn search_notes(_query: String) -> Result<Vec<SearchResult>, String> {
     // TODO: Implement note search
     Ok(vec![])
 }
 
+/// Returns the absolute path to today's daily note.
 #[tauri::command]
 pub async fn get_today_note_path(state: State<'_, AppState>) -> Result<String, String> {
     let note_manager = state.note_manager.lock().unwrap();
@@ -71,6 +87,7 @@ pub async fn get_today_note_path(state: State<'_, AppState>) -> Result<String, S
     Ok(file_path.to_string_lossy().into_owned())
 }
 
+/// Checks if today's daily note file already exists.
 #[tauri::command]
 pub async fn check_todays_note_exists(state: State<'_, AppState>) -> Result<bool, String> {
     let note_manager = state.note_manager.lock().unwrap();
@@ -78,6 +95,9 @@ pub async fn check_todays_note_exists(state: State<'_, AppState>) -> Result<bool
     Ok(file_path.exists())
 }
 
+/// Creates a new daily note for today if it doesn't already exist.
+///
+/// Automatically initializes the note with a localized header.
 #[tauri::command]
 pub async fn create_todays_note(path: String, state: State<'_, AppState>) -> Result<(), String> {
     let file_path = PathBuf::from(path);
@@ -104,6 +124,7 @@ pub async fn create_todays_note(path: String, state: State<'_, AppState>) -> Res
     Ok(())
 }
 
+/// Reads the content of a note from disk and loads it into the current editing session.
 #[tauri::command]
 pub async fn read_note_content(path: String, state: State<'_, AppState>) -> Result<String, String> {
     let content = {
@@ -117,6 +138,7 @@ pub async fn read_note_content(path: String, state: State<'_, AppState>) -> Resu
     Ok(content)
 }
 
+/// Returns a list of all notes available in the current notes folder.
 #[tauri::command]
 pub async fn list_notes(state: State<'_, AppState>) -> Result<Vec<FormattedNote>, String> {
     let note_manager = state.note_manager.lock().unwrap();

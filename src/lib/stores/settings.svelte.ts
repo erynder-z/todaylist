@@ -15,12 +15,22 @@ import {
 } from "../utils/theme";
 import { appState } from "./appState.svelte";
 
+/**
+ * Manages application-wide user settings and persists them to the backend.
+ */
 export class SettingsStore {
+	/** Path to the folder where notes are stored. */
 	notes_folder = $state("");
+	/** Active application language/locale. */
 	locale = $state("en");
+	/** Currently active UI theme. */
 	theme = $state("light");
+	/** Whether to persist and restore the window size across launches. */
 	remember_window_size = $state(true);
 
+	/**
+	 * Loads initial configuration from the backend and initializes UI stores.
+	 */
 	async load() {
 		try {
 			const settings: AppSettings = await invoke("get_config");
@@ -43,6 +53,9 @@ export class SettingsStore {
 		}
 	}
 
+	/**
+	 * Updates the configuration in the backend and reflects changes in the UI.
+	 */
 	async save(newSettings: AppSettings) {
 		try {
 			if (newSettings.notes_folder !== undefined) {
@@ -72,6 +85,9 @@ export class SettingsStore {
 		}
 	}
 
+	/**
+	 * Switches the root notes folder and resets the application state accordingly.
+	 */
 	async switchNotesFolder(path: string) {
 		try {
 			const newState: {

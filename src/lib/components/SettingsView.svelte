@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * Centralized settings view that aggregates folder, language, theme, and window size configurations.
+   */
   import FolderSelector from './FolderSelector.svelte';
   import LanguageSelector from './LanguageSelector.svelte';
   import ThemeSelector from './ThemeSelector.svelte';

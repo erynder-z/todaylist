@@ -1,5 +1,11 @@
+//! Tauri commands for Markdown processing.
+
 use pulldown_cmark::{html, Options, Parser};
 
+/// Renders a Markdown string into an HTML string.
+///
+/// This uses the `pulldown-cmark` library with several GFM-like options enabled,
+/// such as tables and task lists.
 #[tauri::command]
 pub async fn render_markdown(markdown: String) -> Result<String, String> {
     let mut options = Options::empty();

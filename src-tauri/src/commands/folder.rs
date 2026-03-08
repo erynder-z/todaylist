@@ -1,7 +1,13 @@
+//! Tauri commands for folder operations and validation.
+
 use crate::models::response_types::FolderValidation;
 use std::fs;
 use std::path::PathBuf;
 
+/// Validates a folder path for use as the notes storage directory.
+///
+/// This command checks if the path exists, is a directory, is writable,
+/// and counts the number of existing Markdown files.
 #[tauri::command]
 pub async fn validate_folder(path: String) -> Result<FolderValidation, String> {
     let path_buf = PathBuf::from(&path);

@@ -1,5 +1,11 @@
+//! Utilities for managing the Tauri application window.
+
 use tauri::{AppHandle, Manager, PhysicalSize};
 
+/// Tauri command to make the main window visible.
+///
+/// This is typically called after the frontend is fully initialized
+/// to avoid showing an empty window.
 #[tauri::command]
 pub async fn show_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app_handle.get_webview_window("main") {
@@ -9,7 +15,10 @@ pub async fn show_window(app_handle: tauri::AppHandle) -> Result<(), String> {
 }
 
 /// Configures the initial size and centers the main window.
+///
 /// This is only called when "Remember Window Size" is disabled.
+/// It attempts to set a balanced aspect ratio (4:3) based on
+/// the current monitor's dimensions.
 pub fn setup_main_window(app_handle: &AppHandle) -> Result<(), String> {
     let window = app_handle
         .get_webview_window("main")

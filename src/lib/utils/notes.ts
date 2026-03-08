@@ -3,6 +3,9 @@ import { MarkdownRenderCache } from "./renderCache";
 
 const renderCache = new MarkdownRenderCache<string, string>(500);
 
+/**
+ * Reads the full text content of a note file from the given path.
+ */
 export const readNoteContent = async (path: string) => {
 	try {
 		const content = (await invoke("read_note_content", { path })) as string;
@@ -13,6 +16,9 @@ export const readNoteContent = async (path: string) => {
 	}
 };
 
+/**
+ * Renders a markdown string to HTML, utilizing a client-side cache for performance.
+ */
 export const renderMarkdown = async (markdown: string) => {
 	if (!markdown || !markdown.trim()) return "&nbsp;";
 
@@ -32,6 +38,9 @@ export const renderMarkdown = async (markdown: string) => {
 	}
 };
 
+/**
+ * Saves the entire content of a note to the specified path.
+ */
 export const saveNoteContent = async (path: string, content: string) => {
 	try {
 		await invoke("save_note_content", { path, content });
@@ -42,6 +51,9 @@ export const saveNoteContent = async (path: string, content: string) => {
 	}
 };
 
+/**
+ * Updates a specific line of the currently active note in the backend.
+ */
 export const updateNoteLine = async (index: number, content: string) => {
 	try {
 		await invoke("update_note_line", { index, content });
@@ -52,6 +64,9 @@ export const updateNoteLine = async (index: number, content: string) => {
 	}
 };
 
+/**
+ * Inserts a new line into the currently active note at the specified index.
+ */
 export const insertNoteLine = async (index: number, content: string) => {
 	try {
 		await invoke("insert_note_line", { index, content });
@@ -62,6 +77,9 @@ export const insertNoteLine = async (index: number, content: string) => {
 	}
 };
 
+/**
+ * Removes a line from the currently active note at the specified index.
+ */
 export const deleteNoteLine = async (index: number) => {
 	try {
 		await invoke("delete_note_line", { index });

@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * The main note display component. Displays a note's content in an editable form.
+   */
   import { untrack } from 'svelte';
   import { NoteLine } from '$lib';
   import type { NoteLineData } from '$lib/types/notes';
@@ -13,11 +16,18 @@
     notePath: string | null;
   }>();
 
+  /** Reactive array of line objects representing the note's content. */
   let lines = $state<NoteLineData[]>([]);
+  /** Index of the line currently being edited. */
   let activeIndex = $state<number | null>(null);
+  /** Tracked path to detect when a different note is loaded. */
   let lastLoadedPath = $state<string | null>(null);
+  /** Index of the line that has unsaved changes. */
   let changedLineIndex = $state<number | null>(null);
 
+  /**
+   * Persists the content of a specific line to the backend.
+   */
   const flush = async (index: number) => {
     if (lines[index]) {
       const content = lines[index].markdown;
@@ -26,12 +36,20 @@
     }
   };
 
+  /**
+   * Parses the raw note content into an array of line objects.
+   */
   const loadLines = () => {
     lines = (noteContent || '')
       .split('\n')
       .map((m: string) => ({ markdown: m, html: '' }));
   };
 
+  /**
+   * Appends an empty line to the end of the note if it's missing or if
+   * the last line contains text. This ensures the user always has a
+   * clean starting point for new input.
+   */
   const ensureTrailingEmptyLine = () => {
     const lastLine = lines[lines.length - 1];
     if (lines.length === 0 || lastLine.markdown.trim() !== '') {
@@ -40,6 +58,10 @@
     }
   };
 
+  /**
+   * Synchronizes the component state when the active note changes.
+   * This handles initial loading and prepares the UI for editing.
+   */
   const syncProps = () => {
     if (notePath !== lastLoadedPath) {
       loadLines();
@@ -51,6 +73,9 @@
     }
   };
 
+  /**
+   * Ensures unsaved changes are flushed when the user moves to a different line.
+   */
   const autoFlushOnLineSwitch = () => {
     const current = activeIndex;
     untrack(() => {
@@ -60,6 +85,9 @@
     });
   };
 
+  /**
+   * Automatically saves changes after a short delay of inactivity.
+   */
   const debouncedAutoSave = () => {
     if (changedLineIndex === null || !lines[changedLineIndex]) return;
 
@@ -76,22 +104,34 @@
     return () => clearTimeout(timeout);
   };
 
+  /**
+   * Adds a new empty line immediately after the specified index.
+   */
   const insertLine = async (i: number) => {
     lines.splice(i + 1, 0, { markdown: '', html: '' });
     activeIndex = i + 1;
     await insertNoteLine(i + 1, '');
   };
 
+  /**
+   * Removes the line at the specified index and shifts focus.
+   */
   const deleteLine = async (i: number) => {
     lines.splice(i, 1);
     activeIndex = Math.max(0, i - 1);
     await deleteNoteLine(i);
   };
 
+  /**
+   * Moves the active line focus up or down.
+   */
   const navigateLines = (i: number, direction: 'up' | 'down') => {
     activeIndex = direction === 'up' ? i - 1 : i + 1;
   };
 
+  /**
+   * Coordinates keyboard shortcuts for line editing and navigation.
+   */
   const handleKeyDown = async (e: KeyboardEvent, i: number) => {
     switch (e.key) {
       case 'Enter':
@@ -119,6 +159,9 @@
     }
   };
 
+  /**
+   * Updates the internal state of a line and marks it as changed.
+   */
   const handleLineChange = (i: number, markdown: string) => {
     if (lines[i]) {
       lines[i].markdown = markdown;

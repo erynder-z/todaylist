@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * Application entry point. Handles initial bootstrapping and renders the main UI structure.
+   */
   import { onMount } from 'svelte';
   import {
     initializeApp,
@@ -9,6 +12,9 @@
     PopupManager,
   } from '$lib';
 
+  /**
+   * Bootstraps the app by fetching initial state from the backend.
+   */
   onMount(async () => {
     await initializeApp();
   });

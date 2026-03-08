@@ -6,12 +6,24 @@ export type LocaleInfo = {
 	name: string;
 };
 
+/**
+ * Holds the current key-value pairs for translations.
+ */
 export const translations = writable<Record<string, string>>({});
 
+/**
+ * The currently active locale ID (e.g., 'en', 'de').
+ */
 export const locale = writable<string>("en");
 
+/**
+ * List of locales supported by the application.
+ */
 export const availableLocales = writable<LocaleInfo[]>([]);
 
+/**
+ * Fetches new translation data from the backend and updates the stores.
+ */
 export async function updateTranslations(newLocale: string) {
 	try {
 		const newTranslations: Record<string, string> = await invoke(
@@ -27,6 +39,10 @@ export async function updateTranslations(newLocale: string) {
 	}
 }
 
+/**
+ * A derived store providing a translation function 't' that supports variable interpolation.
+ * Usage: $t('key', { variable: 'value' })
+ */
 export const t = derived(translations, ($translations) => {
 	return (key: string, vars: Record<string, string | number> = {}) => {
 		let text = $translations[key] || key;

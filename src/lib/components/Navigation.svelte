@@ -1,7 +1,13 @@
 <script lang="ts">
+  /**
+   * Navigation bar that provides access to the several app features.
+   */
   import { appState, t } from '$lib';
   import type { PopupType } from '$lib/types/ui';
 
+  /**
+   * Toggles the visibility of a specific popup by updating the global state.
+   */
   const togglePopup = (type: PopupType) => {
     appState.activePopup = appState.activePopup === type ? null : type;
   };

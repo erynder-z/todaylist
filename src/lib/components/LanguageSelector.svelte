@@ -1,6 +1,12 @@
 <script lang="ts">
+  /**
+   * Component for choosing the application language from supported locales.
+   */
   import { availableLocales, settings, t } from '$lib';
 
+  /**
+   * Updates the global locale setting when a new language is selected.
+   */
   const handleLocaleChange = async (e: Event) => {
     const target = e.target as HTMLSelectElement;
     const newLocale = target.value;

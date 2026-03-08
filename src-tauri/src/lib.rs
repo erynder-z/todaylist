@@ -23,6 +23,14 @@ use services::note_manager::NoteManager;
 use std::sync::Mutex;
 use utils::window::show_window;
 
+/// The main entry point of the application's core logic.
+///
+/// This function:
+/// 1. Loads the application's persistent configuration.
+/// 2. Initializes the Tauri builder with necessary plugins.
+/// 3. Registers application-wide state managers (AppState).
+/// 4. Registers all the `invoke_handler` commands used by the frontend.
+/// 5. Configures the initial window state.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let config = AppConfig::load();

@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * Note search component.
+   */
   import { t } from '$lib';
 </script>
 

@@ -1,3 +1,5 @@
+//! Tauri commands for initial application setup and bootstrapping.
+
 use crate::commands::i18n::{get_available_locales, get_translations};
 use crate::commands::theme::{get_available_themes, get_theme_colors};
 use crate::models::app_state::AppState;
@@ -5,12 +7,20 @@ use crate::models::config::AppConfig;
 use crate::models::response_types::{InitialAppState, LocaleInfo, ThemeInfo};
 use tauri::State;
 
+/// Initializes the application and returns the complete initial state for the frontend.
 #[tauri::command]
 pub async fn initialize_app(state: State<'_, AppState>) -> Result<InitialAppState, String> {
     let config = AppConfig::load();
     Ok(get_initial_state(config, state))
 }
 
+/// Helper function to construct the full initial application state.
+///
+/// This handles:
+/// - Verifying the notes folder.
+/// - Loading translations and theme colors.
+/// - Enumerating available themes and locales.
+/// - Automatically loading today's daily note.
 pub fn get_initial_state(config: AppConfig, state: State<'_, AppState>) -> InitialAppState {
     let note_manager = state.note_manager.lock().unwrap();
 

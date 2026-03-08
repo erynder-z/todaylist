@@ -1,7 +1,13 @@
 <script lang="ts">
+  /**
+   * Component for selecting the application's visual theme.
+   */
   import { settings, t } from '$lib';
   import { availableThemes } from '../utils/theme';
 
+  /**
+   * Updates the global theme setting and applies new colors to the UI.
+   */
   const handleThemeChange = async (e: Event) => {
     const target = e.target as HTMLSelectElement;
     const newTheme = target.value;

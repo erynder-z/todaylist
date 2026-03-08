@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * Represents a single line in the note editor. Toggles between a textarea for editing and a div for rendering Markdown.
+   */
   import { tick } from 'svelte';
   import type { NoteLineProps } from '$lib/types/notes';
   import { renderMarkdown } from '$lib/utils/notes';
@@ -15,11 +18,19 @@
   let html = $state('');
   let textarea: HTMLTextAreaElement | null = $state(null);
 
+  /**
+   * Triggers the backend rendering of Markdown to HTML and
+   * synchronizes the new content.
+   */
   const updateHtml = async () => {
     html = await renderMarkdown(markdown || '&nbsp;');
     onChange(markdown, html);
   };
 
+  /**
+   * Svelte action to automatically adjust textarea height based
+   * on content to prevent scrolling within the line.
+   */
   const autoResize = (node: HTMLTextAreaElement) => {
     const resize = () => {
       node.style.height = 'auto';
@@ -32,6 +43,9 @@
     };
   };
 
+  /**
+   * Focuses the textarea and moves the cursor to the end of the text.
+   */
   const focusAndSelect = () => {
     if (isActive && textarea) {
       textarea.focus();

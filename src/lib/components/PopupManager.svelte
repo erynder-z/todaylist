@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Orchestrates which modal is currently displayed based on 
+   * the `appState.activePopup` state.
+   */
   import {
     appState,
     Modal,

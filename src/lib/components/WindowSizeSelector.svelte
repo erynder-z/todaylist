@@ -1,6 +1,13 @@
 <script lang="ts">
+  /**
+   * Component for toggling the window size persistence setting.
+   */
   import { settings, t } from '$lib';
 
+  /**
+   * Updates the global setting that determines whether the
+   * window's dimensions are saved across sessions.
+   */
   const handleToggle = async (e: Event) => {
     const target = e.target as HTMLInputElement;
     const remember = target.checked;
