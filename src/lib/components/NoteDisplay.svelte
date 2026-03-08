@@ -26,13 +26,27 @@
     }
   };
 
+  const loadLines = () => {
+    lines = (noteContent || '')
+      .split('\n')
+      .map((m: string) => ({ markdown: m, html: '' }));
+  };
+
+  const ensureTrailingEmptyLine = () => {
+    const lastLine = lines[lines.length - 1];
+    if (lines.length === 0 || lastLine.markdown.trim() !== '') {
+      lines.push({ markdown: '', html: '' });
+      insertNoteLine(lines.length - 1, '');
+    }
+  };
+
   const syncProps = () => {
     if (notePath !== lastLoadedPath) {
-      lines = (noteContent || '')
-        .split('\n')
-        .map((m: string) => ({ markdown: m, html: '' }));
+      loadLines();
+      ensureTrailingEmptyLine();
+
       lastLoadedPath = notePath;
-      activeIndex = null;
+      activeIndex = lines.length - 1;
       changedLineIndex = null;
     }
   };
