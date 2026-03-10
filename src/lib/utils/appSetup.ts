@@ -6,9 +6,7 @@ import {
 	settings,
 	translations,
 } from "$lib";
-import type { LocaleInfo } from "$lib/types/locale";
-import type { NoteContentResponse } from "$lib/types/notes";
-import type { ThemeInfo } from "../types/settings";
+import type { InitialAppState } from "$lib/types/appState";
 import { applyThemeColors, availableThemes, currentTheme } from "./theme";
 
 /**
@@ -17,39 +15,61 @@ import { applyThemeColors, availableThemes, currentTheme } from "./theme";
  */
 export const initializeApp = async () => {
 	try {
-		const initialState: {
-			notes_folder: string | null;
-			locale: string;
-			theme: string;
-			available_locales: LocaleInfo[];
-			available_themes: ThemeInfo[];
-			translations: Record<string, string>;
-			theme_colors: Record<string, string>;
-			today_note_path: string | null;
-			today_note_content: NoteContentResponse | null;
-		} = await invoke("initialize_app");
-
-		translations.set(initialState.translations);
-		locale.set(initialState.locale);
-		availableLocales.set(initialState.available_locales);
-
-		availableThemes.set(initialState.available_themes);
-		currentTheme.set(initialState.theme);
-		applyThemeColors(initialState.theme_colors);
-
-		settings.notes_folder = initialState.notes_folder || "";
-		settings.locale = initialState.locale;
-		settings.theme = initialState.theme;
-
-		if (initialState.notes_folder) {
-			appState.todayNotePath = initialState.today_note_path;
-			appState.todayNoteContent = initialState.today_note_content;
-		}
+		const initialState: InitialAppState = await invoke("initialize_app");
+		syncFullAppState(initialState);
 
 		setTimeout(async () => {
 			await invoke("show_window");
 		}, 100);
 	} catch (error) {
 		console.error("Failed to initialize app:", error);
+	}
+};
+
+/**
+ * Synchronizes all frontend stores with the provided state.
+ */
+export const syncFullAppState = (state: InitialAppState) => {
+	syncI18nState(state);
+	syncThemeState(state);
+	syncSettingsState(state);
+	syncAppState(state);
+};
+
+/**
+ * Synchronizes translation-related stores.
+ */
+export const syncI18nState = (state: InitialAppState) => {
+	translations.set(state.translations);
+	locale.set(state.locale);
+	availableLocales.set(state.available_locales);
+};
+
+/**
+ * Synchronizes theme-related stores and applies UI colors.
+ */
+export const syncThemeState = (state: InitialAppState) => {
+	availableThemes.set(state.available_themes);
+	currentTheme.set(state.theme);
+	applyThemeColors(state.theme_colors);
+};
+
+/**
+ * Synchronizes the global settings store.
+ */
+export const syncSettingsState = (state: InitialAppState) => {
+	settings.notes_folder = state.notes_folder || "";
+	settings.locale = state.locale;
+	settings.theme = state.theme;
+	settings.remember_window_size = state.remember_window_size;
+};
+
+/**
+ * Synchronizes the application's runtime state (active note, etc.).
+ */
+export const syncAppState = (state: InitialAppState) => {
+	if (state.notes_folder) {
+		appState.todayNotePath = state.today_note_path;
+		appState.todayNoteContent = state.today_note_content;
 	}
 };

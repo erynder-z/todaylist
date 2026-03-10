@@ -1,32 +1,18 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { LocaleInfo } from "$lib/types/locale";
-import type { NoteContentResponse } from "$lib/types/notes";
-import type { AppSettings, ThemeInfo } from "$lib/types/settings";
-import {
-	availableLocales,
-	locale,
-	translations,
-	updateTranslations,
-} from "../utils/i18n";
-import {
-	applyThemeColors,
-	availableThemes,
-	currentTheme,
-	updateTheme,
-} from "../utils/theme";
+import type { InitialAppState } from "$lib/types/appState";
+import type { AppSettings } from "$lib/types/settings";
+import { syncFullAppState } from "$lib/utils/appSetup";
+import { updateTranslations } from "../utils/i18n";
+import { updateTheme } from "../utils/theme";
 import { appState } from "./appState.svelte";
 
 /**
  * Manages application-wide user settings and persists them to the backend.
  */
 export class SettingsStore {
-	/** Path to the folder where notes are stored. */
 	notes_folder = $state("");
-	/** Active application language/locale. */
 	locale = $state("en");
-	/** Currently active UI theme. */
 	theme = $state("light");
-	/** Whether to persist and restore the window size across launches. */
 	remember_window_size = $state(true);
 
 	/**
@@ -91,36 +77,14 @@ export class SettingsStore {
 	 */
 	async switchNotesFolder(path: string) {
 		try {
-			const newState: {
-				notes_folder: string | null;
-				locale: string;
-				theme: string;
-				remember_window_size: boolean;
-				available_locales: LocaleInfo[];
-				available_themes: ThemeInfo[];
-				translations: Record<string, string>;
-				theme_colors: Record<string, string>;
-				today_note_path: string | null;
-				today_note_content: NoteContentResponse | null;
-			} = await invoke("switch_notes_folder", { path });
+			const newState: InitialAppState = await invoke("switch_notes_folder", {
+				path,
+			});
 
 			if (newState.notes_folder) {
-				translations.set(newState.translations);
-				availableLocales.set(newState.available_locales);
-				locale.set(newState.locale);
-
-				availableThemes.set(newState.available_themes);
-				currentTheme.set(newState.theme);
-				applyThemeColors(newState.theme_colors);
-
-				this.notes_folder = newState.notes_folder;
-				this.locale = newState.locale;
-				this.theme = newState.theme;
-				this.remember_window_size = newState.remember_window_size;
+				syncFullAppState(newState);
 			}
 
-			appState.todayNotePath = newState.today_note_path;
-			appState.todayNoteContent = newState.today_note_content;
 			appState.activePopup = null;
 
 			return true;
