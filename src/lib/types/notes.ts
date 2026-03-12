@@ -8,9 +8,15 @@ export type NoteLineData = {
 	html: string;
 };
 
+export type NoteMetadata = {
+	formattedDate: string;
+	tags: string[];
+	raw: Record<string, string>;
+};
+
 export type NoteContentResponse = {
 	lines: string[];
-	metadata: Record<string, string>;
+	metadata: NoteMetadata;
 	metadataRange: [number, number] | null;
 };
 

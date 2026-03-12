@@ -69,11 +69,20 @@ pub struct ThemeInfo {
     pub name: String,
 }
 
+/// Structured metadata for a note.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NoteMetadata {
+    pub formatted_date: String,
+    pub tags: Vec<String>,
+    pub raw: HashMap<String, String>,
+}
+
 /// Structured response for note content.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NoteContentResponse {
     pub lines: Vec<String>,
-    pub metadata: HashMap<String, String>,
+    pub metadata: NoteMetadata,
     pub metadata_range: Option<(usize, usize)>,
 }

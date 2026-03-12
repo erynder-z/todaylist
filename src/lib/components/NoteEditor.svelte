@@ -10,6 +10,7 @@
     insertNoteLine,
     updateNoteLine,
   } from '$lib/utils/notes';
+  import NoteHeader from './NoteHeader.svelte';
 
   let { noteContent, notePath } = $props<{
     noteContent: NoteContentResponse | null;
@@ -200,6 +201,7 @@
 </script>
 
 <div class="note-container">
+  <NoteHeader {noteContent} />
   {#each lines as line, i (i)}
     {#if !isMetadataLine(i)}
       <NoteLine

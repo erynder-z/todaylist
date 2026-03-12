@@ -3,7 +3,9 @@
 //! This module provides functions for reading, writing, and manipulating note files, as well as managing the current note editing session.
 
 use crate::models::app_state::AppState;
-use crate::models::response_types::{FormattedNote, NoteContentResponse, SearchResult};
+use crate::models::response_types::{
+    FormattedNote, NoteContentResponse, NoteMetadata, SearchResult,
+};
 use std::fs;
 use std::path::PathBuf;
 use tauri::State;
@@ -124,23 +126,43 @@ pub async fn create_todays_note(path: String, state: State<'_, AppState>) -> Res
     Ok(())
 }
 
-/// Reads the content of a note from disk and loads it into the current editing session.
+/// Reads the content of a note file from the specified path.
+///
+/// If the note file does not exist, returns an error.
+///
+/// Automatically loads the note content into the application session.
+///
+/// Returns a `NoteContentResponse` containing the note's content and metadata.
 #[tauri::command]
 pub async fn read_note_content(
     path: String,
     state: State<'_, AppState>,
 ) -> Result<NoteContentResponse, String> {
+    let path_buf = PathBuf::from(&path);
     let content = {
         let note_manager = state.note_manager.lock().unwrap();
-        note_manager.read_note_content(&PathBuf::from(&path))?
+        note_manager.read_note_content(&path_buf)?
     };
 
     let mut session = state.note_session.lock().unwrap();
-    session.load(PathBuf::from(path), content);
+    session.load(path_buf.clone(), content);
+
+    let formatted_date = {
+        let note_manager = state.note_manager.lock().unwrap();
+        let filename = path_buf.file_name().and_then(|f| f.to_str()).unwrap_or("");
+        note_manager.format_note_name(filename)
+    };
+
+    let tags = session.get_tags();
+    let raw_metadata = session.get_metadata();
 
     Ok(NoteContentResponse {
         lines: session.lines.clone(),
-        metadata: session.get_metadata(),
+        metadata: NoteMetadata {
+            formatted_date,
+            tags,
+            raw: raw_metadata,
+        },
         metadata_range: session.frontmatter_range,
     })
 }

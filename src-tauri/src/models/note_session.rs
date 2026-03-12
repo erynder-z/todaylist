@@ -63,6 +63,32 @@ impl NoteSession {
         metadata
     }
 
+    /// Parses tags from the metadata if they exist.
+    /// Expects a format like `[tag1, tag2]` or just a comma-separated list.
+    pub fn get_tags(&self) -> Vec<String> {
+        let metadata = self.get_metadata();
+        if let Some(tags_str) = metadata.get("tags") {
+            let trimmed = tags_str.trim();
+            if trimmed.is_empty() {
+                return Vec::new();
+            }
+
+            // Remove brackets if present: [tag1, tag2] -> tag1, tag2
+            let inner = if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                &trimmed[1..trimmed.len() - 1]
+            } else {
+                trimmed
+            };
+
+            return inner
+                .split(',')
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .collect();
+        }
+        Vec::new()
+    }
+
     /// Replaces the content of a specific line in the session.
     pub fn update_line(&mut self, index: usize, content: String) {
         if index < self.lines.len() {

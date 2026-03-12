@@ -4,7 +4,9 @@ use crate::commands::i18n::{get_available_locales, get_translations};
 use crate::commands::theme::{get_available_themes, get_theme_colors};
 use crate::models::app_state::AppState;
 use crate::models::config::AppConfig;
-use crate::models::response_types::{AppPayload, LocaleInfo, NoteContentResponse, ThemeInfo};
+use crate::models::response_types::{
+    AppPayload, LocaleInfo, NoteContentResponse, NoteMetadata, ThemeInfo,
+};
 use std::collections::HashMap;
 use tauri::State;
 
@@ -99,13 +101,25 @@ fn load_today_note(
     if let Ok(created_path) = note_manager.create_todays_note(note_header) {
         if let Ok(content) = note_manager.read_note_content(&created_path) {
             let mut session = state.note_session.lock().unwrap();
-            session.load(created_path, content);
+            session.load(created_path.clone(), content);
+
+            let formatted_date = {
+                let filename = created_path
+                    .file_name()
+                    .and_then(|f| f.to_str())
+                    .unwrap_or("");
+                note_manager.format_note_name(filename)
+            };
 
             return (
                 Some(path_str),
                 Some(NoteContentResponse {
                     lines: session.lines.clone(),
-                    metadata: session.get_metadata(),
+                    metadata: NoteMetadata {
+                        formatted_date,
+                        tags: session.get_tags(),
+                        raw: session.get_metadata(),
+                    },
                     metadata_range: session.frontmatter_range,
                 }),
             );
