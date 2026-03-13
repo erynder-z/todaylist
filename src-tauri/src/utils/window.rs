@@ -10,7 +10,15 @@ use tauri::{AppHandle, Manager, PhysicalSize};
 pub async fn show_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app_handle.get_webview_window("main") {
         window.show().map_err(|e| e.to_string())?;
+
+        // Workaround fix for window bar buttons not working on Wayland (Linux)
+        #[cfg(target_os = "linux")]
+        {
+            let _ = window.set_resizable(false);
+            let _ = window.set_resizable(true);
+        }
     }
+
     Ok(())
 }
 
@@ -46,6 +54,5 @@ pub fn setup_main_window(app_handle: &AppHandle) -> Result<(), String> {
             .center()
             .map_err(|e| format!("Failed to center window: {}", e))?;
     }
-
     Ok(())
 }
