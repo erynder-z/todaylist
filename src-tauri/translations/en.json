@@ -24,5 +24,6 @@
 	"notes.loading": "Loading notes...",
 	"notes.error.load": "Failed to load notes",
 	"notes.list.empty": "No notes found",
-	"note.header": "Note"
+	"note.header": "Note",
+	"tag.placeholder": "tag..."
 }

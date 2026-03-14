@@ -22,7 +22,7 @@ pub async fn save_note_content(
 
 /// Updates the content of a specific line in the current note session.
 ///
-/// This operation also persists the entire note to disk.
+/// This operation also writes the entire note to disk.
 #[tauri::command]
 pub async fn update_note_line(
     index: usize,
@@ -31,7 +31,6 @@ pub async fn update_note_line(
 ) -> Result<(), String> {
     let mut session = state.note_session.lock().unwrap();
     session.update_line(index, content);
-
     if let Some(path) = &session.path {
         let full_content = session.get_full_content();
         fs::write(path, full_content).map_err(|e| format!("Failed to save note: {}", e))?;
@@ -41,7 +40,7 @@ pub async fn update_note_line(
 
 /// Inserts a new line into the current note session at the specified index.
 ///
-/// This operation also persists the entire note to disk.
+/// This operation also writes the entire note to disk.
 #[tauri::command]
 pub async fn insert_note_line(
     index: usize,
@@ -60,7 +59,7 @@ pub async fn insert_note_line(
 
 /// Deletes the line at the specified index from the current note session.
 ///
-/// This operation also persists the entire note to disk.
+/// This operation also writes the entire note to disk.
 #[tauri::command]
 pub async fn delete_note_line(index: usize, state: State<'_, AppState>) -> Result<(), String> {
     let mut session = state.note_session.lock().unwrap();
@@ -71,6 +70,44 @@ pub async fn delete_note_line(index: usize, state: State<'_, AppState>) -> Resul
         fs::write(path, full_content).map_err(|e| format!("Failed to save note: {}", e))?;
     }
     Ok(())
+}
+
+/// Adds a tag to the current note session and writes it to disk.
+///
+/// Returns the updated `NoteContentResponse`.
+#[tauri::command]
+pub async fn add_note_tag(
+    tag: String,
+    state: State<'_, AppState>,
+) -> Result<NoteContentResponse, String> {
+    let mut session = state.note_session.lock().unwrap();
+    session.add_tag(tag);
+
+    let path = session
+        .path
+        .clone()
+        .ok_or_else(|| "No active note session".to_string())?;
+    let full_content = session.get_full_content();
+    fs::write(&path, full_content).map_err(|e| format!("Failed to save note: {}", e))?;
+
+    let formatted_date = {
+        let note_manager = state.note_manager.lock().unwrap();
+        let filename = path.file_name().and_then(|f| f.to_str()).unwrap_or("");
+        note_manager.format_note_name(filename)
+    };
+
+    let tags = session.get_tags();
+    let raw_metadata = session.get_metadata();
+
+    Ok(NoteContentResponse {
+        lines: session.lines.clone(),
+        metadata: NoteMetadata {
+            formatted_date,
+            tags,
+            raw: raw_metadata,
+        },
+        metadata_range: session.frontmatter_range,
+    })
 }
 
 /// Performs a full-text search across all notes. (Currently not implemented)

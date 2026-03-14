@@ -92,3 +92,17 @@ export const deleteNoteLine = async (index: number) => {
 		return false;
 	}
 };
+
+/**
+ * Adds a tag to the current note and returns the updated note content.
+ */
+export const addNoteTag = async (tag: string) => {
+	try {
+		const content = (await invoke("add_note_tag", {
+			tag,
+		})) as NoteContentResponse;
+		return content;
+	} catch (error) {
+		console.error("Error adding note tag:", error);
+	}
+};
