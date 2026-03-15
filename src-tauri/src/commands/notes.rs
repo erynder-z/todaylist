@@ -210,3 +210,10 @@ pub async fn list_notes(state: State<'_, AppState>) -> Result<Vec<FormattedNote>
     let note_manager = state.note_manager.lock().unwrap();
     note_manager.list_notes()
 }
+
+/// Returns all unique tags from all notes, sorted by usage frequency.
+#[tauri::command]
+pub async fn get_all_tags(state: State<'_, AppState>) -> Result<Vec<String>, String> {
+    let note_manager = state.note_manager.lock().unwrap();
+    note_manager.get_all_tags()
+}

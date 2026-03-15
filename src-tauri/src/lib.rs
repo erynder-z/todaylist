@@ -7,7 +7,7 @@ use commands::folder::validate_folder;
 use commands::i18n::get_translations;
 use commands::markdown::render_markdown;
 use commands::notes::{
-    add_note_tag, check_todays_note_exists, create_todays_note, delete_note_line,
+    add_note_tag, check_todays_note_exists, create_todays_note, delete_note_line, get_all_tags,
     get_today_note_path, insert_note_line, list_notes, read_note_content, save_note_content,
     search_notes, update_note_line,
 };
@@ -73,6 +73,7 @@ pub fn run() {
             get_config,
             get_translations,
             get_theme_colors,
+            get_all_tags,
             list_notes,
             set_locale,
             set_notes_folder,

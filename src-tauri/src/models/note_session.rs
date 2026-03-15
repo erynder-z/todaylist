@@ -140,6 +140,49 @@ impl NoteSession {
         self.lines.join("\n")
     }
 
+    /// Parses tags from the metadata of a note, given its content.
+    pub fn parse_tags_from_content(content: &str) -> Vec<String> {
+        let lines: Vec<&str> = content.lines().collect();
+        if lines.len() < 2 || lines[0].trim() != "---" {
+            return Vec::new();
+        }
+
+        let mut end_fm = None;
+        for (i, line) in lines.iter().enumerate().skip(1) {
+            if line.trim() == "---" {
+                end_fm = Some(i);
+                break;
+            }
+        }
+
+        if let Some(end) = end_fm {
+            for i in 1..end {
+                let line = lines[i];
+                if let Some((key, value)) = line.split_once(':') {
+                    if key.trim() == "tags" {
+                        let trimmed = value.trim();
+                        if trimmed.is_empty() {
+                            return Vec::new();
+                        }
+
+                        let inner = if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                            &trimmed[1..trimmed.len() - 1]
+                        } else {
+                            trimmed
+                        };
+
+                        return inner
+                            .split(',')
+                            .map(|s| s.trim().to_string())
+                            .filter(|s| !s.is_empty())
+                            .collect();
+                    }
+                }
+            }
+        }
+        Vec::new()
+    }
+
     /// Adds a tag to the note's frontmatter.
     /// Creates frontmatter if it doesn't exist.
     pub fn add_tag(&mut self, tag: String) {

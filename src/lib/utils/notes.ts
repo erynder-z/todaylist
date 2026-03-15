@@ -106,3 +106,16 @@ export const addNoteTag = async (tag: string) => {
 		console.error("Error adding note tag:", error);
 	}
 };
+
+/**
+ * Retrieves all tags from all notes, sorted by frequency.
+ */
+export const getAllTags = async () => {
+	try {
+		const tags = (await invoke("get_all_tags")) as string[];
+		return tags;
+	} catch (error) {
+		console.error("Error getting all tags:", error);
+		return [];
+	}
+};

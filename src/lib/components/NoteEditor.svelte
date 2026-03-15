@@ -227,8 +227,7 @@
     color: var(--text-main);
     border-radius: 0.75rem;
     margin: 1rem 0;
-    max-height: 70vh;
-    overflow-y: auto;
+    min-height: 10rem;
   }
 
   .note-container :global(.rendered-line p) {
@@ -259,14 +258,14 @@
   }
 
   .note-container :global(.rendered-line code) {
-    background-color: var(--bg-main);
+    background-color: var(--bg-base);
     padding: 0.2rem 0.4rem;
     border-radius: 0.3rem;
     font-family: monospace;
   }
 
   .note-container :global(.rendered-line pre) {
-    background-color: var(--bg-main);
+    background-color: var(--bg-base);
     padding: 1rem;
     border-radius: 0.5rem;
     overflow-x: auto;

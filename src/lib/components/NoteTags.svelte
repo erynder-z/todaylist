@@ -1,11 +1,10 @@
 <script lang="ts">
   /**
    * Component for displaying and managing tags for a note.
-   * Allows users to view existing tags and add new ones.
    */
   import { sessionState, t } from '$lib';
   import type { NoteContentResponse } from '$lib/types/notes';
-  import { addNoteTag } from '$lib/utils/notes';
+  import { addNoteTag, getAllTags } from '$lib/utils/notes';
 
   let { noteContent } = $props<{
     noteContent: NoteContentResponse | null;
@@ -14,28 +13,91 @@
   let tags = $derived(noteContent?.metadata.tags || []);
   let isAddingTag = $state(false);
   let newTag = $state('');
+  let allTags = $state<string[]>([]);
+  let selectedIndex = $state(-1);
+
+  let suggestedTags = $derived(
+    allTags
+      .filter(
+        (tag) =>
+          !tags.includes(tag) &&
+          tag.toLowerCase().includes(newTag.trim().toLowerCase()),
+      )
+      .slice(0, 8),
+  );
+
+  // Reset selection when input changes
+  $effect(() => {
+    newTag;
+    selectedIndex = -1;
+  });
+
+  /**
+   * Closes the tag input field.
+   */
+  const closeInput = () => {
+    isAddingTag = false;
+    newTag = '';
+    selectedIndex = -1;
+  };
 
   /**
    * Triggers the addition of a new tag and updates the session state.
    */
-  const handleAddTag = async () => {
-    if (newTag.trim()) {
-      const updatedContent = await addNoteTag(newTag.trim());
+  const handleAddTag = async (tagToAdd?: string) => {
+    const finalTag = tagToAdd || newTag.trim();
+    if (finalTag && !tags.includes(finalTag)) {
+      const updatedContent = await addNoteTag(finalTag);
       if (updatedContent) sessionState.todayNoteContent = updatedContent;
     }
-    newTag = '';
-    isAddingTag = false;
+    closeInput();
+  };
+
+  /**
+   * Loads all tags and shows initial suggestions.
+   */
+  const startAddingTag = async () => {
+    isAddingTag = true;
+    allTags = await getAllTags();
+  };
+
+  /**
+   * Moves the selection down in the suggestions list.
+   */
+  const moveSelectionDown = () => {
+    selectedIndex =
+      selectedIndex < suggestedTags.length - 1 ? selectedIndex + 1 : -1;
+  };
+
+  /**
+   * Moves the selection up in the suggestions list.
+   */
+  const moveSelectionUp = () => {
+    selectedIndex =
+      selectedIndex > -1 ? selectedIndex - 1 : suggestedTags.length - 1;
   };
 
   /**
    * Handles keyboard interactions for the tag input field.
    */
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleAddTag();
-    } else if (e.key === 'Escape') {
-      isAddingTag = false;
-      newTag = '';
+  const handleKeyDown = (e: KeyboardEvent): void => {
+    switch (e.key) {
+      case 'Enter':
+        handleAddTag(suggestedTags[selectedIndex]);
+        break;
+      case 'Escape':
+        closeInput();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        moveSelectionDown();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        moveSelectionUp();
+        break;
+      default:
+        break;
     }
   };
 </script>
@@ -45,26 +107,48 @@
     <span class="tag-pill">{tag}</span>
   {/each}
 
-  {#if isAddingTag}
-    <!-- svelte-ignore a11y_autofocus -->
-    <input
-      type="text"
-      class="tag-input"
-      bind:value={newTag}
-      onkeydown={handleKeyDown}
-      onblur={() => (isAddingTag = false)}
-      autofocus
-      placeholder={$t('tag.placeholder')}
-    />
-  {:else}
-    <button
-      class="add-tag-btn"
-      onclick={() => (isAddingTag = true)}
-      aria-label="Add tag"
-    >
-      +
-    </button>
-  {/if}
+  <div class="add-tag-wrapper">
+    {#if isAddingTag}
+      <!-- svelte-ignore a11y_autofocus -->
+      <input
+        type="text"
+        class="tag-input"
+        bind:value={newTag}
+        onkeydown={handleKeyDown}
+        onblur={() => setTimeout(closeInput, 200)}
+        autofocus
+        placeholder={$t('tag.placeholder')}
+      />
+
+      {#if suggestedTags.length > 0}
+        <div class="suggestions">
+          {#each suggestedTags as tag, i}
+            <button
+              class="suggestion-item"
+              class:selected={i === selectedIndex}
+              onclick={() => handleAddTag(tag)}
+              onmouseenter={() => (selectedIndex = i)}
+            >
+              {tag}
+            </button>
+          {/each}
+        </div>
+      {/if}
+    {:else}
+      <button class="add-tag-btn" onclick={startAddingTag} aria-label="Add tag">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1rem"
+          viewBox="0 -960 960 960"
+          width="1rem"
+          fill="currentColor"
+          ><path
+            d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"
+          /></svg
+        >
+      </button>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -86,10 +170,16 @@
     white-space: nowrap;
   }
 
+  .add-tag-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
   .add-tag-btn {
     font-size: 0.75rem;
-    background-color: var(--bg-main);
-    color: var(--text-muted);
+    background-color: var(--bg-surface);
+    color: var(--accent);
     border: 0.0625rem dashed var(--border);
     padding-inline: 0.5rem;
     padding-block: 0.125rem;
@@ -108,13 +198,46 @@
 
   .tag-input {
     font-size: 0.75rem;
-    background-color: var(--bg-main);
+    background-color: var(--bg-surface);
     color: var(--text-main);
     border: 0.0625rem solid var(--accent);
     padding-inline: 0.625rem;
     padding-block: 0.125rem;
     border-radius: 999rem;
     outline: none;
-    width: 4rem;
+    width: 6rem;
+  }
+
+  .suggestions {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    z-index: 999;
+    background-color: var(--bg-base);
+    border: 0.0625rem solid var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    min-width: 8rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .suggestion-item {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.1s ease;
+  }
+
+  .suggestion-item:hover,
+  .suggestion-item.selected {
+    background-color: var(--accent);
+    color: var(--accent-text);
   }
 </style>
