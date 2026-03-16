@@ -4,7 +4,7 @@
    */
 
   import { onMount } from 'svelte';
-  import { sessionState, t } from '$lib';
+  import { inputManager, sessionState, t } from '$lib';
   import type { NoteContentResponse } from '$lib/types/notes';
   import { addNoteTag, getAllTags, removeNoteTag } from '$lib/utils/notes';
 
@@ -76,13 +76,15 @@
   };
 
   /**
-   * Handles right-click on a tag pill.
+   * Handles click on a tag pill. Sets the tag for removal if Shift is held.
    */
-  const handleContextMenu = (e: MouseEvent, tag: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    tagToRemove = tag;
-    isAddingTag = false;
+  const handleTagClick = (e: MouseEvent, tag: string) => {
+    if (inputManager.shiftPressed) {
+      e.preventDefault();
+      e.stopPropagation();
+      tagToRemove = tag;
+      isAddingTag = false;
+    }
   };
 
   /**
@@ -138,10 +140,11 @@
 <div class="tags-container">
   {#each tags as tag}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <span
       class="tag-pill"
       class:to-remove={tagToRemove === tag}
-      oncontextmenu={(e) => handleContextMenu(e, tag)}
+      onclick={(e) => handleTagClick(e, tag)}
     >
       {tag}
     </span>
