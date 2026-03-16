@@ -2,9 +2,11 @@
   /**
    * Component for displaying and managing tags for a note.
    */
+
+  import { onMount } from 'svelte';
   import { sessionState, t } from '$lib';
   import type { NoteContentResponse } from '$lib/types/notes';
-  import { addNoteTag, getAllTags } from '$lib/utils/notes';
+  import { addNoteTag, getAllTags, removeNoteTag } from '$lib/utils/notes';
 
   let { noteContent } = $props<{
     noteContent: NoteContentResponse | null;
@@ -12,6 +14,7 @@
 
   let tags = $derived(noteContent?.metadata.tags || []);
   let isAddingTag = $state(false);
+  let tagToRemove = $state<string | null>(null);
   let newTag = $state('');
   let allTags = $state<string[]>([]);
   let selectedIndex = $state(-1);
@@ -30,6 +33,13 @@
   $effect(() => {
     newTag;
     selectedIndex = -1;
+  });
+
+  // Close input when clicking outside
+  onMount(() => {
+    const handleClick = () => (tagToRemove = null);
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
   });
 
   /**
@@ -54,9 +64,32 @@
   };
 
   /**
+   * Triggers the removal of a tag and updates the session state.
+   */
+  const handleRemoveTag = async (e: MouseEvent) => {
+    e.stopPropagation();
+    if (tagToRemove) {
+      const updatedContent = await removeNoteTag(tagToRemove);
+      if (updatedContent) sessionState.todayNoteContent = updatedContent;
+    }
+    tagToRemove = null;
+  };
+
+  /**
+   * Handles right-click on a tag pill.
+   */
+  const handleContextMenu = (e: MouseEvent, tag: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    tagToRemove = tag;
+    isAddingTag = false;
+  };
+
+  /**
    * Loads all tags and shows initial suggestions.
    */
   const startAddingTag = async () => {
+    tagToRemove = null;
     isAddingTag = true;
     allTags = await getAllTags();
   };
@@ -104,11 +137,35 @@
 
 <div class="tags-container">
   {#each tags as tag}
-    <span class="tag-pill">{tag}</span>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <span
+      class="tag-pill"
+      class:to-remove={tagToRemove === tag}
+      oncontextmenu={(e) => handleContextMenu(e, tag)}
+    >
+      {tag}
+    </span>
   {/each}
 
   <div class="add-tag-wrapper">
-    {#if isAddingTag}
+    {#if tagToRemove}
+      <button
+        class="add-tag-btn remove"
+        onclick={handleRemoveTag}
+        aria-label="Remove tag"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1rem"
+          viewBox="0 -960 960 960"
+          width="1rem"
+          fill="currentColor"
+          ><path
+            d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+          /></svg
+        >
+      </button>
+    {:else if isAddingTag}
       <!-- svelte-ignore a11y_autofocus -->
       <input
         type="text"
@@ -168,6 +225,13 @@
     border-radius: 999rem;
     font-weight: 600;
     white-space: nowrap;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+
+  .tag-pill.to-remove {
+    background-color: var(--remove);
+    opacity: 0.8;
   }
 
   .add-tag-wrapper {
@@ -194,6 +258,12 @@
   .add-tag-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
+  }
+
+  .add-tag-btn.remove {
+    color: var(--remove);
+    border-color: var(--remove);
+    border-style: solid;
   }
 
   .tag-input {

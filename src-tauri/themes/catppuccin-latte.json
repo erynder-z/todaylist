@@ -8,5 +8,6 @@
   "--accent-text": "#eff1f5",
   "--border": "#ccd0da",
   "--success": "#40a02b",
-  "--error": "#d20f39"
+  "--error": "#d20f39",
+  "--remove": "#d20f39"
 }

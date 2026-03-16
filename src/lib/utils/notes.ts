@@ -108,6 +108,20 @@ export const addNoteTag = async (tag: string) => {
 };
 
 /**
+ * Removes a tag from the current note and returns the updated note content.
+ */
+export const removeNoteTag = async (tag: string) => {
+	try {
+		const content = (await invoke("remove_note_tag", {
+			tag,
+		})) as NoteContentResponse;
+		return content;
+	} catch (error) {
+		console.error("Error removing note tag:", error);
+	}
+};
+
+/**
  * Retrieves all tags from all notes, sorted by frequency.
  */
 export const getAllTags = async () => {
