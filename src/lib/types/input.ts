@@ -1,6 +1,10 @@
 export type ShortcutCallback = (e: KeyboardEvent) => void | Promise<void>;
 
-export type ShortcutAction = "toggleSearch";
+export type ShortcutAction =
+	| "toggleSearch"
+	| "toggleNotesList"
+	| "toggleSettings"
+	| "addTag";
 
 export type ShortcutConfig = {
 	key: string;

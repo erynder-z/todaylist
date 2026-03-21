@@ -135,6 +135,14 @@
         break;
     }
   };
+
+  onMount(() => {
+    const unregister = inputManager.registerAction('addTag', () =>
+      startAddingTag(),
+    );
+
+    return unregister;
+  });
 </script>
 
 <div class="tags-container">

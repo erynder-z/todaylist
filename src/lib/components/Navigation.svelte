@@ -14,11 +14,19 @@
   };
 
   onMount(() => {
-    const unregister = inputManager.registerAction('toggleSearch', () =>
-      togglePopup('search'),
-    );
+    const unregisters = [
+      inputManager.registerAction('toggleSearch', () => togglePopup('search')),
+      inputManager.registerAction('toggleNotesList', () =>
+        togglePopup('notesList'),
+      ),
+      inputManager.registerAction('toggleSettings', () =>
+        togglePopup('folderSelector'),
+      ),
+    ];
 
-    return unregister;
+    return () => {
+      for (const unregister of unregisters) unregister();
+    };
   });
 </script>
 
