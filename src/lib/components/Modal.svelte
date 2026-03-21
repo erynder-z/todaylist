@@ -2,14 +2,20 @@
   /**
    * Wrapper that handles displaying a modal popup as a child component.
    */
-  import { sessionState } from '$lib';
+  import { sessionState, useShortcuts } from '$lib';
 
   let { title, children } = $props();
 
   /**
    * Clears the active popup state to hide the modal.
    */
-  const close = () => (sessionState.activePopup = null);
+  const close = () => {
+    sessionState.activePopup = null;
+  };
+
+  useShortcuts({
+    closePopup: () => close(),
+  });
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->

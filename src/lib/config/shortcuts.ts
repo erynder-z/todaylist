@@ -21,4 +21,8 @@ export const defaultShortcuts: Record<ShortcutAction, ShortcutConfig> = {
 		ctrl: true,
 		description: "Add tag",
 	},
+	closePopup: {
+		key: "Escape",
+		description: "Close popup",
+	},
 };

@@ -4,7 +4,8 @@ export type ShortcutAction =
 	| "toggleSearch"
 	| "toggleNotesList"
 	| "toggleSettings"
-	| "addTag";
+	| "addTag"
+	| "closePopup";
 
 export type ShortcutConfig = {
 	key: string;
