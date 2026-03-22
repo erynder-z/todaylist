@@ -9,6 +9,7 @@
     SearchNotes,
     SettingsView,
     sessionState,
+    TagManagerModal,
     t,
   } from '$lib';
 </script>
@@ -24,5 +25,9 @@
 {:else if sessionState.activePopup === 'search'}
   <Modal title={$t('search.title')}>
     <SearchNotes />
+  </Modal>
+{:else if sessionState.activePopup === 'tagManager'}
+  <Modal title={$t('tag.manager.title')}>
+    <TagManagerModal />
   </Modal>
 {/if}

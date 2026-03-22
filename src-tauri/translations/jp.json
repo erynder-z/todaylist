@@ -25,6 +25,9 @@
 	"notes.error.load": "ノートの読み込みに失敗しました",
 	"notes.list.empty": "ノートが見つかりません",
 	"note.header": "ノート",
+	"tag.manager.title": "タグマネジャー ",
 	"tag.placeholder": "タグ...",
-	"tag.remove_placeholder": "タグを削除..."
+	"tag.remove": "削除...",
+	"tag.tags": "タグ",
+	"tag.suggestions": "提案"
 }

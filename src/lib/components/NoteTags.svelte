@@ -1,280 +1,92 @@
 <script lang="ts">
   /**
-   * Component for displaying and managing tags for a note.
+   * Component for displaying tags for a note.
+   * Clicking the add button opens the Tag Manager modal.
    */
-  import { onMount } from 'svelte';
-  import { inputManager, sessionState, t, useShortcuts } from '$lib';
+  import { removeNoteTag, sessionState, useShortcuts } from '$lib';
   import type { NoteContentResponse } from '$lib/types/notes';
-  import { addNoteTag, getAllTags, removeNoteTag } from '$lib/utils/notes';
 
   let { noteContent } = $props<{
     noteContent: NoteContentResponse | null;
   }>();
+
   let tags = $derived(noteContent?.metadata.tags || []);
-  let isAddingTag = $state(false);
-  let isRemovingTag = $state(false);
-  let tagToRemove = $state<string | null>(null);
-  let newTag = $state('');
-  let removeSearch = $state('');
-  let allTags = $state<string[]>([]);
-  let selectedIndex = $state(-1);
+  let selectedTag = $state<string | null>(null);
 
-  let suggestedTags = $derived(
-    allTags
-      .filter(
-        (tag) =>
-          !tags.includes(tag) &&
-          tag.toLowerCase().includes(newTag.trim().toLowerCase()),
-      )
-      .slice(0, 8),
-  );
-
-  let filteredTagsToRemove = $derived(
-    tags
-      .filter((tag: string) =>
-        tag.toLowerCase().includes(removeSearch.trim().toLowerCase()),
-      )
-      .slice(0, 8),
-  );
-
-  // Close input when clicking outside
-  onMount(() => {
-    const handleClick = () => (tagToRemove = null);
-    window.addEventListener('click', handleClick);
-    return () => window.removeEventListener('click', handleClick);
-  });
-
-  /**
-   * Closes the tag input field.
-   */
-  const closeInput = () => {
-    isAddingTag = false;
-    isRemovingTag = false;
-    newTag = '';
-    removeSearch = '';
-    selectedIndex = -1;
+  /** Clears selection and opens the Tag Manager popup. */
+  const openTagManager = () => {
+    selectedTag = null;
+    sessionState.activePopup = 'tagManager';
   };
 
-  /**
-   * Triggers the addition of a new tag and updates the session state.
-   */
-  const handleAddTag = async (tagToAdd?: string) => {
-    const finalTag = tagToAdd || newTag.trim();
-    if (finalTag && !tags.includes(finalTag)) {
-      const updatedContent = await addNoteTag(finalTag);
-      if (updatedContent) sessionState.todayNoteContent = updatedContent;
+  /** Toggles the selection of a tag pill. */
+  const toggleSelectTag = (tag: string) => {
+    if (selectedTag === tag) {
+      selectedTag = null;
+    } else {
+      selectedTag = tag;
     }
-    closeInput();
   };
 
-  /**
-   * Triggers the removal of a tag and updates the session state.
-   */
-  const handleRemoveTag = async (e: MouseEvent) => {
-    e.stopPropagation();
-    if (tagToRemove) {
-      const updatedContent = await removeNoteTag(tagToRemove);
-      if (updatedContent) sessionState.todayNoteContent = updatedContent;
-    }
-    tagToRemove = null;
-  };
-
-  /**
-   * Removes a specific tag from the note.
-   */
-  const handleRemoveSpecificTag = async (tag: string) => {
-    const updatedContent = await removeNoteTag(tag);
+  /** Removes the currently selected tag from the note. */
+  const handleRemoveTag = async () => {
+    if (!selectedTag) return;
+    const updatedContent = await removeNoteTag(selectedTag);
     if (updatedContent) sessionState.todayNoteContent = updatedContent;
-    closeInput();
-  };
-
-  /**
-   * Handles click on a tag pill. Sets the tag for removal if Shift is held.
-   */
-  const handleTagClick = (e: MouseEvent, tag: string) => {
-    if (inputManager.shiftPressed) {
-      e.preventDefault();
-      e.stopPropagation();
-      tagToRemove = tag;
-      isAddingTag = false;
-      isRemovingTag = false;
-    }
-  };
-
-  /**
-   * Loads all tags and shows initial suggestions.
-   */
-  const startAddingTag = async () => {
-    tagToRemove = null;
-    isRemovingTag = false;
-    isAddingTag = true;
-    allTags = await getAllTags();
-  };
-
-  /**
-   * Starts the removal process for existing tags.
-   */
-  const startRemovingTag = () => {
-    if (tags.length === 0) return;
-    tagToRemove = null;
-    isAddingTag = false;
-    isRemovingTag = true;
-    removeSearch = '';
-    selectedIndex = 0;
-  };
-
-  /**
-   * Moves the selection down in the suggestions list.
-   */
-  const moveSelectionDown = () => {
-    const list = isAddingTag ? suggestedTags : filteredTagsToRemove;
-    selectedIndex = selectedIndex < list.length - 1 ? selectedIndex + 1 : -1;
-  };
-
-  /**
-   * Moves the selection up in the suggestions list.
-   */
-  const moveSelectionUp = () => {
-    const list = isAddingTag ? suggestedTags : filteredTagsToRemove;
-    selectedIndex = selectedIndex > -1 ? selectedIndex - 1 : list.length - 1;
-  };
-
-  /**
-   * Handles keyboard interactions for the tag input field.
-   */
-  const handleKeyDown = (e: KeyboardEvent): void => {
-    switch (e.key) {
-      case 'Enter':
-        if (isAddingTag) {
-          handleAddTag(suggestedTags[selectedIndex]);
-        } else if (isRemovingTag) {
-          if (filteredTagsToRemove[selectedIndex]) {
-            handleRemoveSpecificTag(filteredTagsToRemove[selectedIndex]);
-          }
-        }
-        break;
-      case 'Escape':
-        closeInput();
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        moveSelectionDown();
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        moveSelectionUp();
-        break;
-      default:
-        break;
-    }
+    selectedTag = null;
   };
 
   useShortcuts({
-    addTag: () => startAddingTag(),
-    removeTag: () => startRemovingTag(),
+    manageTags: openTagManager,
   });
 </script>
 
 <div class="tags-container">
   {#each tags as tag}
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <span
+    <button
       class="tag-pill"
-      class:to-remove={tagToRemove === tag}
-      onclick={(e) => handleTagClick(e, tag)}
+      class:selected={selectedTag === tag}
+      onclick={() => toggleSelectTag(tag)}
     >
       {tag}
-    </span>
+    </button>
   {/each}
 
-  <div class="add-tag-wrapper">
-    {#if tagToRemove}
-      <button
-        class="add-tag-btn remove"
-        onclick={handleRemoveTag}
-        aria-label="Remove tag"
+  {#if selectedTag}
+    <button
+      class="add-tag-btn remove-mode"
+      onclick={handleRemoveTag}
+      aria-label="Remove selected tag"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        height="1rem"
+        viewBox="0 -960 960 960"
+        width="1rem"
+        fill="currentColor"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="1rem"
-          viewBox="0 -960 960 960"
-          width="1rem"
-          fill="currentColor"
-          ><path
-            d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224 -224-224 224Z"
-          /></svg
-        >
-      </button>
-    {:else if isAddingTag}
-      <!-- svelte-ignore a11y_autofocus -->
-      <input
-        type="text"
-        class="tag-input"
-        bind:value={newTag}
-        oninput={() => (selectedIndex = -1)}
-        onkeydown={handleKeyDown}
-        onblur={() => setTimeout(closeInput, 200)}
-        autofocus
-        placeholder={$t('tag.placeholder')}
-      />
-
-      {#if suggestedTags.length > 0}
-        <div class="suggestions">
-          {#each suggestedTags as tag, i}
-            <button
-              class="suggestion-item"
-              class:selected={i === selectedIndex}
-              onclick={() => handleAddTag(tag)}
-              onmouseenter={() => (selectedIndex = i)}
-            >
-              {tag}
-            </button>
-          {/each}
-        </div>
-      {/if}
-    {:else if isRemovingTag}
-      <!-- svelte-ignore a11y_autofocus -->
-      <input
-        type="text"
-        class="tag-input remove-mode"
-        bind:value={removeSearch}
-        oninput={() => (selectedIndex = -1)}
-        onkeydown={handleKeyDown}
-        onblur={() => setTimeout(closeInput, 200)}
-        autofocus
-        placeholder={$t('tag.remove_placeholder')}
-      />
-
-      {#if filteredTagsToRemove.length > 0}
-        <div class="suggestions">
-          {#each filteredTagsToRemove as tag, i}
-            <button
-              class="suggestion-item remove"
-              class:selected={i === selectedIndex}
-              onclick={() => handleRemoveSpecificTag(tag)}
-              onmouseenter={() => (selectedIndex = i)}
-            >
-              {tag}
-            </button>
-          {/each}
-        </div>
-      {/if}
-    {:else}
-      <button class="add-tag-btn" onclick={startAddingTag} aria-label="Add tag">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="1rem"
-          viewBox="0 -960 960 960"
-          width="1rem"
-          fill="currentColor"
-          ><path
-            d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"
-          /></svg
-        >
-      </button>
-    {/if}
-  </div>
+        <path
+          d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+        />
+      </svg>
+    </button>
+  {:else}
+    <button
+      class="add-tag-btn"
+      onclick={openTagManager}
+      aria-label="Manage tags"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        height="1rem"
+        viewBox="0 -960 960 960"
+        width="1rem"
+        fill="currentColor"
+      >
+        <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+      </svg>
+    </button>
+  {/if}
 </div>
 
 <style>
@@ -294,19 +106,15 @@
     border-radius: 999rem;
     font-weight: 600;
     white-space: nowrap;
+    cursor: pointer;
+    border: 0.125rem solid transparent;
     transition: all 0.2s ease;
-    cursor: default;
   }
 
-  .tag-pill.to-remove {
+  .tag-pill.selected {
     background-color: var(--remove);
-    opacity: 0.8;
-  }
-
-  .add-tag-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
+    color: var(--text-main);
+    border-color: var(--remove);
   }
 
   .add-tag-btn {
@@ -322,6 +130,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 1.5rem;
+    width: 2.25rem;
   }
 
   .add-tag-btn:hover {
@@ -329,65 +139,13 @@
     color: var(--accent);
   }
 
-  .add-tag-btn.remove {
+  .add-tag-btn.remove-mode {
     color: var(--remove);
-    border-color: var(--remove);
-    border-style: solid;
+    border: 0.0625rem solid var(--remove);
   }
 
-  .tag-input {
-    font-size: 0.75rem;
-    background-color: var(--bg-surface);
-    color: var(--text-main);
-    border: 0.0625rem solid var(--accent);
-    padding-inline: 0.625rem;
-    padding-block: 0.125rem;
-    border-radius: 999rem;
-    outline: none;
-    width: 6rem;
-    transition: border-color 0.2s ease;
-  }
-
-  .tag-input.remove-mode {
-    border-color: var(--remove);
-  }
-
-  .suggestions {
-    position: absolute;
-    top: calc(100% + 0.25rem);
-    left: 0;
-    z-index: 999;
-    background-color: var(--bg-base);
-    border: 0.0625rem solid var(--border);
-    border-radius: 0.5rem;
-    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
-    min-width: 8rem;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .suggestion-item {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-    text-align: left;
-    background: none;
-    border: none;
-    color: var(--text-main);
-    cursor: pointer;
-    width: 100%;
-    transition: background-color 0.1s ease;
-  }
-
-  .suggestion-item:hover,
-  .suggestion-item.selected {
-    background-color: var(--accent);
-    color: var(--accent-text);
-  }
-
-  .suggestion-item.remove:hover,
-  .suggestion-item.remove.selected {
+  .add-tag-btn.remove-mode:hover {
     background-color: var(--remove);
-    color: white;
+    color: var(--text-main);
   }
 </style>

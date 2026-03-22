@@ -25,6 +25,9 @@
 	"notes.error.load": "Notizen konnten nicht geladen werden",
 	"notes.list.empty": "Keine Notizen gefunden",
 	"note.header": "Notiz",
+	"tag.manager.title": "Tags verwalten",
 	"tag.placeholder": "Tag...",
-	"tag.remove_placeholder": "Tag entfernen..."
+	"tag.remove": "Entfernen...",
+	"tag.tags": "Tags",
+	"tag.suggestions": "Vorschläge"
 }

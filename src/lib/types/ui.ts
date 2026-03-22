@@ -1,1 +1,6 @@
-export type PopupType = "folderSelector" | "notesList" | "search" | null;
+export type PopupType =
+	| "folderSelector"
+	| "notesList"
+	| "search"
+	| "tagManager"
+	| null;

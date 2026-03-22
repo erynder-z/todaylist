@@ -16,16 +16,10 @@ export const defaultShortcuts: Record<ShortcutAction, ShortcutConfig> = {
 		ctrl: true,
 		description: "Toggle settings",
 	},
-	addTag: {
+	manageTags: {
 		key: "t",
 		ctrl: true,
-		description: "Add tag",
-	},
-	removeTag: {
-		key: "t",
-		ctrl: true,
-		shift: true,
-		description: "Remove tag",
+		description: "Manage tags",
 	},
 	closePopup: {
 		key: "Escape",
