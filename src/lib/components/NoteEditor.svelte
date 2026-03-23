@@ -3,7 +3,7 @@
    * The main note display component. Displays a note's content in an editable form.
    */
   import { untrack } from 'svelte';
-  import { NoteLine } from '$lib';
+  import { NoteLine, sessionState } from '$lib';
   import type { NoteContentResponse, NoteLineData } from '$lib/types/notes';
   import {
     deleteNoteLine,
@@ -71,17 +71,23 @@
   };
 
   /**
+   * Ensures there is a trailing empty line and moves focus to it.
+   */
+  const focusLastLine = () => {
+    ensureTrailingEmptyLine();
+    activeIndex = lines.length - 1;
+  };
+
+  /**
    * Synchronizes the component state when the active note changes.
    * This handles initial loading and prepares the UI for editing.
    */
   const syncProps = () => {
     if (notePath !== lastLoadedPath) {
       loadLines();
-      ensureTrailingEmptyLine();
+      focusLastLine();
 
       lastLoadedPath = notePath;
-      // Focus the last line (which we ensured is empty if needed)
-      activeIndex = lines.length - 1;
       changedLineIndex = null;
     }
   };
@@ -198,6 +204,14 @@
   $effect.pre(() => syncProps());
   $effect(() => autoFlushOnLineSwitch());
   $effect(() => debouncedAutoSave());
+
+  /**
+   * Returns focus to the editor when a popup is closed.
+   */
+  $effect(() => {
+    if (sessionState.activePopup === null && lastLoadedPath)
+      untrack(() => focusLastLine());
+  });
 </script>
 
 <div class="note-container">
