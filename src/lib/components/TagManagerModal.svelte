@@ -19,14 +19,18 @@
   let selectedIndex = $state(-1);
   let inputElement: HTMLInputElement | null = $state(null);
 
-  /** Filters tags based on the provided search query. */
+  /**
+   * Filters tags based on the provided search query.
+   */
   const filterTags = (tags: string[], query: string) => {
     const search = query.trim().toLowerCase();
     if (!search) return tags;
     return tags.filter((t) => t.toLowerCase().includes(search));
   };
 
-  /** Sorts tags, prioritizing active ones and then applying alphabetical order. */
+  /**
+   * Sorts tags, prioritizing active ones and then applying alphabetical order.
+   */
   const sortTags = (tags: string[], active: string[]) => {
     return [...tags].sort((a, b) => {
       const aAdded = active.includes(a);
@@ -51,7 +55,9 @@
     suggestedTags.filter((t) => !currentTags.includes(t)),
   );
 
-  /** Toggles a tag on or off for the current note. */
+  /**
+   * Toggles a tag on or off for the current note.
+   */
   const handleToggleTag = async (tagToToggle?: string) => {
     const tag = (tagToToggle || newTag).trim();
     if (!tag) return;
@@ -63,7 +69,6 @@
 
     if (updatedContent) {
       sessionState.todayNoteContent = updatedContent;
-      // Refresh all tags to update frequency-based sorting from backend
       allTags = await getAllTags();
     }
 
@@ -71,7 +76,9 @@
     selectedIndex = -1;
   };
 
-  /** Moves the keyboard selection index up or down. */
+  /**
+   * Moves the keyboard selection index up or down.
+   */
   const moveSelection = (direction: 'up' | 'down') => {
     const count = suggestedTags.length;
     if (count === 0) return;
@@ -82,24 +89,30 @@
     }
   };
 
-  /** Selects the currently highlighted tag suggestion. */
+  /**
+   * Selects the currently highlighted tag suggestion.
+   */
   const selectCurrentSuggestion = () => {
     const tag = selectedIndex >= 0 ? suggestedTags[selectedIndex] : undefined;
     handleToggleTag(tag);
   };
 
-  /** Removes the last tag from the note if the input field is empty. */
+  /**
+   * Removes the last tag from the note if the input field is empty.
+   */
   const removeLastActiveTag = () => {
     if (!newTag && currentTags.length > 0) {
       handleToggleTag(currentTags[currentTags.length - 1]);
     }
   };
 
-  /** Handles keyboard events for navigation and actions. */
+  /**
+   * Handles keyboard events for navigation and actions.
+   */
   const handleKeyDown = (e: KeyboardEvent) => {
     // Check for shortcut combinations (Secondary Modifier + Physical Key)
-    // Mac: Option (alt), Others: Super (meta)
-    const isSecondary = sessionState.isMac ? e.altKey : e.metaKey;
+    // Mac: Option (alt), Others: Super/Windows (meta) or Alt if Super is reported as Alt
+    const isSecondary = sessionState.isMac ? e.altKey : e.metaKey || e.altKey;
 
     if (isSecondary && !e.shiftKey && !e.ctrlKey) {
       const shortcutIndex = tagSuggestionShortcuts.codes.indexOf(e.code);

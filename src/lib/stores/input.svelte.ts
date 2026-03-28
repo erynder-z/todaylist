@@ -12,13 +12,14 @@ import { sessionState } from "./sessionState.svelte";
 class InputManager {
 	altPressed = $state(false);
 	metaPressed = $state(false);
+	ctrlPressed = $state(false);
 
 	/**
 	 * Returns the 'Primary' modifier based on physical location (next to spacebar).
-	 * Mac: Command (meta), Others: Alt (alt)
+	 * Mac: Command (meta), Others: Ctrl (ctrlKey)
 	 */
 	get primaryPressed() {
-		return sessionState.isMac ? this.metaPressed : this.altPressed;
+		return sessionState.isMac ? this.metaPressed : this.ctrlPressed;
 	}
 
 	/**
@@ -33,7 +34,7 @@ class InputManager {
 	 * Returns the platform-specific label for the primary modifier.
 	 */
 	get primaryLabel() {
-		return sessionState.isMac ? "⌘" : "Alt";
+		return sessionState.isMac ? "⌘" : "Ctrl";
 	}
 
 	/**
@@ -43,6 +44,7 @@ class InputManager {
 		return sessionState.isMac ? "⌥" : "Super";
 	}
 
+	/** List of registered shortcut configurations. */
 	private shortcuts: ShortcutRegistration[] = [];
 
 	/**
@@ -97,8 +99,7 @@ class InputManager {
 	}
 
 	/**
-	 * Processes keydown events to match against registered shortcuts.
-	 * Favoring the most recently registered shortcuts by iterating backwards.
+	 * Handles global keydown events, updates modifier states, and triggers matching shortcuts.
 	 */
 	private handleKeyDown(e: KeyboardEvent) {
 		this.updateModifiers(e);
@@ -112,14 +113,17 @@ class InputManager {
 		for (let i = this.shortcuts.length - 1; i >= 0; i--) {
 			const shortcut = this.shortcuts[i];
 
-			// Strictly match primary and secondary modifiers
-			const matchesPrimary = !!shortcut.primary === this.primaryPressed;
-			const matchesSecondary = !!shortcut.secondary === this.secondaryPressed;
+			const matchesPrimary =
+				shortcut.primary === undefined ||
+				!!shortcut.primary === this.primaryPressed;
+
+			const matchesSecondary =
+				shortcut.secondary === undefined ||
+				!!shortcut.secondary === this.secondaryPressed;
+
 			const matchesKey = e.key.toLowerCase() === shortcut.key.toLowerCase();
 
-			// If any other key is pressed (shift/ctrl) we don't match for simplicity
-			// unless we explicitly add support later.
-			const otherModifiers = e.shiftKey || e.ctrlKey;
+			const otherModifiers = e.shiftKey;
 
 			if (matchesKey && matchesPrimary && matchesSecondary && !otherModifiers) {
 				// If typing in an input, ONLY allow shortcuts that use a modifier
@@ -150,9 +154,10 @@ class InputManager {
 	/**
 	 * Synchronizes the internal modifier states with the current event state.
 	 */
-	private updateModifiers(e: KeyboardEvent | MouseEvent) {
+	updateModifiers(e: KeyboardEvent | MouseEvent) {
 		this.altPressed = e.altKey;
 		this.metaPressed = e.metaKey;
+		this.ctrlPressed = e.ctrlKey;
 	}
 
 	/**
@@ -161,6 +166,7 @@ class InputManager {
 	private resetModifiers() {
 		this.altPressed = false;
 		this.metaPressed = false;
+		this.ctrlPressed = false;
 	}
 }
 
