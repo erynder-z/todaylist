@@ -44,12 +44,11 @@
   }
 
   .container {
-    max-width: 50rem;
     margin: 0 auto;
-    padding: 2rem 1.5rem;
-    min-height: 100vh;
+    padding: 3rem 1rem;
     display: flex;
     flex-direction: column;
+    align-items: center;
     transition:
       background-color 0.3s,
       color 0.3s;

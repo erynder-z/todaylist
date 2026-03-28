@@ -235,24 +235,32 @@
 
 <style>
   .note-container {
-    padding: 2rem;
+    width: clamp(20rem, 90%, 70ch);
+    min-height: min(75vh, 600px);
+    padding: 3rem 1rem;
     background-color: var(--bg-surface);
     border: 0.0625rem solid var(--border);
     color: var(--text-main);
-    border-radius: 0.75rem;
-    margin: 1rem 0;
-    min-height: 10rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+  }
+
+  .note-container :global(.rendered-line) {
+    line-height: 1.6;
+    font-size: 1rem;
   }
 
   .note-container :global(.rendered-line p) {
     margin: 0;
   }
+
   .note-container :global(.rendered-line h1) {
     font-size: 1.5rem;
   }
+
   .note-container :global(.rendered-line h2) {
     font-size: 1.3rem;
   }
+
   .note-container :global(.rendered-line h3) {
     font-size: 1.2rem;
   }
@@ -282,6 +290,12 @@
     background-color: var(--bg-base);
     padding: 1rem;
     border-radius: 0.5rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+  }
+
+  .note-container :global(.rendered-line table) {
+    width: 100%;
     overflow-x: auto;
   }
 

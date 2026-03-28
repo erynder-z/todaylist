@@ -202,20 +202,32 @@
     </div>
 
     {#if suggestedTags.length > 0}
-      <div class="suggestions">
+      <div class="suggestions-container">
         {#if activeTags.length > 0}
-          <div class="section-label">{$t('tag.tags')}</div>
-          {#each activeTags as tag}
-            {@render tagItem(tag)}
-          {/each}
+          <div class="section">
+            <div class="section-label">{$t('tag.tags')}</div>
+            <div class="items">
+              {#each activeTags as tag}
+                {@render tagItem(tag)}
+              {/each}
+            </div>
+          </div>
         {/if}
 
         {#if inactiveTags.length > 0}
-          <div class="section-label">{$t('tag.suggestions')}</div>
-          {#each inactiveTags as tag}
-            {@render tagItem(tag)}
-          {/each}
+          <div class="section">
+            <div class="section-label">{$t('tag.suggestions')}</div>
+            <div class="items">
+              {#each inactiveTags as tag}
+                {@render tagItem(tag)}
+              {/each}
+            </div>
+          </div>
         {/if}
+      </div>
+    {:else if newTag}
+      <div class="no-results">
+        <p>Press Enter to create new tag <strong>#{newTag}</strong></p>
       </div>
     {/if}
   </div>
@@ -225,15 +237,13 @@
   .tag-manager {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    min-height: 20rem;
+    width: 100%;
   }
 
   .search-section {
-    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1.25rem;
   }
 
   .input-container {
@@ -244,109 +254,135 @@
 
   .search-icon {
     position: absolute;
-    left: 1rem;
+    left: 1.25rem;
     width: 1.25rem;
     height: 1.25rem;
     color: var(--text-muted);
     pointer-events: none;
+    opacity: 0.6;
   }
 
   input {
     width: 100%;
     background-color: var(--bg-surface);
-    border: 0.0625rem solid var(--border);
+    border: 0.1rem solid var(--border);
     color: var(--text-main);
-    padding: 0.875rem 1rem 0.875rem 3rem;
-    border-radius: 0.75rem;
-    font-size: 1rem;
+    padding: 1rem 1rem 1rem 3.25rem;
+    font-size: 1.1rem;
     outline: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
   input:focus {
     border-color: var(--accent);
     background-color: var(--bg-base);
-    box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 0, 122, 255), 0.1);
+    box-shadow: 0 0 0 4px rgba(116, 123, 255, 0.1);
   }
 
-  .suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 0.5rem;
-    background-color: var(--bg-base);
-    border: 0.0625rem solid var(--border);
-    border-radius: 0.75rem;
-    box-shadow:
-      0 10px 25px -5px rgba(0, 0, 0, 0.1),
-      0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    z-index: 50;
-    overflow: hidden;
-    padding: 0.5rem;
+  .suggestions-container {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: 1.5rem;
+    padding: 0.25rem;
+  }
+
+  .section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .section-label {
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0 0.5rem;
+  }
+
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
   .suggestion-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     width: 100%;
-    padding: 0.625rem 0.75rem;
+    padding: 0.75rem 1rem;
     text-align: left;
     background: none;
     border: none;
     color: var(--text-main);
     cursor: pointer;
-    border-radius: 0.5rem;
-    font-size: 0.9375rem;
-    transition: all 0.15s ease;
+    font-size: 1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .tag-label {
-    flex: 1;
+  .suggestion-item:hover,
+  .suggestion-item.selected {
+    background-color: var(--accent);
+    color: var(--accent-text);
+    transform: translateX(4px);
   }
 
-  .shortcut-hint {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    background-color: var(--bg-surface);
-    border: 0.0625rem solid var(--border);
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.125rem;
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  .suggestion-item:hover .shortcut-hint,
-  .suggestion-item.selected .shortcut-hint {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: transparent;
+  .suggestion-item:hover .hashtag,
+  .suggestion-item.selected .hashtag {
     color: var(--accent-text);
     opacity: 1;
   }
 
-  .mod {
-    font-size: 0.7rem;
-    line-height: 1;
+  .suggestion-item:hover .shortcut-hint,
+  .suggestion-item.selected .shortcut-hint {
     opacity: 0.8;
-    margin-right: 0.125rem;
+    border-color: var(--accent-text);
+    color: var(--accent-text);
+  }
+
+  .suggestion-item.is-added:hover,
+  .suggestion-item.is-added.selected {
+    background-color: var(--remove);
+    color: var(--accent-text);
+  }
+
+  .tag-label {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .hashtag {
+    color: var(--text-muted);
+    font-weight: 400;
+    opacity: 0.5;
+  }
+
+  .shortcut-hint {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border: 0.075rem solid var(--border);
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    opacity: 0.4;
+    transition: all 0.2s ease;
+  }
+
+  .shortcut-hint.is-pressed {
+    opacity: 1;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .mod {
+    font-size: 0.65rem;
+    opacity: 0.7;
   }
 
   .key {
@@ -355,42 +391,33 @@
   }
 
   .status-badge {
-    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-    color: var(--remove);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .suggestion-item.is-added .status-badge {
-    opacity: 1;
-  }
-
-  .hashtag {
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.5rem;
     color: var(--text-muted);
-    font-weight: 500;
+    transition: all 0.2s ease;
   }
 
-  .suggestion-item:hover,
-  .suggestion-item.selected {
-    background-color: var(--accent);
+  .suggestion-item.is-added:hover .status-badge,
+  .suggestion-item.is-added.selected .status-badge {
     color: var(--accent-text);
   }
 
-  .suggestion-item:hover .hashtag,
-  .suggestion-item.selected .hashtag,
-  .suggestion-item:hover .status-badge,
-  .suggestion-item.selected .status-badge {
-    color: var(--accent-text);
-    opacity: 0.8;
+  .no-results {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    background-color: var(--bg-surface);
+    border-radius: 0.875rem;
+    border: 0.0625rem dashed var(--border);
   }
 
-  .suggestion-item.is-added:hover,
-  .suggestion-item.is-added.selected {
-    background-color: var(--remove);
-    color: var(--accent-text);
+  .no-results strong {
+    color: var(--accent);
   }
 </style>
