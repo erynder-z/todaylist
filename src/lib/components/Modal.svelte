@@ -3,6 +3,7 @@
    * Modal wrapper that handles displaying a popup as a child component.
    * Consolidates focus management and scroll locking into a single setup action.
    */
+  import { tick } from 'svelte';
   import { focusTrap, sessionState, useShortcuts } from '$lib';
 
   let { title, children } = $props();
@@ -31,8 +32,31 @@
     const lockScroll = () => (document.body.style.overflow = 'hidden');
     const unlockScroll = () =>
       (document.body.style.overflow = previousOverflow);
-    const setFocus = () => node.focus();
-    const restoreFocus = () => previousFocus?.focus();
+
+    const setFocus = async () => {
+      // tick() ensures Svelte has finished updating the DOM and processed snippets
+      await tick();
+
+      // If focus is already within the modal (e.g. via browser autofocus), don't steal it
+      if (
+        node.contains(document.activeElement) &&
+        document.activeElement !== node
+      ) {
+        return;
+      }
+
+      const autofocusElement = node.querySelector('[autofocus]') as HTMLElement;
+      if (autofocusElement) {
+        autofocusElement.focus();
+      } else {
+        node.focus();
+      }
+    };
+
+    const restoreFocus = () => {
+      if (previousFocus && typeof previousFocus.focus === 'function')
+        previousFocus.focus();
+    };
 
     lockScroll();
     setFocus();
@@ -84,8 +108,6 @@
   .popup {
     background-color: var(--bg-base);
     padding: 2rem;
-    border-radius: 1rem;
-    border: 0.0625rem solid var(--border);
     max-width: 90vw;
     max-height: 85vh;
     overflow-y: auto;
