@@ -132,26 +132,38 @@
 
   .btn-primary,
   .btn-success {
-    padding: 0.8rem 1.75rem; /* Wider padding for monospace buttons */
+    padding: 0.65rem 1.25rem;
     border: none;
     border-radius: 0.5rem;
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.15s ease;
     color: var(--accent-text);
-    min-width: 15ch;
+    min-width: 12ch;
   }
 
   .btn-primary {
     background-color: var(--accent);
   }
-  .btn-primary:hover {
-    background-color: var(--accent-hover);
+
+  .btn-primary:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
   }
 
   .btn-success {
-    background-color: var(--success);
+    background-color: var(--success, #28a745);
+  }
+
+  .btn-success:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active:not(:disabled),
+  .btn-success:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   .btn-primary:disabled,
@@ -167,10 +179,10 @@
 
   .folder-path {
     text-align: center;
-    padding: 1rem;
+    padding: 1.25rem;
     background-color: var(--bg-surface);
-    border-radius: 0.375rem;
-    border: 0.0625rem solid var(--border);
+    border-radius: 0.5rem;
+    border: 1px dashed var(--border);
     color: var(--text-main);
     margin: 0;
     display: flex;
@@ -180,15 +192,17 @@
 
   .path-text {
     font-size: 0.85rem;
+    font-family: var(--font-mono, monospace);
     overflow-wrap: break-word;
-    opacity: 0.9;
+    opacity: 0.8;
   }
 
   .validation-msg {
     font-size: 0.85rem;
-    color: var(--success);
-    margin-top: 0.5rem;
+    color: var(--success, #28a745);
+    margin-top: 0.75rem;
     text-align: center;
+    font-weight: 500;
   }
 
   .validation-msg.error {

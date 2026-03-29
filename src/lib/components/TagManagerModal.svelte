@@ -127,6 +127,7 @@
     class:selected={globalIndex === selectedIndex}
     class:is-added={isAdded}
     onclick={() => handleToggleTag(tag)}
+    onmouseenter={() => (selectedIndex = globalIndex)}
   >
     <span class="hashtag">#</span>
     <span class="tag-label">{tag}</span>
@@ -159,7 +160,11 @@
       />
     </div>
 
-    <div class="suggestions-container">
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="suggestions-container"
+      onmouseleave={() => (selectedIndex = -1)}
+    >
       {#if currentTags.length > 0}
         <div class="section">
           <div class="section-label">{$t('tag.tags')}</div>
@@ -210,19 +215,18 @@
 
   input {
     width: 100%;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--accent), transparent 80%);
+    border: none;
     color: var(--text-main);
     padding: 0.75rem 1rem;
     font-size: 1rem;
     outline: none;
     transition: all 0.15s ease;
-    border-radius: 6px;
+    border-radius: 0.5rem;
   }
 
   input:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
   }
 
   .suggestions-container {
@@ -268,13 +272,11 @@
     border-radius: 4px;
   }
 
-  .suggestion-item:hover,
   .suggestion-item.selected {
     background-color: var(--accent);
     color: var(--accent-text);
   }
 
-  .suggestion-item.is-added:hover,
   .suggestion-item.is-added.selected {
     background-color: var(--remove);
     color: var(--accent-text);
@@ -297,12 +299,11 @@
     color: var(--text-muted);
     border: 1px solid var(--border);
     padding: 0.125rem 0.375rem;
-    border-radius: 4px;
+    border-radius: 0.5rem;
     display: flex;
     align-items: center;
     gap: 0.2rem;
     opacity: 0.6;
-    transition: all 0.15s ease;
   }
 
   .mod {
@@ -323,9 +324,8 @@
     font-weight: 500;
     text-transform: uppercase;
     padding: 0.125rem 0.5rem;
-    border-radius: 4px;
+    border-radius: 0.5rem;
     color: var(--text-muted);
-    transition: all 0.15s ease;
   }
 
   .suggestion-item.is-added:hover .status-badge,
@@ -338,7 +338,7 @@
     text-align: center;
     color: var(--text-muted);
     background-color: var(--bg-surface);
-    border-radius: 6px;
+    border-radius: 0.5rem;
     border: 1px dashed var(--border);
     font-size: 0.9rem;
   }

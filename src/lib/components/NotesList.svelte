@@ -9,6 +9,7 @@
 
   let notes: FormattedNote[] = $state([]);
   let isLoading = $state(true);
+  let selectedIndex = $state(-1);
 
   /**
    * Fetches the list of all available notes from the backend.
@@ -34,26 +35,60 @@
     }
   };
 
+  /**
+   * Moves the keyboard selection index up or down.
+   */
+  const moveSelection = (direction: 'up' | 'down') => {
+    const count = notes.length;
+    if (count === 0) return;
+    selectedIndex =
+      direction === 'down'
+        ? (selectedIndex + 1) % count
+        : (selectedIndex - 1 + count) % count;
+  };
+
+  /**
+   * Handles keyboard events for navigation and actions.
+   */
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        moveSelection('down');
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        moveSelection('up');
+        break;
+      case 'Enter':
+        if (selectedIndex >= 0) {
+          selectNote(notes[selectedIndex]);
+        }
+        break;
+    }
+  };
+
   $effect(() => {
     if (settings.notesFolder) loadNotes();
   });
 </script>
 
-<div class="notes-section">
+<!-- svelte-ignore a11y_autofocus -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="notes-section" onkeydown={handleKeyDown} tabindex="-1" autofocus>
   {#if isLoading}
     <div class="status-msg">{$t('notes.loading')}</div>
   {:else if notes.length > 0}
-    <div class="notes-list">
-      {#each notes as note (note.filename)}
-        <div
-          role="button"
-          tabindex="0"
+    <div class="notes-list" onmouseleave={() => (selectedIndex = -1)}>
+      {#each notes as note, i (note.filename)}
+        <button
           class="note-item"
+          class:selected={i === selectedIndex}
           onclick={() => selectNote(note)}
-          onkeydown={(e) => e.key === 'Enter' && selectNote(note)}
+          onmouseenter={() => (selectedIndex = i)}
         >
           <span class="note-name">{note.formattedName}</span>
-        </div>
+        </button>
       {/each}
     </div>
   {:else}
@@ -63,36 +98,36 @@
 
 <style>
   .notes-section {
-    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    outline: none;
   }
 
   .notes-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    max-width: 60ch;
-    margin: 0 auto;
+    gap: 0.125rem;
+    width: 100%;
   }
 
   .note-item {
-    padding: 1rem 1.25rem;
-    background-color: var(--bg-surface);
-    border-radius: 0.5rem;
-    border: 0.0625rem solid var(--border);
-    cursor: pointer;
-    transition:
-      transform 0.15s,
-      border-color 0.15s,
-      background-color 0.15s;
-    color: var(--text-main);
     display: flex;
     align-items: center;
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 0.95rem;
+    border-radius: 0.5rem;
   }
 
-  .note-item:hover {
-    transform: translateX(0.5ch);
-    border-color: var(--accent);
-    background-color: var(--bg-base);
+  .note-item.selected {
+    background-color: var(--accent);
+    color: var(--accent-text);
   }
 
   .note-name {
@@ -105,5 +140,9 @@
     padding: 2rem;
     color: var(--text-muted);
     font-style: italic;
+    background-color: var(--bg-surface);
+    border-radius: 0.5rem;
+    border: 1px dashed var(--border);
+    font-size: 0.9rem;
   }
 </style>

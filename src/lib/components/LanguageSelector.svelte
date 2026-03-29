@@ -46,12 +46,19 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    padding: 0.8rem 1.5rem;
+    padding: 0.65rem 1rem;
     border-radius: 0.5rem;
-    border: 0.0625rem solid var(--border);
-    background-color: var(--bg-surface);
+    border: none;
+    background: color-mix(in srgb, var(--accent), transparent 85%);
     color: var(--text-main);
     cursor: pointer;
     width: 25ch;
+    font-size: 0.95rem;
+    outline: none;
+    text-align: center;
+  }
+
+  .theme-input:focus {
+    background: color-mix(in srgb, var(--accent), transparent 75%);
   }
 </style>

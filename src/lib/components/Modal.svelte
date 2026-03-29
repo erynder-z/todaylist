@@ -142,7 +142,6 @@
   }
 
   .popup-content {
-    /* Ensure content within popup still scrolls if needed */
     max-height: calc(85vh - 6rem);
     overflow-y: auto;
   }
