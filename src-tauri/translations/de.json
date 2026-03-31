@@ -29,5 +29,15 @@
 	"tag.placeholder": "Tag...",
 	"tag.remove": "Entfernen...",
 	"tag.tags": "Tags",
-	"tag.suggestions": "Vorschläge"
+	"tag.suggestions": "Vorschläge",
+	"settings.shortcuts.button": "Tastaturkürzel",
+	"shortcuts.title": "Tastaturkürzel",
+	"shortcuts.tags.description": "Bei geöffnetem Tag-Manager:",
+	"shortcuts.tags.toggle": "Tag an-/abwählen",
+	"shortcuts.action.toggle_search": "Suche einblenden",
+	"shortcuts.action.toggle_notes_list": "Notizliste einblenden",
+	"shortcuts.action.toggle_settings": "Einstellungen einblenden",
+	"shortcuts.action.manage_tags": "Tags verwalten",
+	"shortcuts.action.close_popup": "Popup schließen",
+	"shortcuts.action.focus_last_line": "Letzte Notizzeile fokussieren"
 }

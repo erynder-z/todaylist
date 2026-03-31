@@ -14,6 +14,8 @@ export { default as NoteTags } from "./components/NoteTags.svelte";
 export { default as PopupManager } from "./components/PopupManager.svelte";
 export { default as SearchNotes } from "./components/SearchNotes.svelte";
 export { default as SettingsView } from "./components/SettingsView.svelte";
+export { default as ShortcutListModal } from "./components/ShortcutListModal.svelte";
+export { default as ShortcutSelector } from "./components/ShortcutSelector.svelte";
 export { default as TagManagerModal } from "./components/TagManagerModal.svelte";
 export * from "./stores/input.svelte";
 export * from "./stores/sessionState.svelte";

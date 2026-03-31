@@ -8,6 +8,7 @@
     NotesList,
     SearchNotes,
     SettingsView,
+    ShortcutListModal,
     sessionState,
     TagManagerModal,
     t,
@@ -29,5 +30,9 @@
 {:else if sessionState.activePopup === 'tagManager'}
   <Modal title={$t('tag.manager.title')}>
     <TagManagerModal />
+  </Modal>
+{:else if sessionState.activePopup === 'shortcuts'}
+  <Modal title={$t('shortcuts.title', 'Keyboard Shortcuts')}>
+    <ShortcutListModal />
   </Modal>
 {/if}

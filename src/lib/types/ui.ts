@@ -3,4 +3,5 @@ export type PopupType =
 	| "notesList"
 	| "search"
 	| "tagManager"
+	| "shortcuts"
 	| null;
