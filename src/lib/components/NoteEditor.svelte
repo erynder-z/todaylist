@@ -3,7 +3,7 @@
    * The main note display component. Displays a note's content in an editable form.
    */
   import { untrack } from 'svelte';
-  import { NoteLine, sessionState } from '$lib';
+  import { NoteLine, sessionState, useShortcuts } from '$lib';
   import type { NoteContentResponse, NoteLineData } from '$lib/types/notes';
   import {
     deleteNoteLine,
@@ -16,6 +16,12 @@
     noteContent: NoteContentResponse | null;
     notePath: string | null;
   }>();
+
+  useShortcuts({
+    focusLastLine: () => {
+      if (sessionState.activePopup === null) focusLastLine();
+    },
+  });
 
   /** Reactive array of line objects representing the note's content. */
   let lines = $state<NoteLineData[]>([]);

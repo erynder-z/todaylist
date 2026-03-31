@@ -25,6 +25,11 @@ export const defaultShortcuts: Record<ShortcutAction, ShortcutConfig> = {
 		key: "Escape",
 		description: "Close popup",
 	},
+	focusLastLine: {
+		key: "i",
+		primary: true,
+		description: "Focus last line",
+	},
 };
 
 export const tagSuggestionShortcuts = {

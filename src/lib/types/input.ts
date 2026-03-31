@@ -5,7 +5,8 @@ export type ShortcutAction =
 	| "toggleNotesList"
 	| "toggleSettings"
 	| "manageTags"
-	| "closePopup";
+	| "closePopup"
+	| "focusLastLine";
 
 export type ShortcutConfig = {
 	key: string;
