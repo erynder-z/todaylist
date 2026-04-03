@@ -82,7 +82,18 @@
   >
     <div class="popup-header">
       {#if title}<h2>{title}</h2>{/if}
-      <button onclick={close} class="close-button" aria-label="Close">×</button>
+      <button onclick={close} class="close-button" aria-label="Close"
+        ><svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1.25rem"
+          viewBox="0 -960 960 960"
+          width="1.25rem"
+          fill="currentColor"
+          ><path
+            d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+          /></svg
+        ></button
+      >
     </div>
     <div class="popup-content">
       {@render children()}
@@ -110,7 +121,6 @@
     padding: 2rem;
     max-width: 90vw;
     max-height: 85vh;
-    overflow-y: auto;
     width: 31.25rem;
     color: var(--text-main);
     outline: none;

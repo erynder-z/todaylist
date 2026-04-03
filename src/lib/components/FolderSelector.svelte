@@ -184,7 +184,7 @@
     border-radius: 0.5rem;
     border: 1px dashed var(--border);
     color: var(--text-main);
-    margin: 0;
+    margin: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
