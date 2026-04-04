@@ -24,7 +24,7 @@
 	"notes.loading": "Loading notes...",
 	"notes.error.load": "Failed to load notes",
 	"notes.list.empty": "No notes found",
-	"note.header": "Note",
+	"note.header": "Notes",
 	"tag.manager.title": "Tag manager ",
 	"tag.placeholder": "tag...",
 	"tag.remove": "remove",
