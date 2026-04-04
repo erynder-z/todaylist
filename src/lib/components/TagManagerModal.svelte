@@ -7,6 +7,7 @@
     addNoteTag,
     getTagSuggestions,
     inputManager,
+    ListNavigator,
     removeNoteTag,
     sessionState,
     t,
@@ -15,7 +16,6 @@
 
   let newTag = $state('');
   let suggestedTags = $state<string[]>([]);
-  let selectedIndex = $state(-1);
 
   let currentTags = $derived(
     sessionState.todayNoteContent?.metadata.tags || [],
@@ -47,27 +47,7 @@
     }
 
     newTag = '';
-    selectedIndex = -1;
-  };
-
-  /**
-   * Moves the keyboard selection index up or down.
-   */
-  const moveSelection = (direction: 'up' | 'down') => {
-    const count = navigationTags.length;
-    if (count === 0) return;
-    selectedIndex =
-      direction === 'down'
-        ? (selectedIndex + 1) % count
-        : (selectedIndex - 1 + count) % count;
-  };
-
-  /**
-   * Selects the currently highlighted tag suggestion.
-   */
-  const selectCurrentSuggestion = () => {
-    const tag = selectedIndex >= 0 ? navigationTags[selectedIndex] : undefined;
-    handleToggleTag(tag);
+    nav.reset();
   };
 
   /**
@@ -78,6 +58,11 @@
       handleToggleTag(currentTags[currentTags.length - 1]);
     }
   };
+
+  const nav = new ListNavigator(
+    () => navigationTags.length,
+    (i) => handleToggleTag(navigationTags[i]),
+  );
 
   /**
    * Handles keyboard events for navigation and actions.
@@ -99,21 +84,12 @@
       }
     }
 
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        moveSelection('down');
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        moveSelection('up');
-        break;
-      case 'Enter':
-        selectCurrentSuggestion();
-        break;
-      case 'Backspace':
-        removeLastActiveTag();
-        break;
+    // Try handling list navigation first
+    if (nav.handleKey(e)) return;
+
+    // Handle backspace specifically for tag removal
+    if (e.key === 'Backspace') {
+      removeLastActiveTag();
     }
   };
 
@@ -128,10 +104,10 @@
   {@const shortcutLabel = tagSuggestionShortcuts.labels[globalIndex]}
   <button
     class="suggestion-item"
-    class:selected={globalIndex === selectedIndex}
+    class:selected={globalIndex === nav.index}
     class:is-added={isAdded}
     onclick={() => handleToggleTag(tag)}
-    onmouseenter={() => (selectedIndex = globalIndex)}
+    onmouseenter={() => (nav.index = globalIndex)}
   >
     <span class="hashtag">#</span>
     <span class="tag-label">{tag}</span>
@@ -158,7 +134,7 @@
         type="text"
         bind:value={newTag}
         onkeydown={handleKeyDown}
-        oninput={() => (selectedIndex = -1)}
+        oninput={() => (nav.index = -1)}
         placeholder={$t('tag.placeholder')}
         spellcheck="false"
         autofocus
@@ -166,10 +142,7 @@
     </div>
 
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      class="suggestions-container"
-      onmouseleave={() => (selectedIndex = -1)}
-    >
+    <div class="suggestions-container" onmouseleave={() => (nav.index = -1)}>
       {#if currentTags.length > 0}
         <div class="section">
           <div class="section-label">{$t('tag.tags')}</div>

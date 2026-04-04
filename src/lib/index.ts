@@ -18,6 +18,7 @@ export { default as ShortcutListModal } from "./components/ShortcutListModal.sve
 export { default as ShortcutSelector } from "./components/ShortcutSelector.svelte";
 export { default as TagManagerModal } from "./components/TagManagerModal.svelte";
 export * from "./stores/input.svelte";
+export * from "./stores/listNav.svelte";
 export * from "./stores/sessionState.svelte";
 export * from "./stores/settings.svelte";
 export * from "./types/settings";

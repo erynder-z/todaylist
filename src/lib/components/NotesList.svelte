@@ -2,14 +2,13 @@
   /**
    * Displays list of all notes found in the user's notes folder.
    */
-  import { sessionState, settings, t } from '$lib';
+  import { ListNavigator, sessionState, settings, t } from '$lib';
   import type { FormattedNote } from '$lib/types/notes';
   import { listNotes } from '$lib/utils/folder';
   import { readNoteContent } from '$lib/utils/notes';
 
   let notes: FormattedNote[] = $state([]);
   let isLoading = $state(true);
-  let selectedIndex = $state(-1);
 
   /**
    * Fetches the list of all available notes from the backend.
@@ -35,38 +34,10 @@
     }
   };
 
-  /**
-   * Moves the keyboard selection index up or down.
-   */
-  const moveSelection = (direction: 'up' | 'down') => {
-    const count = notes.length;
-    if (count === 0) return;
-    selectedIndex =
-      direction === 'down'
-        ? (selectedIndex + 1) % count
-        : (selectedIndex - 1 + count) % count;
-  };
-
-  /**
-   * Handles keyboard events for navigation and actions.
-   */
-  const handleKeyDown = (e: KeyboardEvent) => {
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        moveSelection('down');
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        moveSelection('up');
-        break;
-      case 'Enter':
-        if (selectedIndex >= 0) {
-          selectNote(notes[selectedIndex]);
-        }
-        break;
-    }
-  };
+  const nav = new ListNavigator(
+    () => notes.length,
+    (i) => selectNote(notes[i]),
+  );
 
   $effect(() => {
     if (settings.notesFolder) loadNotes();
@@ -75,17 +46,22 @@
 
 <!-- svelte-ignore a11y_autofocus -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="notes-section" onkeydown={handleKeyDown} tabindex="-1" autofocus>
+<div
+  class="notes-section"
+  onkeydown={(e) => nav.handleKey(e)}
+  tabindex="-1"
+  autofocus
+>
   {#if isLoading}
     <div class="status-msg">{$t('notes.loading')}</div>
   {:else if notes.length > 0}
-    <div class="notes-list" onmouseleave={() => (selectedIndex = -1)}>
+    <div class="notes-list" onmouseleave={() => nav.reset()}>
       {#each notes as note, i (note.filename)}
         <button
           class="note-item"
-          class:selected={i === selectedIndex}
+          class:selected={i === nav.index}
           onclick={() => selectNote(note)}
-          onmouseenter={() => (selectedIndex = i)}
+          onmouseenter={() => (nav.index = i)}
         >
           <span class="note-name">{note.formattedName}</span>
         </button>
