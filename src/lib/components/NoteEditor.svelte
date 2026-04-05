@@ -101,7 +101,10 @@
       }}
       onChange={(markdown) => editor.updateLine(i, markdown)}
       onKeyDown={async (e) => {
-        if (await editor.handleKeyDown(e, i)) e.preventDefault();
+        if (editor.canHandleKey(e, i)) {
+          e.preventDefault();
+          await editor.handleKeyDown(e, i);
+        }
       }}
     />
   {/each}

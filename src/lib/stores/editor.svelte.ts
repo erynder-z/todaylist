@@ -68,6 +68,19 @@ export class EditorStore {
 	}
 
 	/**
+	 * Determines if a key event should be intercepted and handled by the editor.
+	 * This must be called synchronously to allow preventDefault().
+	 */
+	canHandleKey(e: KeyboardEvent, i: number): boolean {
+		const isBackspaceOnEmpty =
+			e.key === "Backspace" &&
+			this.lines[i].markdown === "" &&
+			this.lines.length > 1;
+		const isNavigation = e.key === "ArrowUp" || e.key === "ArrowDown";
+		return e.key === "Enter" || isNavigation || isBackspaceOnEmpty;
+	}
+
+	/**
 	 * Adds a new empty line after the specified index.
 	 */
 	async insertLine(i: number) {
