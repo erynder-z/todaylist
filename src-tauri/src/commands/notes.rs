@@ -160,21 +160,23 @@ pub async fn list_notes(state: State<'_, AppState>) -> Result<Vec<FormattedNote>
 
 /// Finds or creates a section by name and returns its content-relative line index.
 ///
-/// If the section does not exist, it is appended to the end of the note.
+/// Jumps to the end of the section (ready to type). If the section does not exist,
+/// it is appended to the end of the note.
 #[tauri::command]
 pub async fn jump_to_section(
     name: String,
     state: State<'_, AppState>,
 ) -> Result<NoteContentResponse, String> {
     let mut session = state.note_session.lock().unwrap();
+    let _content_start = session.get_content_start_index();
 
     let section_idx = session.sections.iter().position(|s| s.name == name);
-    let target_idx = match section_idx {
+    let target_abs_idx = match section_idx {
         Some(idx) => {
-            // Section exists, jump to the end of this section
+            // Section exists, jump to the end of this section (before the next heading)
             let end_line = session.sections[idx].end_line;
 
-            // If the line before the end is not empty, insert a new one unless the section is has no content
+            // If the line before end_line is not empty, insert a blank line for spacing
             if end_line > 0 {
                 let last_content_line_idx = end_line - 1;
                 if !session.lines[last_content_line_idx].trim().is_empty() {
@@ -188,9 +190,9 @@ pub async fn jump_to_section(
             }
         }
         None => {
-            // Section doesn't exist, create it at the end with the [#] marker
+            // Section doesn't exist, create it at the end with a # heading
             let last_idx = session.lines.len();
-            session.insert_line(last_idx, format!("[#] {}", name));
+            session.insert_line(last_idx, format!("# {}", name));
             let new_line_idx = last_idx + 1;
             session.insert_line(new_line_idx, "".to_string());
             new_line_idx
@@ -202,6 +204,9 @@ pub async fn jump_to_section(
         fs::write(path, full_content).map_err(|e| format!("Failed to save note: {}", e))?;
     }
 
+    // Re-detect sections after modification
+    session.detect_sections();
+
     let note_manager = state.note_manager.lock().unwrap();
     let tag_manager = state.tag_manager.lock().unwrap();
 
@@ -209,6 +214,6 @@ pub async fn jump_to_section(
         &session,
         &note_manager,
         &tag_manager,
-        Some(target_idx),
+        Some(target_abs_idx),
     ))
 }

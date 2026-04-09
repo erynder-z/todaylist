@@ -1,193 +1,121 @@
 import { untrack } from "svelte";
-import type { NoteContentResponse, NoteLineData } from "$lib/types/notes";
-import {
-	deleteNoteLine,
-	executeSlashCommand,
-	insertNoteLine,
-	mapNoteToEditorLines,
-	updateNoteLine,
-} from "$lib/utils/notes";
-import { inputManager } from "./input.svelte";
+import type { NoteContentResponse } from "$lib/types/notes";
+import { jumpToSection, saveNoteContent } from "$lib/utils/notes";
 
 /**
  * Manages the state and logic for the Note Editor.
- * Handles line management, auto-saving, and keyboard navigation.
+ * Handles markdown content, auto-saving, and section navigation.
  */
 export class EditorStore {
-	lines = $state<NoteLineData[]>([]);
-	activeIndex = $state<number | null>(null);
+	content = $state<string>("");
 	noteContent = $state<NoteContentResponse | null>(null);
 	notePath = $state<string | null>(null);
-	private changedLineIndex = $state<number | null>(null);
+	private hasChanges = $state<boolean>(false);
 	private autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
+
+	// Cursor positioning after section jump
+	cursorPosition = $state<number | null>(null);
+
+	// Callback for section jumps
+	onJump: (updated: NoteContentResponse) => void = () => {};
 
 	// --- Initialization ---
 
 	/**
 	 * Synchronizes the store with the current note props.
-	 * Handles loading new notes and resetting state.
 	 */
 	sync(noteContent: NoteContentResponse | null, notePath: string | null) {
-		const pathChanged = this.notePath !== notePath;
-		const contentChanged = this.noteContent !== noteContent;
+		const pathChanged = untrack(() => this.notePath) !== notePath;
+		const contentChanged = untrack(() => this.noteContent) !== noteContent;
 
-		this.noteContent = noteContent;
 		this.notePath = notePath;
+		this.noteContent = noteContent;
 
-		if (pathChanged) {
-			this.loadLines();
-			this.focusLastLine();
-			this.changedLineIndex = null;
-		} else if (contentChanged) {
-			this.loadLines();
+		if (pathChanged || contentChanged) {
+			this.content = noteContent?.content ?? "";
+			this.hasChanges = false;
+			this.cursorPosition = null;
 		}
 	}
 
+	// --- Content Management ---
+
 	/**
-	 * Parses raw note content into editor lines.
+	 * Updates the markdown content and marks it as changed for auto-saving.
 	 */
-	loadLines() {
-		this.lines = mapNoteToEditorLines(
-			this.noteContent,
-			inputManager.primaryLabel,
-			inputManager.secondaryLabel,
-		);
+	updateContent(markdown: string) {
+		this.content = markdown;
+		this.hasChanges = true;
+		this.scheduleAutoSave();
 	}
 
-	// --- Line Management ---
-
 	/**
-	 * Updates the content of a specific line and marks it as changed for auto-saving.
+	 * Jumps to a section by name via the backend and updates cursor position.
 	 */
-	updateLine(index: number, markdown: string) {
-		if (this.lines[index]) {
-			this.lines[index].markdown = markdown;
-			this.changedLineIndex = index;
-			this.scheduleAutoSave(index);
+	async jumpToSection(name: string) {
+		const updated = await jumpToSection(name);
+		if (updated) {
+			this.content = updated.content;
+
+			// Calculate cursor position: end of section content (content-relative line index)
+			const section = updated.sections.find((s) => s.name === name);
+			if (section) {
+				const lines = updated.content.split("\n");
+				const endLine = section.endLine;
+				// Calculate character position for cursor (start of endLine)
+				let charPos = 0;
+				for (let i = 0; i < endLine && i < lines.length; i++)
+					charPos += lines[i].length + 1; // +1 for newline
+
+				this.cursorPosition = charPos;
+			}
+
+			this.onJump(updated);
 		}
-	}
-
-	/**
-	 * Determines if a key event should be intercepted and handled by the editor.
-	 * This must be called synchronously to allow preventDefault().
-	 */
-	canHandleKey(e: KeyboardEvent, i: number): boolean {
-		const isBackspaceOnEmpty =
-			e.key === "Backspace" &&
-			this.lines[i].markdown === "" &&
-			this.lines.length > 1;
-		const isNavigation = e.key === "ArrowUp" || e.key === "ArrowDown";
-		return e.key === "Enter" || isNavigation || isBackspaceOnEmpty;
-	}
-
-	/**
-	 * Adds a new empty line after the specified index.
-	 */
-	async insertLine(i: number) {
-		this.lines.splice(i + 1, 0, { markdown: "", html: "" });
-		this.activeIndex = i + 1;
-		await insertNoteLine(i + 1, "");
-	}
-
-	/**
-	 * Deletes the line at the specified index.
-	 */
-	async deleteLine(i: number) {
-		this.lines.splice(i, 1);
-		this.activeIndex = Math.max(0, i - 1);
-		await deleteNoteLine(i);
-	}
-
-	/**
-	 * Appends an empty line at the end if needed and focuses it.
-	 */
-	focusLastLine() {
-		const lastLine = this.lines[this.lines.length - 1];
-		if (this.lines.length === 0 || lastLine?.markdown.trim() !== "") {
-			this.lines.push({ markdown: "", html: "" });
-			insertNoteLine(this.lines.length - 1, "");
-		}
-		this.activeIndex = this.lines.length - 1;
 	}
 
 	// --- Persistence ---
 
 	/**
-	 * Persists a specific line to the backend.
+	 * Persists the entire note content to the backend.
 	 */
-	async flush(index: number) {
-		if (this.lines[index]) {
-			const content = this.lines[index].markdown;
-			if (this.changedLineIndex === index) this.changedLineIndex = null;
-			await updateNoteLine(index, content);
+	async flush() {
+		if (this.notePath && this.hasChanges) {
+			await saveNoteContent(this.notePath, this.content);
+			this.hasChanges = false;
 		}
 	}
 
-	private scheduleAutoSave(index: number) {
+	private scheduleAutoSave() {
 		if (this.autoSaveTimeout) clearTimeout(this.autoSaveTimeout);
 
 		this.autoSaveTimeout = setTimeout(() => {
-			untrack(() => {
-				if (this.changedLineIndex === index) this.flush(index);
-			});
+			untrack(() => this.flush());
 		}, 500);
 	}
 
-	/**
-	 * Ensures unsaved changes are flushed when moving between lines.
-	 */
-	handleLineSwitch(newIndex: number | null) {
-		untrack(() => {
-			if (this.changedLineIndex !== null && this.changedLineIndex !== newIndex)
-				this.flush(this.changedLineIndex);
-		});
-	}
-
-	// --- Navigation & Commands ---
+	// --- Keyboard Handling ---
 
 	/**
 	 * Handles keyboard events for the editor.
 	 */
-	async handleKeyDown(e: KeyboardEvent, i: number): Promise<boolean> {
-		if (e.key === "Enter") {
-			const updated = await executeSlashCommand(i, this.lines[i].markdown);
-			if (updated) {
-				this.lines[i].markdown = "";
-				this.onJump(updated);
-				return true;
-			}
+	async handleKeyDown(e: KeyboardEvent): Promise<boolean> {
+		// Handle slash commands (e.g., "/SectionName")
+		if (e.key === "Enter" && this.content.endsWith("/")) {
+			const lines = this.content.split("\n");
+			const lastLine = lines[lines.length - 1]?.trim() || "";
 
-			await this.insertLine(i);
-			return true;
-		}
-
-		switch (e.key) {
-			case "Backspace":
-				if (this.lines[i].markdown === "" && this.lines.length > 1) {
-					await this.deleteLine(i);
+			if (lastLine.startsWith("/")) {
+				const command = lastLine.slice(1).trim();
+				if (command) {
+					lines.pop(); // Remove the slash command line
+					this.content = lines.join("\n");
+					await this.jumpToSection(command);
 					return true;
 				}
-				break;
-			case "ArrowUp":
-				this.navigate(i, "up");
-				return true;
-			case "ArrowDown":
-				this.navigate(i, "down");
-				return true;
+			}
 		}
 
 		return false;
 	}
-
-	private navigate(i: number, direction: "up" | "down") {
-		const nextIndex = direction === "up" ? i - 1 : i + 1;
-		if (nextIndex >= 0 && nextIndex < this.lines.length)
-			this.activeIndex = nextIndex;
-	}
-
-	/**
-	 * Internal callback to update state after a jump or slash command.
-	 * Overridden by the component to sync props.
-	 */
-	onJump: (updated: NoteContentResponse) => void = () => {};
 }
