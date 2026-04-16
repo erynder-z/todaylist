@@ -131,7 +131,7 @@
    * Mount and manage the Milkdown editor lifecycle
    */
   $effect(() => {
-    if (!editorContainer) return;
+    if (!editorContainer || !notePath) return;
 
     let isDestroyed = false;
 
