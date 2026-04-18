@@ -49,8 +49,14 @@ fn target_line_for_section(session: &mut NoteSession, idx: usize) -> usize {
         let last_content_line_idx = end_line - 1;
         if !session.lines[last_content_line_idx].trim().is_empty() {
             session.insert_line(end_line, "".to_string());
-            end_line
+            session.insert_line(end_line + 1, "".to_string());
+            end_line + 1
         } else {
+            if idx == session.sections.len() - 1
+                && session.lines.len() - 1 - last_content_line_idx < 1
+            {
+                session.insert_line(session.lines.len(), "".to_string());
+            }
             last_content_line_idx
         }
     } else {
@@ -64,7 +70,8 @@ fn create_section(session: &mut NoteSession, name: &str) -> usize {
     session.insert_line(last_idx, format!("# {}", name));
     let new_line_idx = last_idx + 1;
     session.insert_line(new_line_idx, "".to_string());
-    new_line_idx
+    session.insert_line(new_line_idx + 1, "".to_string());
+    new_line_idx + 1
 }
 
 /// Saves the complete content of a note to the specified path.

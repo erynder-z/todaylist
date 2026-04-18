@@ -41,17 +41,29 @@
           view.focus();
 
           try {
-            const tr = view.state.tr;
+            let tr = view.state.tr;
+            const docSize = view.state.doc.content.size;
+
+            // If jumping to the end, ensure a trailing empty paragraph exists
+            // Since Milkdown often strips trailing newlines from markdown.
+            const isAtEnd = pos >= editor.content.length - 1;
+
+            if (isAtEnd) {
+              const lastNode = view.state.doc.lastChild;
+              const isLastNodeEmptyParagraph =
+                lastNode?.type.name === 'paragraph' &&
+                lastNode.content.size === 0;
+
+              if (!isLastNodeEmptyParagraph) {
+                const paragraph = view.state.schema.nodes.paragraph.create();
+                tr = tr.insert(docSize, paragraph);
+              }
+            }
 
             const pmPosition = pos + 1;
-
-            const safePosition = Math.min(
-              pmPosition,
-              view.state.doc.content.size - 1,
-            );
-
-            const resolvedPos = view.state.doc.resolve(safePosition);
-
+            const currentDocSize = tr.doc.content.size;
+            const safePosition = Math.min(pmPosition, currentDocSize - 1);
+            const resolvedPos = tr.doc.resolve(safePosition);
             const selection = Selection.near(resolvedPos);
 
             view.dispatch(tr.setSelection(selection));

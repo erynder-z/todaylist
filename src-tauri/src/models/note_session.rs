@@ -47,6 +47,7 @@ impl NoteSession {
         self.path = Some(path);
         self.lines = content.split('\n').map(|s| s.to_string()).collect();
         self.detect_frontmatter();
+        self.ensure_trailing_empty_line();
         self.detect_sections();
     }
 
@@ -198,6 +199,31 @@ impl NoteSession {
     pub fn delete_content_line(&mut self, relative_index: usize) {
         let abs_index = self.to_absolute_index(relative_index);
         self.delete_line(abs_index);
+    }
+
+    /// Ensures that the session ends with enough empty lines to allow for a new paragraph.
+    pub fn ensure_trailing_empty_line(&mut self) {
+        let content_start = self.get_content_start_index();
+
+        let last_non_empty = self.lines.iter().rposition(|l| !l.trim().is_empty());
+
+        match last_non_empty {
+            Some(idx) if idx >= content_start => {
+                let trailing_empty_count = self.lines.len() - 1 - idx;
+                if trailing_empty_count < 2 {
+                    for _ in 0..(2 - trailing_empty_count) {
+                        self.lines.push("".to_string());
+                    }
+                }
+            }
+            _ => {
+                // No content or only empty lines.
+                // Ensure at least two lines to be safe for Milkdown's parser.
+                while self.lines.len() < content_start + 2 {
+                    self.lines.push("".to_string());
+                }
+            }
+        }
     }
 
     /// Reconstructs the full note content by joining the lines with newlines.
