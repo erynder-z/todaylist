@@ -10,7 +10,9 @@
   } from '@milkdown/core';
   import { listener, listenerCtx } from '@milkdown/plugin-listener';
   import { commonmark } from '@milkdown/preset-commonmark';
-  import { Selection, TextSelection } from '@milkdown/prose/state';
+  import { keymap } from '@milkdown/prose/keymap';
+  import { Selection } from '@milkdown/prose/state';
+  import { $prose as prosePlugin } from '@milkdown/utils';
   import { untrack } from 'svelte';
   import { sessionState, useShortcuts } from '$lib';
   import { EditorStore } from '$lib/stores/editor.svelte';
@@ -122,6 +124,13 @@
     },
   });
 
+  const customKeymap = prosePlugin(() =>
+    keymap({
+      'Mod-1': () => true,
+      'Mod-2': () => true,
+    }),
+  );
+
   /**
    * Sync props to the store
    */
@@ -162,6 +171,7 @@
       })
       .use(commonmark)
       .use(listener)
+      .use(customKeymap)
       .create()
       .then((instance) => {
         if (isDestroyed) {

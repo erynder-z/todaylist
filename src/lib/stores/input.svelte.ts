@@ -53,7 +53,9 @@ class InputManager {
 	 */
 	constructor() {
 		if (typeof window !== "undefined") {
-			window.addEventListener("keydown", this.handleKeyDown.bind(this));
+			window.addEventListener("keydown", this.handleKeyDown.bind(this), {
+				capture: true,
+			});
 			window.addEventListener("keyup", this.handleKeyUp.bind(this));
 			window.addEventListener("blur", this.resetModifiers.bind(this));
 		}
@@ -154,6 +156,8 @@ class InputManager {
 				}
 
 				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
 				shortcut.callback(e);
 				break;
 			}
