@@ -43,12 +43,23 @@
         const parser = ctx.get(parserCtx);
         const doc = parser(content);
         if (doc) {
-          const tr = view.state.tr.replaceWith(
+          let tr = view.state.tr.replaceWith(
             0,
             view.state.doc.content.size,
             doc,
           );
+
+          // Ensure there's an empty paragraph at the end if the doc ends with a heading
+          if (doc.lastChild?.type.name === 'heading') {
+            const paragraph = view.state.schema.nodes.paragraph.create();
+            tr = tr.insert(tr.doc.content.size, paragraph);
+          }
+
+          // Move cursor to the end and focus
+          const selection = Selection.atEnd(tr.doc);
+          tr = tr.setSelection(selection).scrollIntoView();
           view.dispatch(tr);
+          view.focus();
         }
       });
       editor.pendingExternalUpdate = false;
