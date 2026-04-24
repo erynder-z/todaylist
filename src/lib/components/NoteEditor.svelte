@@ -15,10 +15,14 @@
   import { Selection } from '@milkdown/prose/state';
   import { $prose as prosePlugin } from '@milkdown/utils';
   import { untrack } from 'svelte';
-  import { jumpToSectionInEditor, sessionState, useShortcuts } from '$lib';
-  import { EditorStore } from '$lib/stores/editor.svelte';
   import type { NoteContentResponse } from '$lib/types/notes';
+  import { tagSuggestionShortcuts } from '../config/shortcuts';
+  import { EditorStore } from '../stores/editor.svelte';
+  import { sessionState } from '../stores/sessionState.svelte';
+  import { jumpToSectionInEditor } from '../utils/editor';
+  import { useShortcuts } from '../utils/shortcuts';
   import NoteHeader from './NoteHeader.svelte';
+  import NoteSectionShortcuts from './NoteSectionShortcuts.svelte';
 
   // --- Props & State ---
 
@@ -163,10 +167,9 @@
     jumpByNumber: (e) => {
       if (sessionState.activePopup !== null) return false;
 
-      const match = e.code.match(/Digit(\d)/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > 0 && num <= 9) jumpToSectionByIndex(num - 1);
+      const idx = tagSuggestionShortcuts.codes.indexOf(e.code);
+      if (idx !== -1 && idx < editor.sections.length) {
+        jumpToSectionByIndex(idx);
       }
     },
   });
@@ -184,6 +187,7 @@
 
 <div class="note-container">
   <NoteHeader {noteContent} />
+  <NoteSectionShortcuts sections={editor.sections} onSelect={handleJump} />
 
   <div bind:this={editorContainer} class="milkdown-editor-wrapper"></div>
 </div>

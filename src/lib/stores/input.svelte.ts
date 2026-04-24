@@ -138,7 +138,8 @@ class InputManager {
 				return (
 					e.key.toLowerCase() === lowerK ||
 					e.code.toLowerCase() === lowerK ||
-					e.code.toLowerCase() === `digit${lowerK}`
+					e.code.toLowerCase() === `digit${lowerK}` ||
+					e.code.toLowerCase() === `key${lowerK}`
 				);
 			});
 
