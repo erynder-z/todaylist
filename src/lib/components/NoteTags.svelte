@@ -47,6 +47,7 @@
       class="tag-pill"
       class:selected={selectedTag === tag}
       onclick={() => toggleSelectTag(tag)}
+      title={tag}
     >
       {tag}
     </button>
@@ -109,6 +110,9 @@
     cursor: pointer;
     border: 0.125rem solid transparent;
     transition: all 0.2s ease;
+    max-width: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .tag-pill.selected {
