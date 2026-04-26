@@ -5,12 +5,11 @@ export { default as LanguageSelector } from "./components/LanguageSelector.svelt
 export { default as MainView } from "./components/MainView.svelte";
 export { default as Modal } from "./components/Modal.svelte";
 export { default as Navigation } from "./components/Navigation.svelte";
+export { default as NoteControlCenter } from "./components/NoteControlCenter.svelte";
 export { default as NoteDate } from "./components/NoteDate.svelte";
 export { default as NoteDisplay } from "./components/NoteEditor.svelte";
 export { default as NoteEditorLayout } from "./components/NoteEditorLayout.svelte";
-export { default as NoteHeader } from "./components/NoteHeader.svelte";
 export { default as NoteSectionShortcuts } from "./components/NoteSectionShortcuts.svelte";
-export { default as NoteSidebar } from "./components/NoteSidebar.svelte";
 export { default as NotesList } from "./components/NotesList.svelte";
 export { default as NoteTags } from "./components/NoteTags.svelte";
 export { default as PopupManager } from "./components/PopupManager.svelte";

@@ -5,8 +5,8 @@
   import type { NoteContentResponse } from '$lib/types/notes';
   import { EditorStore } from '../stores/editor.svelte';
   import { sessionState } from '../stores/sessionState.svelte';
+  import NoteControlCenter from './NoteControlCenter.svelte';
   import NoteEditor from './NoteEditor.svelte';
-  import NoteSidebar from './NoteSidebar.svelte';
 
   let { noteContent = $bindable(), notePath } = $props<{
     noteContent: NoteContentResponse | null;
@@ -49,7 +49,7 @@
     {/if}
 
     <div class="sidebar-wrapper" class:open={sessionState.sidebarOpen}>
-      <NoteSidebar
+      <NoteControlCenter
         {noteContent}
         sections={editor.sections}
         onSelect={handleJump}

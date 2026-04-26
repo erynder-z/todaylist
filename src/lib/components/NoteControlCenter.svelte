@@ -14,7 +14,7 @@
   }>();
 </script>
 
-<div class="note-sidebar">
+<div class="note-control-center">
   <div class="sidebar-section">
     <NoteDate {noteContent} />
   </div>
@@ -31,7 +31,7 @@
 </div>
 
 <style>
-  .note-sidebar {
+  .note-control-center {
     width: 260px;
     height: 100%;
     flex-shrink: 0;
@@ -57,11 +57,10 @@
   }
 
   @media (max-width: 1024px) {
-    .note-sidebar {
+    .note-control-center {
       width: 100%;
       height: auto;
       border-left: none;
-      border-top: 0.0625rem solid var(--border);
       padding: 1.5rem;
       background-color: var(--bg-surface);
     }
