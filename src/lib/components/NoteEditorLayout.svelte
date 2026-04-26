@@ -36,7 +36,7 @@
 <div class="note-container">
   <div class="note-layout">
     <div class="editor-main">
-      <NoteEditor bind:noteContent {notePath} />
+      <NoteEditor bind:noteContent {notePath} {editor} />
     </div>
 
     {#if sessionState.sidebarOpen}

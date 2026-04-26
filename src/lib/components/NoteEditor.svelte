@@ -15,7 +15,7 @@
   import { Selection } from '@milkdown/prose/state';
   import { $prose as prosePlugin } from '@milkdown/utils';
   import { untrack } from 'svelte';
-  import type { NoteContentResponse } from '$lib/types/notes';
+  import type { NoteContentResponse, NoteSection } from '$lib/types/notes';
   import { tagSuggestionShortcuts } from '../config/shortcuts';
   import { EditorStore } from '../stores/editor.svelte';
   import { sessionState } from '../stores/sessionState.svelte';
@@ -24,12 +24,16 @@
 
   // --- Props & State ---
 
-  let { noteContent = $bindable(), notePath } = $props<{
+  let {
+    noteContent = $bindable(),
+    notePath,
+    editor,
+  } = $props<{
     noteContent: NoteContentResponse | null;
     notePath: string | null;
+    editor: EditorStore;
   }>();
 
-  const editor = new EditorStore();
   let editorContainer: HTMLDivElement | null = $state(null);
   let milkdownInstance: Editor | null = $state(null);
 
@@ -38,7 +42,9 @@
   /**
    * 1. Sync props to the internal store before rendering
    */
-  $effect.pre(() => editor.sync(noteContent, notePath));
+  $effect.pre(() => {
+    if (editor) editor.sync(noteContent, notePath);
+  });
 
   /**
    * 2. Initialize the Milkdown editor instance
@@ -67,7 +73,7 @@
    */
   $effect(() => {
     const instance = milkdownInstance;
-    if (!instance) return;
+    if (!instance || !editor) return;
 
     if (editor.pendingExternalUpdate) {
       updateEditorContent(instance, editor.content);
@@ -138,9 +144,9 @@
    */
   const handleJump = async (name: string) => {
     const instance = milkdownInstance;
-    if (!instance) return;
+    if (!instance || !editor) return;
 
-    const exists = editor.sections.some((s) => s.name === name);
+    const exists = editor.sections.some((s: NoteSection) => s.name === name);
     if (exists) {
       jumpToSectionInEditor(instance, name);
     } else {
@@ -153,6 +159,7 @@
    * Jumps to a section based on its index (0-8).
    */
   const jumpToSectionByIndex = async (idx: number) => {
+    if (!editor) return;
     const section = editor.sections[idx];
     if (section?.name) await handleJump(section.name);
   };
@@ -164,6 +171,7 @@
     },
     jumpByNumber: (e) => {
       if (sessionState.activePopup !== null) return false;
+      if (!editor) return false;
 
       const idx = tagSuggestionShortcuts.codes.indexOf(e.code);
       if (idx !== -1 && idx < editor.sections.length) {
@@ -180,7 +188,10 @@
   );
 
   // Connect the store's sync back to the component's bindable props
-  editor.onJump = (updated) => (noteContent = updated);
+  $effect(() => {
+    if (editor)
+      editor.onJump = (updated: NoteContentResponse) => (noteContent = updated);
+  });
 </script>
 
 <div bind:this={editorContainer} class="milkdown-editor-wrapper"></div>
