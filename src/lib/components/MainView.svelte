@@ -3,7 +3,12 @@
    * Primary view orchestrator that decides whether to show the editor,
    * the welcome screen (for first-time setup), or a loading state.
    */
-  import { FolderSelector, NoteDisplay, sessionState, settings } from '$lib';
+  import {
+    FolderSelector,
+    NoteEditorLayout,
+    sessionState,
+    settings,
+  } from '$lib';
 </script>
 
 {#if settings.notesFolder === ''}
@@ -13,8 +18,8 @@
     <FolderSelector />
   </div>
 {:else if sessionState.todayNoteContent}
-  <NoteDisplay
-    noteContent={sessionState.todayNoteContent}
+  <NoteEditorLayout
+    bind:noteContent={sessionState.todayNoteContent}
     notePath={sessionState.todayNotePath}
   />
 {:else}

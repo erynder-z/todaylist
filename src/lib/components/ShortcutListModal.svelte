@@ -33,8 +33,8 @@
           <kbd
             >{shortcut.key === ' '
               ? 'Space'
-              : shortcut.key === '1,2,3,4,5,6,7,8,9'
-                ? '1-9'
+              : shortcut.key.length > 1 && shortcut.key.includes(',')
+                ? '1-9, A-K'
                 : shortcut.key}</kbd
           >
         </div>

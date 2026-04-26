@@ -21,8 +21,6 @@
   import { sessionState } from '../stores/sessionState.svelte';
   import { jumpToSectionInEditor } from '../utils/editor';
   import { useShortcuts } from '../utils/shortcuts';
-  import NoteHeader from './NoteHeader.svelte';
-  import NoteSectionShortcuts from './NoteSectionShortcuts.svelte';
 
   // --- Props & State ---
 
@@ -185,29 +183,12 @@
   editor.onJump = (updated) => (noteContent = updated);
 </script>
 
-<div class="note-container">
-  <NoteHeader {noteContent} />
-  <NoteSectionShortcuts sections={editor.sections} onSelect={handleJump} />
-
-  <div bind:this={editorContainer} class="milkdown-editor-wrapper"></div>
-</div>
+<div bind:this={editorContainer} class="milkdown-editor-wrapper"></div>
 
 <style>
-  .note-container {
-    width: clamp(20rem, 90%, 70ch);
-    min-height: 85dvh;
-    height: auto;
-    flex-shrink: 0;
-    padding: 3rem 1rem;
-    background-color: var(--bg-surface);
-    border: 0.0625rem solid var(--border);
-    color: var(--text-main);
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
-  }
-
   .milkdown-editor-wrapper :global(.milkdown) {
     width: 100%;
-    min-height: 60dvh;
+    min-height: 70dvh;
     background: transparent;
     color: inherit;
     font-family: inherit;
@@ -238,8 +219,5 @@
   }
 
   @media (max-width: 480px) {
-    .note-container {
-      min-height: 100dvh;
-    }
   }
 </style>

@@ -23,9 +23,11 @@
 <svelte:body use:lang={$locale} />
 
 <main class="container">
-  <MainView />
   <Navigation />
-  <PopupManager />
+  <div class="content-area">
+    <MainView />
+    <PopupManager />
+  </div>
 </main>
 
 <style>
@@ -51,22 +53,37 @@
     margin: 0;
     padding: 0;
   }
-
   .container {
     height: 100dvh;
-    width: 100%;
-    margin: 0 auto;
-    padding: 3rem 1rem;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    overflow: hidden;
+    background-color: var(--bg-base);
     transition:
       background-color 0.3s,
       color 0.3s;
   }
 
-  @media (max-width: 480px) {
+  .content-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (max-width: 1024px) {
     .container {
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .content-area {
       padding: 0;
     }
   }
@@ -77,38 +94,28 @@
   }
 
   :global(::-webkit-scrollbar-track) {
-    background: color-mix(in srgb, var(--bg-base), transparent 50%);
+    background: var(--bg-base);
     border-radius: 4px;
   }
 
   :global(::-webkit-scrollbar-thumb) {
-    background: color-mix(in srgb, var(--text-muted), transparent 30%);
+    background: color-mix(in srgb, var(--text-muted), transparent 60%);
     border-radius: 4px;
-    border: 2px solid color-mix(in srgb, var(--bg-base), transparent 50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    border: 2px solid var(--bg-base);
   }
 
   :global(::-webkit-scrollbar-thumb:hover) {
-    background: color-mix(in srgb, var(--text-muted), transparent 20%);
-    opacity: 1;
-  }
-
-  :global(*:hover::-webkit-scrollbar-thumb) {
-    opacity: 1;
-  }
-
-  :global(html) {
-    scrollbar-width: auto;
+    background: color-mix(in srgb, var(--text-muted), transparent 40%);
   }
 
   :global(html) {
     scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+    scrollbar-color: color-mix(in srgb, var(--text-muted), transparent 60%)
+      var(--bg-base);
   }
 
   :global(*:hover) {
-    scrollbar-color: color-mix(in srgb, var(--text-muted), transparent 30%)
-      color-mix(in srgb, var(--bg-base), transparent 50%);
+    scrollbar-color: color-mix(in srgb, var(--text-muted), transparent 40%)
+      var(--bg-base);
   }
 </style>

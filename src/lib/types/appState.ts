@@ -8,6 +8,7 @@ export type SessionState = {
 	todayNoteContent: NoteContentResponse | null;
 	activePopup: PopupType;
 	isMac: boolean;
+	sidebarOpen: boolean;
 };
 
 export type AppPayload = {

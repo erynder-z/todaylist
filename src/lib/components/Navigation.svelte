@@ -67,44 +67,82 @@
       />
     </svg>
   </button>
+
+  <button
+    onclick={() => (sessionState.sidebarOpen = !sessionState.sidebarOpen)}
+    class="nav-icon vertical-layout-only"
+    class:active={sessionState.sidebarOpen}
+    title="Toggle Sidebar"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 -960 960 960"
+      fill="currentColor"
+    >
+      <path
+        d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"
+      />
+    </svg>
+  </button>
 </nav>
 
 <style>
   .navigation {
-    position: fixed;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
+    width: 3.5rem;
+    height: 100dvh;
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    background-color: color-mix(in srgb, var(--bg-surface), black 20%);
+    box-shadow: 0 -1px 25px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    align-items: center;
     z-index: 100;
   }
 
   .nav-icon {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    background-color: var(--bg-surface);
-    color: var(--text-main);
-    border: 0.0625rem solid var(--border);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.6rem;
     cursor: pointer;
-    transition:
-      transform 0.2s,
-      background-color 0.2s;
+    transition: all 0.2s ease;
   }
 
-  .nav-icon:hover {
-    background-color: var(--accent);
-    color: var(--accent-text);
-    transform: scale(1.1);
+  .nav-icon:hover,
+  .nav-icon.active {
+    background-color: color-mix(in srgb, var(--accent), transparent 85%);
+    color: var(--accent);
+  }
+
+  .vertical-layout-only {
+    display: none;
   }
 
   svg {
     width: 1.5rem;
     height: 1.5rem;
+  }
+
+  @media (max-width: 1024px) {
+    .navigation {
+      width: 100%;
+      height: 4rem;
+      flex-direction: row;
+      justify-content: center;
+      padding: 0;
+      border-right: none;
+      border-top: 0.0625rem solid var(--border);
+    }
+
+    .vertical-layout-only {
+      display: flex;
+    }
   }
 </style>

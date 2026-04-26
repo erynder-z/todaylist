@@ -34,50 +34,52 @@
 <style>
   .sections-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.125rem;
     margin-bottom: 1.5rem;
-    padding: 0.5rem;
-    background-color: color-mix(in srgb, var(--accent), transparent 95%);
-    border-radius: 0.5rem;
-    border: 1px solid var(--border);
   }
 
   .section-pill {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 0.375rem;
+    padding: 0.4rem 0.6rem;
+    background: transparent;
+    border: none;
+    border-bottom: dashed 1px var(--border);
     color: var(--text-main);
     cursor: pointer;
     font-size: 0.85rem;
-    transition: all 0.15s ease;
+    transition: all 0.1s ease;
+    text-align: left;
+    width: 100%;
   }
 
   .section-pill:hover {
-    background-color: var(--accent);
-    color: var(--accent-text);
-    border-color: var(--accent);
+    background-color: color-mix(in srgb, var(--accent), transparent 90%);
+    color: var(--accent);
   }
 
   .section-name {
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .shortcut-hint {
     font-family: var(--font-mono, monospace);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
-    border: 1px solid var(--border);
-    padding: 0.1rem 0.25rem;
-    border-radius: 0.25rem;
+    background-color: color-mix(in srgb, var(--bg-base), transparent 50%);
+    padding: 0.1rem 0.2rem;
+    border-radius: 0.2rem;
     display: flex;
     align-items: center;
-    gap: 0.15rem;
-    opacity: 0.8;
+    gap: 0.1rem;
+    opacity: 0.6;
+    flex-shrink: 0;
   }
 
   .section-pill:hover .shortcut-hint {

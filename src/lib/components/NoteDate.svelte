@@ -13,13 +13,16 @@
 </script>
 
 {#if date}
-  <span class="date">{date}</span>
+  <div class="date">{date}</div>
 {/if}
 
 <style>
   .date {
-    font-size: 0.875rem;
-    color: var(--accent);
-    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-align: center;
+    width: 100%;
   }
 </style>
