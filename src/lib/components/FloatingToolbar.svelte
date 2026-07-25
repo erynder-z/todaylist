@@ -4,21 +4,26 @@
    * Keeps backward compatibility for NoteEditor.svelte imports.
    */
   import type { Editor } from '@milkdown/core';
+  import type { SelectionFloatingAnchorInstance } from '$lib/types/other';
   import NoteFormatter from './NoteFormatter.svelte';
   import SelectionFloatingAnchor from './SelectionFloatingAnchor.svelte';
 
   let { editorInstance } = $props<{ editorInstance: Editor | null }>();
 
-  // Track if link input is active to prevent toolbar from hiding
   let linkInputActive = $state(false);
+  let anchor: SelectionFloatingAnchorInstance | null = $state(null);
 
   const handleLinkInputActive = (active: boolean) => {
     linkInputActive = active;
   };
 </script>
 
-<SelectionFloatingAnchor {linkInputActive}>
+<SelectionFloatingAnchor bind:this={anchor} {linkInputActive} {editorInstance}>
   {#snippet children()}
-    <NoteFormatter {editorInstance} onLinkInputActive={handleLinkInputActive} />
+    <NoteFormatter
+      {editorInstance}
+      onLinkInputActive={handleLinkInputActive}
+      {anchor}
+    />
   {/snippet}
 </SelectionFloatingAnchor>

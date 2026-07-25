@@ -1,4 +1,7 @@
 <script lang="ts">
+  import type { Editor } from '@milkdown/core';
+  import { editorViewCtx } from '@milkdown/core';
+  import type { Ctx } from '@milkdown/ctx';
   import { type Snippet, tick } from 'svelte';
   import { fade, scale } from 'svelte/transition';
 
@@ -6,10 +9,12 @@
     children,
     editorWrapperClass = 'milkdown-editor-wrapper',
     linkInputActive = false,
+    editorInstance,
   } = $props<{
     children: Snippet<[boolean]>;
     editorWrapperClass?: string;
     linkInputActive?: boolean;
+    editorInstance?: Editor | null;
   }>();
 
   let visible = $state(false);
@@ -20,6 +25,51 @@
 
   let isSelecting = $state(false);
   let isKeyboardSelecting = $state(false);
+
+  // Track dismissed selections to prevent toolbar from reappearing immediately
+  let dismissedSelectionKey = $state('');
+
+  /**
+   * Gets the current ProseMirror selection and generates a unique key
+   */
+  const getCurrentSelectionKey = (): string => {
+    if (!editorInstance) return '';
+
+    try {
+      let key = '';
+      editorInstance.action((ctx: Ctx) => {
+        const view = ctx.get(editorViewCtx);
+        const { from, to } = view.state.selection;
+        key = `${from}:${to}`;
+      });
+      return key;
+    } catch (e) {
+      console.warn('Failed to get current selection key:', e);
+      return '';
+    }
+  };
+
+  /**
+   * Public method to hide the toolbar and mark current selection as dismissed
+   * Uses ProseMirror's selection for stable identification
+   */
+  export const hide = () => {
+    dismissedSelectionKey = getCurrentSelectionKey();
+    visible = false;
+  };
+
+  /**
+   * Public method to show the toolbar
+   */
+  export const show = () => {
+    // Clear dismissed selection when explicitly showing
+    dismissedSelectionKey = '';
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && isSelectionInEditor(selection)) {
+      positionToolbar(selection);
+      visible = true;
+    }
+  };
 
   /**
    * Checks if a DOM node is inside the editor wrapper.
@@ -131,12 +181,13 @@
 
   /**
    * Handles selection changes to prepare toolbar positioning but delays showing it.
+   * Uses ProseMirror's selection for stable identification when available.
    */
   const handleSelectionChange = () => {
     // Show/hide floating toolbar based on selection state and link input activity
-    const selection = window.getSelection();
+    const domSelection = window.getSelection();
 
-    if (!selection || isSelectionInThreadMarker(selection)) {
+    if (!domSelection || isSelectionInThreadMarker(domSelection)) {
       visible = false;
       return;
     }
@@ -146,13 +197,24 @@
       return;
     }
 
+    // Check if this selection has been dismissed
+    const currentSelectionKey = getCurrentSelectionKey();
+    if (dismissedSelectionKey === currentSelectionKey) {
+      visible = false;
+      return;
+    }
+
+    // If selection changed from dismissed one, clear the dismissal
+    if (dismissedSelectionKey && dismissedSelectionKey !== currentSelectionKey)
+      dismissedSelectionKey = '';
+
     // Check if selection is in editor or if link input is active
-    const selectionInEditor = isSelectionInEditor(selection);
-    const selectionValid = isSelectionValid(selection);
+    const selectionInEditor = isSelectionInEditor(domSelection);
+    const selectionValid = isSelectionValid(domSelection);
 
     // Case 1: Selection is valid and in editor - show toolbar normally
     if (selectionValid && selectionInEditor) {
-      positionToolbar(selection);
+      positionToolbar(domSelection);
       visible = true;
       return;
     }
@@ -160,7 +222,7 @@
     // Case 2: Link input is active - keep toolbar visible regardless of selection
     if (linkInputActive) {
       if (selectionInEditor) {
-        positionToolbar(selection);
+        positionToolbar(domSelection);
       }
       visible = true;
       return;
@@ -171,7 +233,7 @@
   };
 
   /**
-   * Highly efficient repositioning handler for scroll and resize events.
+   * Repositioning handler for scroll and resize events.
    */
   const handleScrollOrResize = () => {
     if (!visible) return;
@@ -246,10 +308,7 @@
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && visible) {
-        e.preventDefault();
-        visible = false;
-      }
+      // Removed Escape handler - now handled centrally in NoteFormatter
       if (
         e.shiftKey &&
         ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)

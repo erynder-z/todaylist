@@ -9,9 +9,15 @@
   import { t } from '$lib/utils/i18n';
   import { useShortcuts } from '$lib/utils/shortcuts';
 
-  let { editorInstance, onLinkInputActive } = $props<{
+  type SelectionFloatingAnchorInstance = {
+    hide: () => void;
+    show: () => void;
+  };
+
+  let { editorInstance, onLinkInputActive, anchor } = $props<{
     editorInstance: Editor | null;
     onLinkInputActive?: (active: boolean) => void;
+    anchor?: SelectionFloatingAnchorInstance | null;
   }>();
 
   let isBold = $state(false);
@@ -247,13 +253,20 @@
    * Cancels the link entry and returns focus to the editor
    */
   const cancelLink = () => {
-    showLinkInput = false;
     if (editorInstance) {
       editorInstance.action((ctx: Ctx) => {
         const view = ctx.get(editorViewCtx);
-        view.focus();
+
+        requestAnimationFrame(() => {
+          view.focus();
+        });
       });
     }
+
+    showLinkInput = false;
+
+    // Hide the toolbar when link input is cancelled with Escape
+    anchor?.hide();
   };
 
   /**
@@ -359,7 +372,19 @@
   // These only work when the editor has focus
   const editorScope = 'editor-formatting';
 
-  // Track editor focus to activate/deactivate shortcuts
+  // Central Escape handler for the formatter
+  const handleEscape = (e: KeyboardEvent) => {
+    if (!showLinkInput) {
+      // If link input is not open, hide the toolbar
+      if (anchor) {
+        e.preventDefault();
+        anchor.hide();
+      }
+    }
+    // If link input is open, the input's own keydown handler will handle it
+  };
+
+  // Track editor focus to activate/deactivate shortcuts and register Escape handler
   $effect(() => {
     if (!editorInstance) return;
 
@@ -373,8 +398,17 @@
       inputManager.deactivateScope(editorScope);
     };
 
+    const handleDocumentKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleEscape(e);
+      }
+    };
+
     dom.addEventListener('focus', handleFocus, { capture: true });
     dom.addEventListener('blur', handleBlur, { capture: true });
+    document.addEventListener('keydown', handleDocumentKeyDown, {
+      capture: true,
+    });
 
     // Check initial focus state
     if (
@@ -387,6 +421,9 @@
     return () => {
       dom.removeEventListener('focus', handleFocus, { capture: true });
       dom.removeEventListener('blur', handleBlur, { capture: true });
+      document.removeEventListener('keydown', handleDocumentKeyDown, {
+        capture: true,
+      });
       inputManager.deactivateScope(editorScope);
     };
   });
