@@ -368,7 +368,7 @@
 <style>
   .floating-toolbar-wrapper {
     position: fixed;
-    z-index: 9999;
+    z-index: 1000;
     left: 0;
     top: 0;
     transform: translate(var(--toolbar-x), var(--toolbar-y)) translateX(-50%)

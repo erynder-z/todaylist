@@ -185,7 +185,7 @@
     border-radius: 0.5rem 0.5rem 0 0;
     padding: 1rem;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-    z-index: 999;
+    z-index: 1000;
     backdrop-filter: blur(0.5rem);
     min-width: 35ch;
     max-width: calc(100% - 2rem);

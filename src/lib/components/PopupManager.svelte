@@ -117,7 +117,7 @@
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
-    z-index: 9999;
+    z-index: 5000;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
