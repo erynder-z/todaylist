@@ -18,6 +18,7 @@ export interface AppSettings {
 	identiconStyle: "dotmatrix" | "round" | "none";
 	threadShortcutsMode: "navigation" | "actions";
 	dateFormatStyle: "medium" | "narrow";
+	floatingToolbarEnabled: boolean;
 	shortcuts: Partial<Record<ShortcutAction, ShortcutConfig>>;
 }
 

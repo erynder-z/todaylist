@@ -36,6 +36,7 @@ pub async fn update_config(
         config.identicon_style = new_config.identicon_style;
         config.thread_shortcuts_mode = new_config.thread_shortcuts_mode;
         config.date_format_style = new_config.date_format_style;
+        config.floating_toolbar_enabled = new_config.floating_toolbar_enabled;
         config.shortcuts = new_config.shortcuts;
 
         config.save();
@@ -67,6 +68,7 @@ pub async fn update_config(
             identicon_style: config.identicon_style.clone(),
             thread_shortcuts_mode: config.thread_shortcuts_mode.clone(),
             date_format_style: config.date_format_style.clone(),
+            floating_toolbar_enabled: config.floating_toolbar_enabled,
             shortcuts: config.shortcuts.clone(),
         }
     };
@@ -185,6 +187,7 @@ pub async fn reset_config_to_defaults(state: State<'_, AppState>) -> Result<(), 
     config.identicon_style = default_config.identicon_style;
     config.thread_shortcuts_mode = default_config.thread_shortcuts_mode;
     config.date_format_style = default_config.date_format_style;
+    config.floating_toolbar_enabled = default_config.floating_toolbar_enabled;
     config.shortcuts = default_config.shortcuts;
 
     config.save();
@@ -257,6 +260,7 @@ pub async fn switch_notes_folder(
             identicon_style: config.identicon_style.clone(),
             thread_shortcuts_mode: config.thread_shortcuts_mode.clone(),
             date_format_style: config.date_format_style.clone(),
+            floating_toolbar_enabled: config.floating_toolbar_enabled,
             shortcuts: config.shortcuts.clone(),
         }
     };

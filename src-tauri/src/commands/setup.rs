@@ -31,6 +31,7 @@ pub async fn initialize_app(state: State<'_, AppState>) -> Result<AppPayload, St
             identicon_style: config.identicon_style.clone(),
             thread_shortcuts_mode: config.thread_shortcuts_mode.clone(),
             date_format_style: config.date_format_style.clone(),
+            floating_toolbar_enabled: config.floating_toolbar_enabled,
             shortcuts: config.shortcuts.clone(),
         }
     };
@@ -64,6 +65,7 @@ pub fn get_initial_state(
         identicon_style: config.identicon_style,
         thread_shortcuts_mode: config.thread_shortcuts_mode,
         date_format_style: config.date_format_style,
+        floating_toolbar_enabled: config.floating_toolbar_enabled,
         shortcuts: config.shortcuts,
         available_locales,
         available_themes,

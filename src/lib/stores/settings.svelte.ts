@@ -27,6 +27,7 @@ export class SettingsStore {
 	identiconStyle = $state<"dotmatrix" | "round" | "none">("dotmatrix");
 	threadShortcutsMode = $state<"navigation" | "actions">("navigation");
 	dateFormatStyle = $state<"medium" | "narrow">("medium");
+	floatingToolbarEnabled = $state(true);
 	shortcuts = $state<Partial<Record<ShortcutAction, ShortcutConfig>>>({});
 
 	/**
@@ -56,6 +57,7 @@ export class SettingsStore {
 			identiconStyle: this.identiconStyle,
 			threadShortcutsMode: this.threadShortcutsMode,
 			dateFormatStyle: this.dateFormatStyle,
+			floatingToolbarEnabled: this.floatingToolbarEnabled,
 			shortcuts: this.shortcuts,
 		};
 	}
@@ -191,6 +193,17 @@ export class SettingsStore {
 			return await this.save({ dateFormatStyle: style });
 
 		this.dateFormatStyle = style;
+		return true;
+	}
+
+	/**
+	 * Granular setter for floating toolbar enabled state that handles conditional persistence.
+	 */
+	async saveFloatingToolbarEnabled(enabled: boolean): Promise<boolean> {
+		if (this.rememberSettings)
+			return await this.save({ floatingToolbarEnabled: enabled });
+
+		this.floatingToolbarEnabled = enabled;
 		return true;
 	}
 

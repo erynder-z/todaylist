@@ -14,10 +14,16 @@
     show: () => void;
   };
 
-  let { editorInstance, onLinkInputActive, anchor } = $props<{
+  let {
+    editorInstance,
+    onLinkInputActive,
+    anchor,
+    visible = false,
+  } = $props<{
     editorInstance: Editor | null;
     onLinkInputActive?: (active: boolean) => void;
     anchor?: SelectionFloatingAnchorInstance | null;
+    visible?: boolean;
   }>();
 
   let isBold = $state(false);
@@ -371,6 +377,7 @@
   // Register scoped shortcuts for editor formatting
   // These only work when the editor has focus
   const editorScope = 'editor-formatting';
+  const toolbarScope = 'toolbar-visible';
 
   // Central Escape handler for the formatter
   const handleEscape = (e: KeyboardEvent) => {
@@ -384,7 +391,7 @@
     // If link input is open, the input's own keydown handler will handle it
   };
 
-  // Track editor focus to activate/deactivate shortcuts and register Escape handler
+  // Track editor focus to activate/deactivate editor scope
   $effect(() => {
     if (!editorInstance) return;
 
@@ -425,6 +432,7 @@
         capture: true,
       });
       inputManager.deactivateScope(editorScope);
+      inputManager.deactivateScope(toolbarScope);
     };
   });
 
@@ -449,9 +457,19 @@
     }
   });
 
-  // Register scoped shortcuts for editor formatting
+  // Activate toolbar scope only when toolbar is visible
+  $effect(() => {
+    if (visible) {
+      inputManager.activateScope(toolbarScope);
+      return () => {
+        inputManager.deactivateScope(toolbarScope);
+      };
+    }
+  });
+
+  // Register scoped shortcuts for editor formatting (only work when toolbar is visible)
   useShortcuts(
-    editorScope,
+    toolbarScope,
     {
       toggleBold: handleToggleBold,
       toggleItalic: handleToggleItalic,
@@ -459,6 +477,14 @@
       toggleCode: handleToggleCode,
       toggleBlockquote: handleToggleBlockquote,
       toggleLink: handleToggleLink,
+    },
+    false,
+  );
+
+  // Register editor-only shortcuts (work when editor has focus, regardless of toolbar)
+  useShortcuts(
+    editorScope,
+    {
       copySelection: handleCopySelection,
     },
     false,

@@ -215,7 +215,9 @@
     // Case 1: Selection is valid and in editor - show toolbar normally
     if (selectionValid && selectionInEditor) {
       positionToolbar(domSelection);
-      visible = true;
+      if (!visible) {
+        visible = true;
+      }
       return;
     }
 
@@ -224,12 +226,16 @@
       if (selectionInEditor) {
         positionToolbar(domSelection);
       }
-      visible = true;
+      if (!visible) {
+        visible = true;
+      }
       return;
     }
 
     // Case 3: Selection is collapsed or not in editor, and link input is not active
-    visible = false;
+    if (visible) {
+      visible = false;
+    }
   };
 
   /**
@@ -360,7 +366,7 @@
       in:scale={{ duration: 120, start: 0.95 }}
       out:fade={{ duration: 80 }}
     >
-      {@render children(positionBelow)}
+      {@render children(visible)}
     </div>
   </div>
 {/if}

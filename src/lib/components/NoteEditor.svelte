@@ -12,6 +12,7 @@
   import { linkOpenerPlugin } from '../plugins/linkOpenerPlugin';
   import type { EditorStore } from '../stores/editor.svelte';
   import { sessionState } from '../stores/sessionState.svelte';
+  import { settings } from '../stores/settings.svelte';
   import {
     navigateToLastAvailable,
     navigateToOffset,
@@ -193,6 +194,11 @@
     keymap({
       'Mod-1': () => true,
       'Mod-2': () => true,
+      'Mod-b': () => true, // Always block Milkdown's bold keymap
+      'Mod-i': () => true, // Always block Milkdown's italic keymap
+      'Mod-`': () => true, // Always block Milkdown's code keymap
+      'Ctrl->': () => true, // Always block Milkdown's blockquote keymap
+      'Mod-k': () => true, // Always block Milkdown's link keymap
     }),
   );
 
@@ -227,5 +233,7 @@
     onUpdate={(markdown) => editor.updateContent(markdown)}
     plugins={[customKeymap, linkOpenerPlugin]}
   />
-  <FloatingToolbar editorInstance={milkdownInstance} />
+  {#if settings.floatingToolbarEnabled}
+    <FloatingToolbar editorInstance={milkdownInstance} />
+  {/if}
 {/if}

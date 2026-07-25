@@ -19,11 +19,12 @@
 </script>
 
 <SelectionFloatingAnchor bind:this={anchor} {linkInputActive} {editorInstance}>
-  {#snippet children()}
+  {#snippet children(visible: boolean)}
     <NoteFormatter
       {editorInstance}
       onLinkInputActive={handleLinkInputActive}
       {anchor}
+      {visible}
     />
   {/snippet}
 </SelectionFloatingAnchor>

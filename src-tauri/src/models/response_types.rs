@@ -27,6 +27,7 @@ pub struct ConfigResponse {
     pub identicon_style: String,
     pub thread_shortcuts_mode: String,
     pub date_format_style: String,
+    pub floating_toolbar_enabled: bool,
     pub shortcuts: HashMap<String, ShortcutConfig>,
 }
 
@@ -116,6 +117,7 @@ pub struct AppPayload {
     pub identicon_style: String,
     pub thread_shortcuts_mode: String,
     pub date_format_style: String,
+    pub floating_toolbar_enabled: bool,
     pub shortcuts: HashMap<String, ShortcutConfig>,
     pub available_locales: Vec<LocaleInfo>,
     pub available_themes: Vec<ThemeInfo>,

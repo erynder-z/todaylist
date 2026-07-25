@@ -37,6 +37,7 @@ export interface AppPayload {
 	identiconStyle: "dotmatrix" | "round" | "none";
 	threadShortcutsMode: "navigation" | "actions";
 	dateFormatStyle: "medium" | "narrow";
+	floatingToolbarEnabled: boolean;
 	availableLocales: LocaleInfo[];
 	availableThemes: ThemeInfo[];
 	translations: Record<string, string>;

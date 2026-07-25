@@ -92,6 +92,10 @@ export class AppInitializer {
 			settings.threadShortcutsMode = state.threadShortcutsMode || "navigation";
 			settings.identiconStyle = state.identiconStyle;
 			settings.dateFormatStyle = state.dateFormatStyle || "medium";
+			settings.floatingToolbarEnabled =
+				state.floatingToolbarEnabled !== undefined
+					? state.floatingToolbarEnabled
+					: true;
 		} else {
 			// Use default values for component settings
 			settings.searchMode = "notes";
@@ -101,6 +105,7 @@ export class AppInitializer {
 			settings.threadShortcutsMode = "navigation";
 			settings.identiconStyle = "dotmatrix";
 			settings.dateFormatStyle = "medium";
+			settings.floatingToolbarEnabled = true;
 		}
 
 		const width = state.controlCenterWidth;

@@ -29,7 +29,7 @@
   const threadOptionRemoveShortcut = settings.shortcuts.threadOptionRemove;
   const threadOptionLinkedShortcut = settings.shortcuts.threadOptionLinked;
 
-  // Editor formatting shortcuts
+  // Text formatting shortcuts
   const toggleBoldShortcut = settings.shortcuts.toggleBold;
   const toggleItalicShortcut = settings.shortcuts.toggleItalic;
   const toggleStrikethroughShortcut = settings.shortcuts.toggleStrikethrough;
@@ -137,7 +137,7 @@
     {/if}
   </div>
 
-  <div class="editor-formatting-shortcuts">
+  <div class="text-formatting-shortcuts">
     <h3>{$t('shortcuts.editor_formatting.description')}</h3>
     {#if toggleBoldShortcut}
       <div class="shortcut-item">
@@ -280,7 +280,8 @@
 
   .tag-shortcuts h3,
   .search-shortcuts h3,
-  .thread-option-shortcuts h3 {
+  .thread-option-shortcuts h3,
+  .text-formatting-shortcuts h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.1rem;
     color: var(--accent);
