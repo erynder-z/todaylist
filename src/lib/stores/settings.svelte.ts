@@ -13,7 +13,7 @@ import { sessionState } from "./sessionState.svelte";
 export class SettingsStore {
 	notesFolder = $state("");
 	locale = $state("en");
-	theme = $state("blind-spot");
+	theme = $state("lobby");
 	rememberAppLayout = $state(true);
 	notesListLayout = $state<"list" | "masonry">("list");
 	rememberSettings = $state(true);

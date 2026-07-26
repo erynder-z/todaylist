@@ -40,5 +40,5 @@
 	"--thread-mode-actions-bg": "#F7DC6F",
 	"--thread-mode-navigation-text": "#000000",
 	"--thread-mode-actions-text": "#000000",
-	"--thread-marker-color": "#F7DC6F"
+	"--thread-marker-color": "#000000"
 }

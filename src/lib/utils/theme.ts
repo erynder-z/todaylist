@@ -9,7 +9,7 @@ export const availableThemes = writable<ThemeInfo[]>([]);
 /**
  * The currently active theme ID (e.g., 'blind-spot', 'catppuccin-mocha').
  */
-export const currentTheme = writable<string>("blind-spot");
+export const currentTheme = writable<string>("lobby");
 
 /**
  * Dynamically applies theme colors by setting CSS variables on the document root.

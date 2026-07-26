@@ -332,7 +332,7 @@ impl Default for AppConfig {
         Self {
             notes_folder,
             locale: "en".to_string(),
-            theme: "blind-spot".to_string(),
+            theme: "lobby".to_string(),
             remember_app_layout: true,
             notes_list_layout: "list".to_string(),
             remember_settings: true,
