@@ -18,6 +18,7 @@
 
   // Reactive derivations driven by the input thread title
   const hash = $derived(hashString(title));
+  const clipId = $derived(`circle-clip-${hash}`);
 
   const shapeCount = 4;
   const center = 50;
@@ -86,14 +87,17 @@
   const shapes = $derived(generateShapes());
 </script>
 
+<!-- Jazzicon-style (https://github.com/danfinlay/jazzicon) shapes - overlapping colored rectangles that fill the entire space -->
 <svg width={size} height={size} viewBox="0 0 100 100" class="thread-identicon">
-  <!-- Circular background (like jazzicon) -->
-
   <circle cx="50" cy="50" r="50" fill="var(--local-bg, #202020)" />
 
-  <!-- Jazzicon-style (https://github.com/danfinlay/jazzicon) shapes - overlapping colored rectangles that fill the entire space -->
+  <defs>
+    <clipPath id={clipId}>
+      <circle cx="50" cy="50" r="50" />
+    </clipPath>
+  </defs>
 
-  <g clip-path="url(#circle-clip)">
+  <g clip-path={`url(#${clipId})`}>
     {#each shapes as shape}
       <rect
         x="-25"
@@ -105,13 +109,6 @@
       />
     {/each}
   </g>
-
-  <!-- Clip to circle -->
-  <defs>
-    <clipPath id="circle-clip">
-      <circle cx="50" cy="50" r="50" />
-    </clipPath>
-  </defs>
 </svg>
 
 <style>
@@ -120,6 +117,5 @@
     vertical-align: middle;
     user-select: none;
     transform: translateZ(0);
-    overflow: visible;
   }
 </style>
