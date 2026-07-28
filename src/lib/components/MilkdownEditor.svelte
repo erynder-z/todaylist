@@ -10,9 +10,12 @@
     rootCtx,
   } from '@milkdown/core';
   import type { MilkdownPlugin } from '@milkdown/ctx';
+  import { highlight, highlightPluginConfig } from '@milkdown/plugin-highlight';
+  import { createParser } from '@milkdown/plugin-highlight/lowlight';
   import { listener, listenerCtx } from '@milkdown/plugin-listener';
   import { commonmark } from '@milkdown/preset-commonmark';
   import { gfm } from '@milkdown/preset-gfm';
+  import { common, createLowlight } from 'lowlight';
   import { untrack } from 'svelte';
   import { threadMarkerPlugin } from '../plugins/threadMarkerPlugin';
 
@@ -46,6 +49,12 @@
         ctx.set(editorViewOptionsCtx, {
           editable: () => !readonly,
         });
+
+        // Configure code syntax highlighting with lowlight
+        const lowlight = createLowlight(common);
+        const parser = createParser(lowlight);
+        ctx.set(highlightPluginConfig.key, { parser });
+
         ctx.get(listenerCtx).markdownUpdated((_, markdown) => {
           if (onUpdate) onUpdate(markdown);
         });
@@ -53,7 +62,8 @@
       .use(commonmark)
       .use(gfm)
       .use(listener)
-      .use(threadMarkerPlugin);
+      .use(threadMarkerPlugin)
+      .use(highlight);
 
     // Add any plugins provided via props
     for (const plugin of plugins) editor.use(plugin);
@@ -205,6 +215,75 @@
     border-radius: 0.25rem;
     font-family: var(--font-mono);
     font-size: 0.875rem;
+  }
+
+  /* Code Syntax Highlighting */
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-comment),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-quote) {
+    color: var(--text-ui-muted);
+    font-style: italic;
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-keyword),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-selector-tag),
+  .milkdown-editor-wrapper
+    :global(.milkdown pre code .hljs-meta .hljs-keyword) {
+    color: var(--md-bold);
+    font-weight: 600;
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-string),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-regexp),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-addition),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-meta .hljs-string) {
+    color: var(--success);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-number),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-literal) {
+    color: var(--md-h3);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-title),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-title.function_),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-section),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-name) {
+    color: var(--md-h1);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-title.class_),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-class .hljs-title),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-type),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-built_in) {
+    color: var(--md-italic);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-attr),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-attribute),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-variable),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-template-variable) {
+    color: var(--md-h2);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-operator),
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-punctuation) {
+    color: var(--text-ui-muted);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-params) {
+    color: var(--md-code-text);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-doctag) {
+    color: var(--md-quote-border);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-meta) {
+    color: var(--md-h4);
+  }
+
+  .milkdown-editor-wrapper :global(.milkdown pre code .hljs-deletion) {
+    color: var(--error);
   }
 
   /* Blockquotes */
