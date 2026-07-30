@@ -2,7 +2,7 @@
   /**
    * Slide-in menu for displaying thread options
    */
-  import { onMount } from 'svelte';
+
   import { slide } from 'svelte/transition';
   import type { NoteThread } from '$lib/interfaces/notes';
   import { toast } from '$lib/stores/toast.svelte';
@@ -46,9 +46,6 @@
   /**
    * Opens linked threads popup
    */
-  /**
-   * Opens linked threads popup
-   */
   const handleLinked = () => {
     if (!aggregatedThread || !hasLinkedThreads) {
       return;
@@ -85,7 +82,8 @@
     }
   };
 
-  onMount(() => {
+  $effect(() => {
+    thread;
     loadLinkedThreads();
   });
 
