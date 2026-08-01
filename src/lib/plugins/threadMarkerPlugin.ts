@@ -56,7 +56,13 @@ export const threadMarkerSchema = $nodeSchema("thread_marker", () => ({
 			tag: "div.thread-marker",
 		},
 	],
-	toDOM: () => ["div", { class: "thread-marker" }, 0],
+	toDOM: () => [
+		"div",
+		{
+			class: "thread-marker",
+		},
+		0,
+	],
 	parseMarkdown: {
 		match: (node) => node.type === "threadMarker",
 		runner: (state, node, type) => {

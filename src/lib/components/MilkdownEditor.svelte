@@ -6,6 +6,7 @@
   import {
     defaultValueCtx,
     Editor,
+    editorViewCtx,
     editorViewOptionsCtx,
     rootCtx,
   } from '@milkdown/core';
@@ -17,6 +18,10 @@
   import { gfm } from '@milkdown/preset-gfm';
   import { common, createLowlight } from 'lowlight';
   import { untrack } from 'svelte';
+  import {
+    activeThreadPlugin,
+    setActiveThread,
+  } from '../plugins/activeThreadPlugin';
   import { threadMarkerPlugin } from '../plugins/threadMarkerPlugin';
 
   let {
@@ -25,12 +30,14 @@
     instance = $bindable(null),
     plugins = [],
     readonly = false,
+    activeThreadName = null,
   } = $props<{
     content: string;
     onUpdate?: (markdown: string) => void;
     instance?: Editor | null;
     plugins?: MilkdownPlugin[];
     readonly?: boolean;
+    activeThreadName?: string | null;
   }>();
 
   let container: HTMLDivElement | null = $state(null);
@@ -63,6 +70,7 @@
       .use(gfm)
       .use(listener)
       .use(threadMarkerPlugin)
+      .use(activeThreadPlugin)
       .use(highlight);
 
     // Add any plugins provided via props
@@ -82,9 +90,21 @@
       instance = null;
     };
   });
+
+  $effect(() => {
+    if (!instance?.action) return;
+
+    const view = instance.ctx.get(editorViewCtx);
+
+    setActiveThread(view, activeThreadName);
+  });
 </script>
 
-<div bind:this={container} class="milkdown-editor-wrapper"></div>
+<div
+  bind:this={container}
+  class="milkdown-editor-wrapper"
+  data-active-thread={activeThreadName ?? undefined}
+></div>
 
 <style>
   .milkdown-editor-wrapper :global(.milkdown) {
@@ -322,5 +342,16 @@
   .milkdown-editor-wrapper :global(.milkdown ::selection) {
     background: var(--text-selection);
     color: var(--text-main);
+  }
+
+  /* Thread options active */
+  .milkdown-editor-wrapper :global(.thread-marker[data-active-thread='true']) {
+    background-color: color-mix(in srgb, var(--accent), transparent 92%);
+    border-bottom-color: var(--accent);
+    border-radius: 0;
+    padding-left: 0.5rem;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease;
   }
 </style>

@@ -136,7 +136,11 @@
    * Shortcut handler: Jump to thread by number shortcut
    */
   const handleJumpByNumber = (e: KeyboardEvent): boolean => {
-    if (sessionState.activePopup !== null && sessionState.activePopup !== 'threadOptions') return false;
+    if (
+      sessionState.activePopup !== null &&
+      sessionState.activePopup !== 'threadOptions'
+    )
+      return false;
 
     const idx = tagSuggestionShortcuts.codes.indexOf(e.code);
     if (idx !== -1 && idx < editor.threads.length) {
@@ -230,8 +234,11 @@
   <MilkdownEditor
     content={editor.content}
     bind:instance={milkdownInstance}
-    onUpdate={(markdown) => editor.updateContent(markdown)}
+    onUpdate={(markdown: string) => editor.updateContent(markdown)}
     plugins={[customKeymap, linkOpenerPlugin]}
+    activeThreadName={sessionState.activePopup === 'threadOptions'
+      ? (sessionState.selectedThreadForOptions?.name ?? null)
+      : null}
   />
   {#if settings.floatingToolbarEnabled}
     <FloatingToolbar editorInstance={milkdownInstance} />
