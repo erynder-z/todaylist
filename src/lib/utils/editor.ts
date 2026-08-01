@@ -10,38 +10,53 @@ export class EditorService {
 
 	/**
 	 * Directs the editor to a specific thread by index.
-	 * Finds the thread marker (!!!) and moves the cursor to the end of that thread.
+	 * Finds the thread marker (!!!), moves the cursor to the end of that thread and scrolls to it.
 	 */
 	jumpToThreadByIndex(index: number) {
 		this.editor.action((ctx) => {
 			const view = ctx.get(editorViewCtx);
 			const { doc } = view.state;
 
-			// 1. Collect all thread markers by finding thread_marker nodes
 			const threadMarkers: { name: string; pos: number; endPos: number }[] = [];
+
 			doc.descendants((node, pos) => {
 				if (node.type.name === "thread_marker") {
 					threadMarkers.push({
-						name: node.attrs.name,
+						name: node.textContent,
 						pos,
 						endPos: pos + node.nodeSize,
 					});
 				}
 			});
 
-			// 2. Check if index is valid
 			if (index < 0 || index >= threadMarkers.length) return;
 
-			// 3. Target the boundary: either the next thread marker or end of doc
+			const thread = threadMarkers[index];
 			const nextThread = threadMarkers[index + 1];
-			const jumpPos = nextThread ? nextThread.pos : doc.content.size;
 
-			// 4. Update selection and scroll
-			view.focus();
-			const resolvedPos = view.state.doc.resolve(jumpPos);
-			// Bias -1 ensures we land in the content BEFORE the next thread marker
+			// End of this thread's section:
+			// either right before the next thread marker or end of document
+			const cursorPos = nextThread ? nextThread.pos : doc.content.size;
+
+			const resolvedPos = doc.resolve(cursorPos);
 			const selection = Selection.near(resolvedPos, -1);
-			view.dispatch(view.state.tr.setSelection(selection).scrollIntoView());
+
+			// Move cursor
+			view.dispatch(view.state.tr.setSelection(selection));
+
+			// Scroll the thread marker itself
+			requestAnimationFrame(() => {
+				const dom = view.nodeDOM(thread.pos);
+
+				if (dom instanceof HTMLElement) {
+					dom.scrollIntoView({
+						behavior: "smooth",
+						block: "start",
+					});
+				}
+			});
+
+			view.focus();
 		});
 	}
 

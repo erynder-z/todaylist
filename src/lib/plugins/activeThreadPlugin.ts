@@ -1,9 +1,4 @@
-import {
-	Plugin,
-	PluginKey,
-	type PluginView,
-	Selection,
-} from "@milkdown/prose/state";
+import { Plugin, PluginKey, type PluginView } from "@milkdown/prose/state";
 import {
 	Decoration,
 	DecorationSet,
@@ -107,12 +102,14 @@ export const activeThreadPlugin = $prose(() => {
 							});
 
 							if (threadPos >= 0) {
-								// Scroll to the thread marker position
-								const resolvedPos = state.doc.resolve(threadPos);
-								const selection = Selection.near(resolvedPos, 1);
-								view.dispatch(
-									state.tr.setSelection(selection).scrollIntoView(),
-								);
+								const dom = view.nodeDOM(threadPos);
+
+								if (dom instanceof HTMLElement) {
+									dom.scrollIntoView({
+										behavior: "smooth",
+										block: "start",
+									});
+								}
 							}
 						});
 					}
