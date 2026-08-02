@@ -66,6 +66,7 @@ pub async fn save_note_content(
 
     // Update the active session with the new content
     session.load(path_buf.clone(), full_content.clone());
+    session.update_last_modified();
 
     fs::write(path_buf, session.get_full_content())
         .map_err(|e| format!("Failed to save note: {}", e))?;
@@ -91,6 +92,7 @@ pub async fn update_note_line(
 ) -> Result<(), String> {
     let mut session = state.note_session()?;
     session.update_content_line(index, content);
+    session.update_last_modified();
     if let Some(path) = &session.path {
         let full_content = session.get_full_content();
         fs::write(path, &full_content).map_err(|e| format!("Failed to save note: {}", e))?;
@@ -109,6 +111,7 @@ pub async fn insert_note_line(
 ) -> Result<(), String> {
     let mut session = state.note_session()?;
     session.insert_content_line(index, content);
+    session.update_last_modified();
 
     if let Some(path) = &session.path {
         let full_content = session.get_full_content();
@@ -124,6 +127,7 @@ pub async fn insert_note_line(
 pub async fn delete_note_line(index: usize, state: State<'_, AppState>) -> Result<(), String> {
     let mut session = state.note_session()?;
     session.delete_content_line(index);
+    session.update_last_modified();
 
     if let Some(path) = &session.path {
         let full_content = session.get_full_content();
@@ -272,6 +276,7 @@ where
 
     operation(&mut session)?;
 
+    session.update_last_modified();
     let full_content = session.get_full_content();
     fs::write(&path, &full_content).map_err(|e| format!("Failed to save note: {}", e))?;
 

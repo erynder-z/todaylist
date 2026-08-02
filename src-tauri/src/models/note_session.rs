@@ -425,4 +425,32 @@ impl NoteSession {
     pub fn find_thread_by_id(&self, id: &str) -> Option<&NoteThread> {
         self.threads.iter().find(|t| t.id == id)
     }
+
+    /// Updates the last-modified date in the frontmatter to the current date.
+    pub fn update_last_modified(&mut self) {
+        use crate::utils::date::get_current_date;
+
+        self.ensure_frontmatter();
+        let (start, end) = self.frontmatter_range.unwrap();
+        let current_date = get_current_date();
+
+        // Check if last-modified already exists
+        let last_modified_key = "last-modified:";
+        let mut found = false;
+
+        for i in (start + 1)..end {
+            if self.lines[i].trim().starts_with(last_modified_key) {
+                self.lines[i] = format!("{} {}", last_modified_key, current_date);
+                found = true;
+                break;
+            }
+        }
+
+        // If not found, add it before the closing ---
+        if !found && end > start + 1 {
+            self.lines
+                .insert(end, format!("{} {}", last_modified_key, current_date));
+            self.frontmatter_range = Some((start, end + 1));
+        }
+    }
 }

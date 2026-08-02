@@ -63,11 +63,14 @@ impl NoteManager {
 
         let current_date = utils::date::get_current_date();
         let note_content = if note_header.is_empty() {
-            format!("---\ncreated: {}\ntags: []\n---\n", current_date)
+            format!(
+                "---\ncreated: {}\nlast-modified: {}\ntags: []\n---\n",
+                current_date, current_date
+            )
         } else {
             format!(
-                "---\ncreated: {}\ntags: []\n---\n!!! {}\n",
-                current_date, note_header
+                "---\ncreated: {}\nlast-modified: {}\ntags: []\n---\n!!! {}\n",
+                current_date, current_date, note_header
             )
         };
 

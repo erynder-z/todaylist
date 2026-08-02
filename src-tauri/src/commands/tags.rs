@@ -41,6 +41,7 @@ where
     operation(&tag_manager, &mut session);
     tag_manager.invalidate_cache();
 
+    session.update_last_modified();
     let full_content = session.get_full_content();
     fs::write(&path, &full_content).map_err(|e| format!("Failed to save note: {}", e))?;
 
