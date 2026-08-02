@@ -186,17 +186,17 @@ impl<'a> SearchService<'a> {
     /// Extracts all unique thread names (lines starting with !!!) from markdown content.
     fn extract_thread_names(content: &str) -> Vec<String> {
         let (frontmatter_len, _) = Self::extract_frontmatter(content);
-        let mut names = std::collections::HashSet::new();
+        let mut names = Vec::new();
 
         for line in content.lines().skip(frontmatter_len) {
             if line.starts_with("!!! ") {
                 let name = line[4..].trim().to_string();
                 if !name.is_empty() {
-                    names.insert(name);
+                    names.push(name);
                 }
             }
         }
-        names.into_iter().collect()
+        names
     }
 
     /// Filters search results based on various criteria.
@@ -271,22 +271,69 @@ impl<'a> SearchService<'a> {
         Self::sort_search_results(filtered, sort_by)
     }
 
-    /// Extracts the content of a specific thread from markdown content.
-    fn extract_thread_block(content: &str, thread_name: &str) -> Option<String> {
-        let (frontmatter_len, _) = Self::extract_frontmatter(content);
+    /// Extracts all thread blocks with their IDs from note content.
+    /// Returns a vector of (content, thread_id) tuples for all matching threads.
+    fn extract_all_thread_blocks_with_id(
+        content: &str,
+        thread_name: &str,
+    ) -> Vec<(String, String)> {
+        let (frontmatter_len, frontmatter_content) = Self::extract_frontmatter(content);
         let lines: Vec<&str> = content.lines().collect();
 
-        let mut thread_lines = Vec::new();
-        let mut in_thread = false;
+        // Parse thread IDs and their line numbers from frontmatter
+        // Note: line numbers in frontmatter are content-relative (0 = first content line)
+        let thread_map = Self::parse_thread_map_from_frontmatter(&frontmatter_content);
 
-        for line in lines.iter().skip(frontmatter_len) {
+        let mut blocks: Vec<(String, String)> = Vec::new();
+        let mut thread_lines: Vec<&str> = Vec::new();
+        let mut in_thread = false;
+        let mut thread_start_line = 0; // Content-relative line number
+
+        for (i, line) in lines.iter().skip(frontmatter_len).enumerate() {
+            // i is the content-relative line number (0 = first line after frontmatter)
+            // This matches the line numbers stored in frontmatter
             if line.starts_with("!!! ") {
                 let name = line[4..].trim();
                 if name == thread_name {
+                    // If we were already in a thread, save the previous one
+                    if in_thread && !thread_lines.is_empty() {
+                        // Trim trailing empty lines
+                        let mut trimmed_lines = thread_lines.clone();
+                        while trimmed_lines.last().map(|l| l.trim().is_empty()) == Some(true) {
+                            trimmed_lines.pop();
+                        }
+                        if !trimmed_lines.is_empty() {
+                            let thread_id = thread_map
+                                .get(&thread_start_line)
+                                .cloned()
+                                .unwrap_or_default();
+                            blocks.push((trimmed_lines.join("\n").trim().to_string(), thread_id));
+                        }
+                    }
+
+                    // Start new thread
                     in_thread = true;
+                    thread_start_line = i; // Use content-relative line number
+                    thread_lines.clear();
                     continue;
                 } else if in_thread {
-                    break;
+                    // End of current thread, save it
+                    if !thread_lines.is_empty() {
+                        // Trim trailing empty lines
+                        let mut trimmed_lines = thread_lines.clone();
+                        while trimmed_lines.last().map(|l| l.trim().is_empty()) == Some(true) {
+                            trimmed_lines.pop();
+                        }
+                        if !trimmed_lines.is_empty() {
+                            let thread_id = thread_map
+                                .get(&thread_start_line)
+                                .cloned()
+                                .unwrap_or_default();
+                            blocks.push((trimmed_lines.join("\n").trim().to_string(), thread_id));
+                        }
+                    }
+                    in_thread = false;
+                    thread_lines.clear();
                 }
             }
 
@@ -295,18 +342,53 @@ impl<'a> SearchService<'a> {
             }
         }
 
-        if in_thread {
+        // Don't forget the last thread if we're still in one
+        if in_thread && !thread_lines.is_empty() {
             // Trim trailing empty lines
-            while thread_lines.last().map(|l| l.trim().is_empty()) == Some(true) {
-                thread_lines.pop();
+            let mut trimmed_lines = thread_lines;
+            while trimmed_lines.last().map(|l| l.trim().is_empty()) == Some(true) {
+                trimmed_lines.pop();
             }
-
-            if !thread_lines.is_empty() {
-                return Some(thread_lines.join("\n").trim().to_string());
+            if !trimmed_lines.is_empty() {
+                let thread_id = thread_map
+                    .get(&thread_start_line)
+                    .cloned()
+                    .unwrap_or_default();
+                blocks.push((trimmed_lines.join("\n").trim().to_string(), thread_id));
             }
         }
 
-        None
+        blocks
+    }
+
+    /// Parses the frontmatter to create a map of line numbers to thread IDs.
+    fn parse_thread_map_from_frontmatter(
+        frontmatter: &str,
+    ) -> std::collections::HashMap<usize, String> {
+        use std::collections::HashMap;
+
+        let mut map = HashMap::new();
+
+        for line in frontmatter.lines() {
+            let line = line.trim();
+            if line.starts_with("threads:") {
+                let value = line[8..].trim();
+                for part in value.split(',') {
+                    let part = part.trim();
+                    if !part.is_empty() {
+                        let parts: Vec<&str> = part.split(':').collect();
+                        if parts.len() == 2 {
+                            if let Ok(line_num) = parts[1].parse::<usize>() {
+                                map.insert(line_num, parts[0].to_string());
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        map
     }
 
     /// Filters and sorts a map of thread names based on the search query.
@@ -559,17 +641,21 @@ impl<'a> SearchService<'a> {
                 Err(_) => continue,
             };
 
-            if let Some(block_content) = Self::extract_thread_block(&content, thread_name) {
-                let filename = path
-                    .file_name()
-                    .and_then(|n| n.to_str())
-                    .unwrap_or_default()
-                    .to_string();
+            // Extract all thread blocks with the matching name from this note
+            let thread_blocks = Self::extract_all_thread_blocks_with_id(&content, thread_name);
 
+            let filename = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or_default()
+                .to_string();
+
+            for (block_content, thread_id) in thread_blocks {
                 items.push(ThreadAggregationItem {
                     filename: filename.clone(),
                     formatted_date: self.note_manager.format_note_name(&filename),
                     content: block_content,
+                    thread_id,
                 });
             }
         }

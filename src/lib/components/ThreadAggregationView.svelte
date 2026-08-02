@@ -17,14 +17,17 @@
   /**
    * Opens the original note when the date link button is clicked
    */
-  const openOriginalNote = async (filename: string) => {
+  const openOriginalNote = async (item: {
+    filename: string;
+    threadId: string;
+  }) => {
     if (!settings.notesFolder) return;
-    const path = `${settings.notesFolder}/${filename}`;
+    const path = `${settings.notesFolder}/${item.filename}`;
     const content = await notesService.readNoteContent(path);
     if (content !== null) {
       sessionState.todayNotePath = path;
       sessionState.todayNoteContent = content;
-      sessionState.pendingThreadJump = aggregation?.threadName ?? null;
+      sessionState.pendingThreadJump = item.threadId;
       sessionState.activePopup = null;
     } else {
       toast.error($t('notes.error.load'));
@@ -41,7 +44,7 @@
             <IdentIcon title={aggregation.threadName} size={1.5} />
             <button
               class="date-link"
-              onclick={() => openOriginalNote(item.filename)}
+              onclick={() => openOriginalNote(item)}
               title="Open original note"
             >
               <svg

@@ -35,6 +35,8 @@
 	"search.results_count": "{{count}} 件の結果",
 	"search.note_count_single": "{{count}}個のノート",
 	"search.note_count_multiple": "{{count}}個のノート",
+	"search.thread_count_single": "{{count}}件",
+	"search.thread_count_multiple": "{{count}}件",
 	"search.footer.navigate": "移動",
 	"search.footer.open": "開く",
 	"search.footer.mode": "モード",

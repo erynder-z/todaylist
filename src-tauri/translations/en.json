@@ -33,6 +33,8 @@
 	"search.results_count": "{{count}} results",
 	"search.note_count_single": "{{count}} note",
 	"search.note_count_multiple": "{{count}} notes",
+	"search.thread_count_single": "{{count}} entry",
+	"search.thread_count_multiple": "{{count}} entries",
 	"search.footer.navigate": "Navigate",
 	"search.footer.open": "Open",
 	"search.footer.mode": "Mode",

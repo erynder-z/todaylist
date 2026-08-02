@@ -141,9 +141,13 @@
     >
     <span class="item-count">
       {$t(
-        item.noteCount === 1
-          ? 'search.note_count_single'
-          : 'search.note_count_multiple',
+        searchMode === 'threads'
+          ? item.noteCount === 1
+            ? 'search.thread_count_single'
+            : 'search.thread_count_multiple'
+          : item.noteCount === 1
+            ? 'search.note_count_single'
+            : 'search.note_count_multiple',
         { count: item.noteCount },
       )}
     </span>
@@ -162,9 +166,13 @@
     >
     <div class="item-count">
       {$t(
-        item.noteCount === 1
-          ? 'search.note_count_single'
-          : 'search.note_count_multiple',
+        searchMode === 'threads'
+          ? item.noteCount === 1
+            ? 'search.thread_count_single'
+            : 'search.thread_count_multiple'
+          : item.noteCount === 1
+            ? 'search.note_count_single'
+            : 'search.note_count_multiple',
         { count: item.noteCount },
       )}
     </div>

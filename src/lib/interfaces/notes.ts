@@ -63,6 +63,7 @@ export interface ThreadAggregationItem {
 	filename: string;
 	formattedDate: string;
 	content: string;
+	threadId: string;
 }
 
 export interface AppStatistics {

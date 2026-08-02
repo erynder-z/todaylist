@@ -95,6 +95,7 @@ pub struct ThreadAggregationItem {
     pub filename: String,
     pub formatted_date: String,
     pub content: String,
+    pub thread_id: String,
 }
 
 /// The complete state payload sent to the frontend during initialization.

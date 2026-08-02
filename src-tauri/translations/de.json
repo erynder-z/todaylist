@@ -32,6 +32,8 @@
 	"search.results_count": "{{count}} Ergebnisse",
 	"search.note_count_single": "{{count}} Notiz",
 	"search.note_count_multiple": "{{count}} Notizen",
+	"search.thread_count_single": "{{count}} Eintag",
+	"search.thread_count_multiple": "{{count}} Einträge",
 	"search.footer.navigate": "Navigieren",
 	"search.footer.open": "Öffnen",
 	"search.footer.mode": "Modus",
