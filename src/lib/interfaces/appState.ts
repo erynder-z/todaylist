@@ -10,6 +10,7 @@ import type {
 import type { ThemeInfo } from "./settings";
 
 export interface SessionState {
+	pendingThreadJump: string | null;
 	todayNotePath: string | null;
 	todayNoteContent: NoteContentResponse | null;
 	aggregatedThread: ThreadAggregationResult | null;

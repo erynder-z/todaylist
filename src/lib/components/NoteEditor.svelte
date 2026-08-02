@@ -73,11 +73,34 @@
     const instance = milkdownInstance;
     const service = editorService;
     const hasPendingUpdate = editor.pendingExternalUpdate;
+    const pendingJump = sessionState.pendingThreadJump;
+
     if (!instance || !service || !hasPendingUpdate) return;
 
     // Clear the flag and apply the update
     editor.pendingExternalUpdate = false;
-    service.updateContent(editor.content);
+
+    // If we have a pending thread jump, we need to handle it after content update
+    if (pendingJump) {
+      const thread = editor.threads.find(
+        (thread: NoteThread) => thread.name === pendingJump,
+      );
+      if (thread) {
+        // Clear the pending jump immediately to avoid re-triggering
+        sessionState.pendingThreadJump = null;
+
+        // Update content and jump to thread when complete
+        service.updateContent(editor.content, () => {
+          editor.jumpToThread(thread.id);
+        });
+      } else {
+        // No matching thread found, just update content normally
+        service.updateContent(editor.content);
+      }
+    } else {
+      // No pending jump, just update content normally
+      service.updateContent(editor.content);
+    }
   });
 
   /**

@@ -24,6 +24,7 @@
     if (content !== null) {
       sessionState.todayNotePath = path;
       sessionState.todayNoteContent = content;
+      sessionState.pendingThreadJump = aggregation?.threadName ?? null;
       sessionState.activePopup = null;
     } else {
       toast.error($t('notes.error.load'));

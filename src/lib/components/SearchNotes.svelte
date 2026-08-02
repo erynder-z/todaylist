@@ -143,6 +143,7 @@
     if (content !== null) {
       sessionState.todayNotePath = path;
       sessionState.todayNoteContent = content;
+      sessionState.pendingThreadJump = null;
       sessionState.activePopup = null;
     } else {
       toast.error($t('notes.error.load'));

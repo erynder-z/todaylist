@@ -66,7 +66,7 @@ export class EditorService {
 	 * Updates the editor's content from a Markdown string and positions the cursor at the end.
 	 * Debounced to prevent rapid successive updates from thrashing the editor.
 	 */
-	updateContent(markdown: string) {
+	updateContent(markdown: string, onComplete?: () => void) {
 		// Clear any pending update
 		if (this.updateTimeout) clearTimeout(this.updateTimeout);
 
@@ -75,7 +75,10 @@ export class EditorService {
 				const view = ctx.get(editorViewCtx);
 				const parser = ctx.get(parserCtx);
 				const doc = parser(markdown);
-				if (!doc) return;
+				if (!doc) {
+					if (onComplete) onComplete();
+					return;
+				}
 
 				let tr = view.state.tr.replaceWith(0, view.state.doc.content.size, doc);
 
@@ -89,6 +92,11 @@ export class EditorService {
 				const selection = Selection.atEnd(tr.doc);
 				view.dispatch(tr.setSelection(selection).scrollIntoView());
 				view.focus();
+
+				// Call completion callback after DOM update
+				requestAnimationFrame(() => {
+					if (onComplete) onComplete();
+				});
 			});
 		}, 50);
 	}

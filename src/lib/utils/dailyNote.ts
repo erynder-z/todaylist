@@ -22,6 +22,7 @@ export const navigateToOffset = async (offset: number) => {
 
 		sessionState.todayNotePath = content.path;
 		sessionState.todayNoteContent = content;
+		sessionState.pendingThreadJump = null;
 		return content;
 	} catch (error) {
 		toast.error(get(t)("notes.error.not_found"));
@@ -46,6 +47,7 @@ export const navigateToLastAvailable = async () => {
 
 		sessionState.todayNotePath = content.path;
 		sessionState.todayNoteContent = content;
+		sessionState.pendingThreadJump = null;
 		return content;
 	} catch (error) {
 		toast.error(get(t)("notes.error.not_found"));

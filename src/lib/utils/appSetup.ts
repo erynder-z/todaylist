@@ -121,6 +121,7 @@ export class AppInitializer {
 			if (syncSession || !sessionState.todayNotePath) {
 				sessionState.todayNotePath = state.todayNotePath;
 				sessionState.todayNoteContent = state.todayNoteContent;
+				sessionState.pendingThreadJump = null;
 			}
 
 			// Initialize sidebar state from settings if in horizontal layout
