@@ -12,89 +12,102 @@
   } from '@milkdown/core';
   import type { MilkdownPlugin } from '@milkdown/ctx';
   import { highlight, highlightPluginConfig } from '@milkdown/plugin-highlight';
-  import { createParser } from '@milkdown/plugin-highlight/lowlight';
   import { listener, listenerCtx } from '@milkdown/plugin-listener';
   import { commonmark } from '@milkdown/preset-commonmark';
   import { gfm } from '@milkdown/preset-gfm';
-  import { common, createLowlight } from 'lowlight';
   import { untrack } from 'svelte';
   import {
     activeThreadPlugin,
     setActiveThread,
   } from '../plugins/activeThreadPlugin';
   import { threadMarkerPlugin } from '../plugins/threadMarkerPlugin';
+  import { lowlight, parser } from '../utils/milkdownConfig';
 
   let {
     content,
     onUpdate,
-    instance = $bindable(null),
     plugins = [],
     readonly = false,
     activeThreadName = null,
+    onReady,
   } = $props<{
     content: string;
     onUpdate?: (markdown: string) => void;
-    instance?: Editor | null;
     plugins?: MilkdownPlugin[];
     readonly?: boolean;
     activeThreadName?: string | null;
+    onReady?: (instance: Editor) => void;
   }>();
 
+  const allPlugins = $derived([
+    commonmark,
+    gfm,
+    listener,
+    threadMarkerPlugin,
+    activeThreadPlugin,
+    highlight,
+    ...plugins,
+  ]);
+
   let container: HTMLDivElement | null = $state(null);
+  let currentInstance: Editor | null = $state(null);
 
   $effect(() => {
     if (!container) return;
 
     let isDestroyed = false;
-    const editor = Editor.make()
-      .config((ctx) => {
-        ctx.set(rootCtx, container);
-        ctx.set(
-          defaultValueCtx,
-          untrack(() => content),
-        );
-        ctx.set(editorViewOptionsCtx, {
-          editable: () => !readonly,
-        });
 
-        // Configure code syntax highlighting with lowlight
-        const lowlight = createLowlight(common);
-        const parser = createParser(lowlight);
-        ctx.set(highlightPluginConfig.key, { parser });
+    const editor = Editor.make().config((ctx) => {
+      ctx.set(rootCtx, container);
+      ctx.set(
+        defaultValueCtx,
+        untrack(() => content),
+      );
+      ctx.set(editorViewOptionsCtx, {
+        editable: () => true,
+      });
 
-        ctx.get(listenerCtx).markdownUpdated((_, markdown) => {
-          if (onUpdate) onUpdate(markdown);
-        });
-      })
-      .use(commonmark)
-      .use(gfm)
-      .use(listener)
-      .use(threadMarkerPlugin)
-      .use(activeThreadPlugin)
-      .use(highlight);
+      // Use pre-created parser for code syntax highlighting
+      ctx.set(highlightPluginConfig.key, { parser });
 
-    // Add any plugins provided via props
-    for (const plugin of plugins) editor.use(plugin);
+      ctx.get(listenerCtx).markdownUpdated((_, markdown) => {
+        if (onUpdate) onUpdate(markdown);
+      });
+    });
+
+    // Use all plugins from the memoized array
+    for (const plugin of allPlugins) editor.use(plugin);
 
     editor.create().then((inst) => {
       if (isDestroyed) {
         inst.destroy();
       } else {
-        instance = inst;
+        currentInstance = inst;
+        onReady?.(inst);
       }
     });
 
     return () => {
       isDestroyed = true;
-      instance?.destroy();
-      instance = null;
+      currentInstance?.destroy();
+      currentInstance = null;
     };
   });
 
+  // Update readonly state without recreating the editor
   $effect(() => {
-    if (!instance?.action) return;
+    if (!currentInstance?.action) return;
 
-    const view = instance.ctx.get(editorViewCtx);
+    currentInstance.action((ctx) => {
+      const options = ctx.get(editorViewOptionsCtx);
+      options.editable = () => !readonly;
+    });
+  });
+
+  $effect(() => {
+    if (!currentInstance?.action) return;
+
+    const view = currentInstance.ctx.get(editorViewCtx);
 
     setActiveThread(view, activeThreadName);
   });

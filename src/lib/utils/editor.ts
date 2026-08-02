@@ -8,6 +8,8 @@ import { Selection } from "@milkdown/prose/state";
 export class EditorService {
 	constructor(private editor: Editor) {}
 
+	private updateTimeout: ReturnType<typeof setTimeout> | null = null;
+
 	/**
 	 * Directs the editor to a specific thread by index.
 	 * Finds the thread marker (!!!), moves the cursor to the end of that thread and scrolls to it.
@@ -62,27 +64,33 @@ export class EditorService {
 
 	/**
 	 * Updates the editor's content from a Markdown string and positions the cursor at the end.
+	 * Debounced to prevent rapid successive updates from thrashing the editor.
 	 */
 	updateContent(markdown: string) {
-		this.editor.action((ctx) => {
-			const view = ctx.get(editorViewCtx);
-			const parser = ctx.get(parserCtx);
-			const doc = parser(markdown);
-			if (!doc) return;
+		// Clear any pending update
+		if (this.updateTimeout) clearTimeout(this.updateTimeout);
 
-			let tr = view.state.tr.replaceWith(0, view.state.doc.content.size, doc);
+		this.updateTimeout = setTimeout(() => {
+			this.editor.action((ctx) => {
+				const view = ctx.get(editorViewCtx);
+				const parser = ctx.get(parserCtx);
+				const doc = parser(markdown);
+				if (!doc) return;
 
-			// Ensure trailing empty line for thread markers (Milkdown parser workaround)
-			if (doc.lastChild?.type.name === "thread_marker") {
-				const paragraph = view.state.schema.nodes.paragraph.create();
-				tr = tr.insert(tr.doc.content.size, paragraph);
-			}
+				let tr = view.state.tr.replaceWith(0, view.state.doc.content.size, doc);
 
-			// Position cursor at end and focus
-			const selection = Selection.atEnd(tr.doc);
-			view.dispatch(tr.setSelection(selection).scrollIntoView());
-			view.focus();
-		});
+				// Ensure trailing empty line for thread markers (Milkdown parser workaround)
+				if (doc.lastChild?.type.name === "thread_marker") {
+					const paragraph = view.state.schema.nodes.paragraph.create();
+					tr = tr.insert(tr.doc.content.size, paragraph);
+				}
+
+				// Position cursor at end and focus
+				const selection = Selection.atEnd(tr.doc);
+				view.dispatch(tr.setSelection(selection).scrollIntoView());
+				view.focus();
+			});
+		}, 50);
 	}
 
 	/**

@@ -12,6 +12,8 @@
 
   let aggregation = $derived(sessionState.aggregatedThread);
 
+  const editorPlugins = $derived([linkOpenerPlugin]);
+
   /**
    * Opens the original note when the date link button is clicked
    */
@@ -62,7 +64,7 @@
             <MilkdownEditor
               content={item.content}
               readonly
-              plugins={[linkOpenerPlugin]}
+              plugins={editorPlugins}
             />
           </div>
         </div>

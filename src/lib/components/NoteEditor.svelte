@@ -35,18 +35,22 @@
   let milkdownInstance: Editor | null = $state(null);
   let editorService: EditorService | null = $state(null);
 
-  /**
-   * Clean up Milkdown editor instance when component is destroyed
-   * to prevent memory leaks
-   */
-  $effect(() => {
-    return () => {
-      if (milkdownInstance) milkdownInstance.destroy();
-    };
-  });
+  // Memoize plugins array to prevent unnecessary recreations
+  const customKeymap = prosePlugin(() =>
+    keymap({
+      'Mod-1': () => true,
+      'Mod-2': () => true,
+      'Mod-b': () => true,
+      'Mod-i': () => true,
+      'Mod-`': () => true,
+      'Ctrl->': () => true,
+      'Mod-k': () => true,
+    }),
+  );
+  const stablePlugins = $derived([customKeymap, linkOpenerPlugin]);
 
   /**
-   * Update editor service when milkdown instance changes
+   * Update editor service when milkdown instance changes.
    */
   $effect(() => {
     editorService = milkdownInstance
@@ -55,27 +59,36 @@
   });
 
   /**
-   * 1. Sync props to the internal store before rendering
+   * Sync props to the internal store before rendering
    */
   $effect.pre(() => {
     editor.sync(noteContent, notePath);
   });
 
   /**
-   * 2. Coordinate reactive updates (content sync and focus)
+   * Coordinate reactive updates
+   * Reacts to editor content changes and editor service availability
+   */
+  $effect(() => {
+    const instance = milkdownInstance;
+    const service = editorService;
+    const hasPendingUpdate = editor.pendingExternalUpdate;
+    if (!instance || !service || !hasPendingUpdate) return;
+
+    // Clear the flag and apply the update
+    editor.pendingExternalUpdate = false;
+    service.updateContent(editor.content);
+  });
+
+  /**
+   * Auto-focus the editor when no popup is active and we have a note path
    */
   $effect(() => {
     const instance = milkdownInstance;
     const service = editorService;
     if (!instance || !service) return;
 
-    if (editor.pendingExternalUpdate) {
-      service.updateContent(editor.content);
-      editor.pendingExternalUpdate = false;
-    }
-
-    if (sessionState.activePopup === null && notePath)
-      untrack(() => service.focus());
+    if (sessionState.activePopup === null && notePath) service.focus();
   });
 
   /**
@@ -194,18 +207,6 @@
     navigateToday: handleNavigateToday,
   });
 
-  const customKeymap = prosePlugin(() =>
-    keymap({
-      'Mod-1': () => true,
-      'Mod-2': () => true,
-      'Mod-b': () => true, // Always block Milkdown's bold keymap
-      'Mod-i': () => true, // Always block Milkdown's italic keymap
-      'Mod-`': () => true, // Always block Milkdown's code keymap
-      'Ctrl->': () => true, // Always block Milkdown's blockquote keymap
-      'Mod-k': () => true, // Always block Milkdown's link keymap
-    }),
-  );
-
   /**
    * Connect the store's sync back to the component's bindable props
    */
@@ -233,9 +234,11 @@
 {#if notePath}
   <MilkdownEditor
     content={editor.content}
-    bind:instance={milkdownInstance}
+    onReady={(inst) => {
+      milkdownInstance = inst;
+    }}
     onUpdate={(markdown: string) => editor.updateContent(markdown)}
-    plugins={[customKeymap, linkOpenerPlugin]}
+    plugins={stablePlugins}
     activeThreadName={sessionState.activePopup === 'threadOptions'
       ? (sessionState.selectedThreadForOptions?.name ?? null)
       : null}
