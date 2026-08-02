@@ -280,6 +280,10 @@
             action: 'toggleFuzzy',
           },
           {
+            label: $t('shortcuts.action.toggle_search_mode'),
+            action: 'toggleSearchMode',
+          },
+          {
             label: $t('shortcuts.action.toggle_note_browser_layout'),
             action: 'toggleNoteBrowserLayout',
           },
