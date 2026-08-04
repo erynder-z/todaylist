@@ -21,7 +21,7 @@ export const activeThreadPlugin = $prose(() => {
 		state: {
 			init() {
 				return {
-					name: null as string | null,
+					index: -1 as number,
 				};
 			},
 
@@ -30,7 +30,7 @@ export const activeThreadPlugin = $prose(() => {
 
 				if (meta !== undefined) {
 					return {
-						name: meta,
+						index: meta,
 					};
 				}
 
@@ -40,24 +40,28 @@ export const activeThreadPlugin = $prose(() => {
 
 		props: {
 			decorations(state) {
-				const activeName = activeThreadPluginKey.getState(state)?.name;
+				const activeIndex = activeThreadPluginKey.getState(state)?.index;
 
-				if (!activeName) {
+				if (
+					activeIndex === undefined ||
+					activeIndex === null ||
+					activeIndex < 0
+				)
 					return DecorationSet.empty;
-				}
 
 				const decorations: Decoration[] = [];
+				let currentIndex = 0;
 
 				state.doc.descendants((node, pos) => {
-					if (
-						node.type.name === "thread_marker" &&
-						node.textContent === activeName
-					) {
-						decorations.push(
-							Decoration.node(pos, pos + node.nodeSize, {
-								"data-active-thread": "true",
-							}),
-						);
+					if (node.type.name === "thread_marker") {
+						if (currentIndex === activeIndex) {
+							decorations.push(
+								Decoration.node(pos, pos + node.nodeSize, {
+									"data-active-thread": "true",
+								}),
+							);
+						}
+						currentIndex++;
 					}
 				});
 
@@ -66,52 +70,51 @@ export const activeThreadPlugin = $prose(() => {
 		},
 
 		view(): PluginView {
-			let lastActiveName: string | null = null;
+			let lastActiveIndex = -1;
 			let scrollPending = false;
 
 			return {
 				update(view: EditorView) {
-					const currentActiveName = activeThreadPluginKey.getState(
-						view.state,
-					)?.name;
+					const currentActiveIndex =
+						activeThreadPluginKey.getState(view.state)?.index ?? -1;
 
-					// Only scroll when the active thread changes and it's not null
-					if (
-						currentActiveName !== lastActiveName &&
-						currentActiveName !== null
-					) {
-						lastActiveName = currentActiveName;
-						scrollPending = true;
+					// Only scroll when the active thread changes and it's not invalid (-1)
+					if (currentActiveIndex !== lastActiveIndex) {
+						lastActiveIndex = currentActiveIndex;
+						if (currentActiveIndex >= 0) {
+							scrollPending = true;
 
-						requestAnimationFrame(() => {
-							if (!scrollPending) return;
-							scrollPending = false;
+							requestAnimationFrame(() => {
+								if (!scrollPending) return;
+								scrollPending = false;
 
-							const { state } = view;
-							let threadPos = -1;
+								const { state } = view;
+								let threadPos = -1;
+								let currentIndex = 0;
 
-							// Find the position of the active thread marker
-							state.doc.descendants((node, pos) => {
-								if (
-									node.type.name === "thread_marker" &&
-									node.textContent === currentActiveName
-								) {
-									threadPos = pos;
-									return false; // Stop searching after finding the first match
+								// Find the position of the active thread marker
+								state.doc.descendants((node, pos) => {
+									if (node.type.name === "thread_marker") {
+										if (currentIndex === currentActiveIndex) {
+											threadPos = pos;
+											return false;
+										}
+										currentIndex++;
+									}
+								});
+
+								if (threadPos >= 0) {
+									const dom = view.nodeDOM(threadPos);
+
+									if (dom instanceof HTMLElement) {
+										dom.scrollIntoView({
+											behavior: "smooth",
+											block: "start",
+										});
+									}
 								}
 							});
-
-							if (threadPos >= 0) {
-								const dom = view.nodeDOM(threadPos);
-
-								if (dom instanceof HTMLElement) {
-									dom.scrollIntoView({
-										behavior: "smooth",
-										block: "start",
-									});
-								}
-							}
-						});
+						}
 					}
 				},
 			};
@@ -122,6 +125,5 @@ export const activeThreadPlugin = $prose(() => {
 /**
  * Updates the active thread displayed by the editor.
  */
-export const setActiveThread = (view: EditorView, name: string | null) => {
-	view.dispatch(view.state.tr.setMeta(activeThreadPluginKey, name));
-};
+export const setActiveThread = (view: EditorView, index: number) =>
+	view.dispatch(view.state.tr.setMeta(activeThreadPluginKey, index));

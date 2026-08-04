@@ -254,9 +254,11 @@
     }}
     onUpdate={(markdown: string) => editor.updateContent(markdown)}
     plugins={stablePlugins}
-    activeThreadName={sessionState.activePopup === 'threadOptions'
-      ? (sessionState.selectedThreadForOptions?.name ?? null)
-      : null}
+    activeThreadIndex={sessionState.activePopup === 'threadOptions'
+      ? editor.threads.findIndex(
+          (t: NoteThread) => t.id === sessionState.selectedThreadForOptions?.id,
+        )
+      : -1}
   />
   {#if settings.floatingToolbarEnabled}
     <FloatingToolbar editorInstance={milkdownInstance} />

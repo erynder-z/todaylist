@@ -21,21 +21,21 @@
     setActiveThread,
   } from '../plugins/activeThreadPlugin';
   import { threadMarkerPlugin } from '../plugins/threadMarkerPlugin';
-  import { lowlight, parser } from '../utils/milkdownConfig';
+  import { parser } from '../utils/milkdownConfig';
 
   let {
     content,
     onUpdate,
     plugins = [],
     readonly = false,
-    activeThreadName = null,
+    activeThreadIndex = -1,
     onReady,
   } = $props<{
     content: string;
     onUpdate?: (markdown: string) => void;
     plugins?: MilkdownPlugin[];
     readonly?: boolean;
-    activeThreadName?: string | null;
+    activeThreadIndex?: number;
     onReady?: (instance: Editor) => void;
   }>();
 
@@ -109,14 +109,14 @@
 
     const view = currentInstance.ctx.get(editorViewCtx);
 
-    setActiveThread(view, activeThreadName);
+    setActiveThread(view, activeThreadIndex);
   });
 </script>
 
 <div
   bind:this={container}
   class="milkdown-editor-wrapper"
-  data-active-thread={activeThreadName ?? undefined}
+  data-active-thread={activeThreadIndex !== -1 ? activeThreadIndex : undefined}
 ></div>
 
 <style>
