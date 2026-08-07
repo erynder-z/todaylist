@@ -101,3 +101,9 @@ export interface DailyStat {
 	characterCount: number;
 	wordCount: number;
 }
+
+export interface AggregatedThreadItem {
+	filename: string;
+	threadId: string;
+	content: string;
+}

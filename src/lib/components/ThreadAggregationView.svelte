@@ -1,78 +1,101 @@
 <script lang="ts">
   /**
    * Component for displaying aggregated content (threads) from multiple notes.
-   * Shows each content block with a date hint that links back to the source note.
    */
   import { sessionState, settings, t, toast } from '$lib';
+  import type { AggregatedThreadItem } from '$lib/interfaces/notes';
   import { locale } from '$lib/utils/i18n';
   import { notesService } from '$lib/utils/notes';
   import { linkOpenerPlugin } from '../plugins/linkOpenerPlugin';
-  import IdentIcon from './IdentIcon.svelte';
   import MilkdownEditor from './MilkdownEditor.svelte';
 
   let aggregation = $derived(sessionState.aggregatedThread);
 
   const editorPlugins = $derived([linkOpenerPlugin]);
 
+  const createInternalLink = (filename: string, threadId: string) =>
+    `https://todaynote.internal/open/${encodeURIComponent(filename)}/${encodeURIComponent(threadId)}`;
+
+  const renderItem = (item: AggregatedThreadItem) => {
+    const formattedDate = notesService.formatNoteName(
+      item.filename,
+      $locale,
+      settings.dateFormatStyle,
+    );
+
+    const link = createInternalLink(item.filename, item.threadId);
+
+    return `## [${formattedDate}](${link})
+
+${item.content}`;
+  };
+
+  let combinedContent = $derived.by(() => {
+    if (!aggregation || aggregation.items.length === 0) return '';
+    const item_separator = '\n\n---\n\n';
+
+    return aggregation.items.map(renderItem).join(item_separator);
+  });
+
   /**
-   * Opens the original note when the date link button is clicked
+   * Opens the original note
    */
-  const openOriginalNote = async (item: {
-    filename: string;
-    threadId: string;
-  }) => {
+  const openOriginalNote = async (filename: string, threadId: string) => {
     if (!settings.notesFolder) return;
-    const path = `${settings.notesFolder}/${item.filename}`;
+    const path = `${settings.notesFolder}/${filename}`;
     const content = await notesService.readNoteContent(path);
     if (content !== null) {
       sessionState.todayNotePath = path;
       sessionState.todayNoteContent = content;
-      sessionState.pendingThreadJump = item.threadId;
+      sessionState.pendingThreadJump = threadId;
       sessionState.activePopup = null;
     } else {
       toast.error($t('notes.error.load'));
     }
   };
+
+  // Handle container clicks directly to bypass ProseMirror's event loop (especially in readonly mode)
+  const handleContainerClick = (event: MouseEvent) => {
+    const anchor = (
+      event.target as HTMLElement | null
+    )?.closest<HTMLAnchorElement>('a[href]');
+    if (!anchor) return;
+
+    const rawHref = anchor.getAttribute('href');
+    if (!rawHref?.includes('todaynote.internal/open/')) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const url = new URL(rawHref);
+
+    if (url.protocol !== 'https:' || url.hostname !== 'todaynote.internal')
+      return;
+
+    const [, action, filename, threadId] = url.pathname.split('/');
+
+    if (action !== 'open' || !filename) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    openOriginalNote(
+      decodeURIComponent(filename),
+      decodeURIComponent(threadId ?? ''),
+    );
+  };
 </script>
 
-<div class="aggregation-container">
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="aggregation-container" onclickcapture={handleContainerClick}>
   {#if aggregation && aggregation.items.length > 0}
-    <div class="items-list">
-      {#each aggregation.items as item}
-        <div class="aggregation-item">
-          <header class="item-header">
-            <IdentIcon title={aggregation.threadName} size={1.5} />
-            <button
-              class="date-link"
-              onclick={() => openOriginalNote(item)}
-              title="Open original note"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="1rem"
-                viewBox="0 -960 960 960"
-                width="1rem"
-                fill="currentColor"
-                ><path
-                  d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T784-120H200Zm392-520-56-56 224-224H600v-80h280v280h-80v-168L592-640Z"
-                /></svg
-              >
-              {notesService.formatNoteName(
-                item.filename,
-                $locale,
-                settings.dateFormatStyle,
-              )}
-            </button>
-          </header>
-          <div class="item-body">
-            <MilkdownEditor
-              content={item.content}
-              readonly
-              plugins={editorPlugins}
-            />
-          </div>
-        </div>
-      {/each}
+    <div class="editor-wrapper">
+      <MilkdownEditor
+        content={combinedContent}
+        readonly
+        plugins={editorPlugins}
+      />
     </div>
   {:else}
     <div class="empty-state">
@@ -83,70 +106,59 @@
 
 <style>
   .aggregation-container {
-    padding: 1rem;
+    padding: 0 1rem;
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
-  .items-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+  .editor-wrapper {
     flex: 1;
     overflow-y: auto;
-    padding-right: 0.5rem;
+    padding-bottom: 1.5rem;
   }
 
-  .aggregation-item {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 1rem;
+  /* Override default Milkdown min-height and padding for the aggregation view */
+  .editor-wrapper :global(.milkdown) {
+    min-height: auto !important;
+    height: 100%;
   }
 
-  .aggregation-item:last-child {
-    border-bottom: none;
+  .editor-wrapper :global(.milkdown .editor) {
+    padding-bottom: 2rem;
   }
 
-  .item-header {
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: flex-start;
+  /* Styling for the note date link headers inside the editor */
+  .editor-wrapper :global(.milkdown h2) {
+    display: inline-flex;
     align-items: center;
-    gap: 0.75rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
   }
 
-  .date-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  .editor-wrapper :global(.milkdown h2 a) {
     background: color-mix(in srgb, var(--accent), transparent 90%);
     border: 1px solid color-mix(in srgb, var(--accent), transparent 80%);
     color: var(--accent);
-    padding: 0.4rem 0.8rem;
+    padding: 0.3rem 0.75rem;
     border-radius: 0.5rem;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    cursor: pointer;
+    text-decoration: none;
     transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
   }
 
-  .date-link:hover {
+  .editor-wrapper :global(.milkdown h2 a:hover) {
     background: var(--accent);
     color: var(--accent-text);
     border-color: var(--accent);
   }
 
-  .item-body {
-    background-color: var(--bg-surface);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border);
-    margin-top: 0.5rem;
-  }
-
-  /* Override Milkdown min-height for these small blocks */
-  .item-body :global(.milkdown) {
-    min-height: auto !important;
+  /* Differentiate the horizontal rule separators */
+  .editor-wrapper :global(.milkdown hr) {
+    margin: 2rem 0;
+    border-top: 1px dashed var(--border);
   }
 
   .empty-state {
