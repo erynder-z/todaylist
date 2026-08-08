@@ -301,7 +301,6 @@
     align-items: center;
     gap: 0.5rem;
     background-color: color-mix(in srgb, var(--bg-surface), transparent 15%);
-    backdrop-filter: blur(0.5rem);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
     padding: 0.375rem 0.625rem;

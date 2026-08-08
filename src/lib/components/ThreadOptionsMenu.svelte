@@ -184,7 +184,7 @@
     padding: 1rem;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
     z-index: 1000;
-    backdrop-filter: blur(0.5rem);
+    backdrop-filter: brightness(60%);
     min-width: 35ch;
     max-width: calc(100% - 2rem);
   }

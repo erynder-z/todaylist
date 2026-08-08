@@ -106,11 +106,10 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
     display: grid;
     place-items: center;
     z-index: 2000;
-    backdrop-filter: blur(0.25rem);
+    backdrop-filter: brightness(60%);
   }
 
   .toast-container {

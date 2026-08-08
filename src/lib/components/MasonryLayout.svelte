@@ -138,12 +138,13 @@
     text-align: left;
     cursor: pointer;
     width: 100%;
-    transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
     overflow: hidden;
+    transition:
+      background-color 0.15s cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 0.15s cubic-bezier(0.2, 0, 0, 1);
   }
 
   .item-card.selected {
-    border-color: var(--accent);
     background-color: color-mix(in srgb, var(--accent), transparent 80%);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }

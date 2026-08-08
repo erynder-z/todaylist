@@ -393,7 +393,7 @@
     box-shadow:
       0 10px 30px -5px rgba(0, 0, 0, 0.2),
       0 4px 12px -4px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: brightness(60%);
     pointer-events: auto;
     max-width: 90vw;
     overflow: hidden;

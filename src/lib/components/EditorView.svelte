@@ -295,8 +295,7 @@
       display: block;
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(2px);
+      backdrop-filter: brightness(60%);
       z-index: 999;
     }
 
