@@ -185,6 +185,7 @@
     flex-direction: column;
     background-color: var(--bg-base);
     position: relative;
+    overflow: hidden;
   }
 
   .sidebar-open-btn {
@@ -220,12 +221,14 @@
     flex: 1;
     gap: 0;
     min-height: 0;
+    height: 100%;
     position: relative;
   }
 
   .editor-main {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     padding: 3rem;
     overflow-y: auto;
     background-color: var(--bg-base);

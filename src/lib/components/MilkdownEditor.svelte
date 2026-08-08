@@ -83,7 +83,13 @@
         inst.destroy();
       } else {
         currentInstance = inst;
-        onReady?.(inst);
+        // Force layout recalculation to prevent paint suppression
+        requestAnimationFrame(() => {
+          if (container && !isDestroyed) {
+            void container.offsetHeight;
+            onReady?.(inst);
+          }
+        });
       }
     });
 
@@ -120,9 +126,15 @@
 ></div>
 
 <style>
+  .milkdown-editor-wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 70dvh;
+  }
+
   .milkdown-editor-wrapper :global(.milkdown) {
     width: 100%;
-    min-height: 70dvh;
+    height: 100%;
     background: transparent;
     color: var(--text-main);
     font-family: inherit;
@@ -133,6 +145,7 @@
   .milkdown-editor-wrapper :global(.milkdown .editor) {
     outline: none;
     padding-bottom: 5rem;
+    min-height: 100%;
   }
 
   /* Headings */
