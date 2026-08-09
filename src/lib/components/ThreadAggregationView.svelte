@@ -6,12 +6,13 @@
   import type { AggregatedThreadItem } from '$lib/interfaces/notes';
   import { locale } from '$lib/utils/i18n';
   import { notesService } from '$lib/utils/notes';
+  import { aggregationItemPlugin } from '../plugins/aggregationItemPlugin';
   import { linkOpenerPlugin } from '../plugins/linkOpenerPlugin';
   import MilkdownEditor from './MilkdownEditor.svelte';
 
   let aggregation = $derived(sessionState.aggregatedThread);
 
-  const editorPlugins = $derived([linkOpenerPlugin]);
+  const editorPlugins = $derived([linkOpenerPlugin, ...aggregationItemPlugin]);
 
   const createInternalLink = (filename: string, threadId: string) =>
     `https://todaynote.internal/open/${encodeURIComponent(filename)}/${encodeURIComponent(threadId)}`;
@@ -129,15 +130,26 @@ ${item.content}`;
     padding-bottom: 2rem;
   }
 
-  /* Styling for the note date link headers inside the editor */
-  .editor-wrapper :global(.milkdown h2) {
-    display: inline-flex;
-    align-items: center;
+  /* Styling for aggregation list items */
+  .editor-wrapper :global(.milkdown .aggregation-list-item) {
     margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    border-left: 0.25rem solid
+      color-mix(in srgb, var(--accent), transparent 80%);
+    padding: 0 1rem;
   }
 
-  .editor-wrapper :global(.milkdown h2 a) {
+  .editor-wrapper :global(.milkdown .aggregation-list-item:first-child) {
+    margin-top: 0;
+  }
+
+  .editor-wrapper :global(.milkdown .aggregation-list-item h2:first-child) {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .editor-wrapper :global(.milkdown .aggregation-list-item h2 a) {
     background: color-mix(in srgb, var(--accent), transparent 90%);
     border: 1px solid color-mix(in srgb, var(--accent), transparent 80%);
     color: var(--accent);
@@ -149,10 +161,15 @@ ${item.content}`;
     transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
   }
 
-  .editor-wrapper :global(.milkdown h2 a:hover) {
+  .editor-wrapper :global(.milkdown .aggregation-list-item h2 a:hover) {
     background: var(--accent);
     color: var(--accent-text);
     border-color: var(--accent);
+  }
+
+  .editor-wrapper
+    :global(.milkdown .aggregation-list-item > :not(h2):first-child) {
+    margin-top: 0.5rem;
   }
 
   /* Differentiate the horizontal rule separators */
