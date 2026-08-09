@@ -64,7 +64,7 @@
         untrack(() => content),
       );
       ctx.set(editorViewOptionsCtx, {
-        editable: () => true,
+        editable: () => !readonly,
       });
 
       // Use pre-created parser for code syntax highlighting
