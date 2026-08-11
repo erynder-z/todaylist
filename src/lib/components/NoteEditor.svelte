@@ -35,6 +35,16 @@
   let milkdownInstance: Editor | null = $state(null);
   let editorService: EditorService | null = $state(null);
 
+  let lastNotePath = $state<string | null>(null);
+  let isTransitioning = $state<boolean>(false);
+  let transitionTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  $effect(() => {
+    return () => {
+      if (transitionTimeout) clearTimeout(transitionTimeout);
+    };
+  });
+
   // Memoize plugins array to prevent unnecessary recreations
   const customKeymap = prosePlugin(() =>
     keymap({
@@ -74,24 +84,51 @@
     const service = editorService;
     const hasPendingUpdate = editor.pendingExternalUpdate;
     const pendingJump = sessionState.pendingThreadJump;
+    const currentPath = notePath;
 
     if (!instance || !service || !hasPendingUpdate) return;
 
     // Clear the flag and apply the update
     editor.pendingExternalUpdate = false;
 
-    // If we have a pending thread jump (thread ID), handle it after content update
-    if (pendingJump) {
-      // Clear the pending jump immediately to avoid re-triggering
-      sessionState.pendingThreadJump = null;
+    const isPathChange = currentPath !== lastNotePath;
 
-      // Update content and jump to thread when complete
-      service.updateContent(editor.content, () => {
-        editor.jumpToThread(pendingJump);
-      });
+    const performUpdate = () => {
+      if (isPathChange) {
+        const editorElement = document.querySelector('.editor-main');
+        if (editorElement) editorElement.scrollTop = 0;
+      }
+
+      // If we have a pending thread jump (thread ID), handle it after content update
+      if (pendingJump) {
+        // Clear the pending jump immediately to avoid re-triggering
+        sessionState.pendingThreadJump = null;
+
+        // Update content and jump to thread when complete
+        service.updateContent(editor.content, () => {
+          editor.jumpToThread(pendingJump);
+          if (isPathChange) {
+            isTransitioning = false;
+          }
+        });
+      } else {
+        // No pending jump, just update content normally
+        service.updateContent(editor.content, () => {
+          if (isPathChange) isTransitioning = false;
+        });
+      }
+      lastNotePath = currentPath;
+    };
+
+    if (isPathChange && lastNotePath !== null) {
+      isTransitioning = true;
+      if (transitionTimeout) clearTimeout(transitionTimeout);
+      transitionTimeout = setTimeout(() => {
+        performUpdate();
+      }, 150); // Match CSS transition duration
     } else {
-      // No pending jump, just update content normally
-      service.updateContent(editor.content);
+      // Immediate update for non-path changes or initial load
+      performUpdate();
     }
   });
 
@@ -247,20 +284,41 @@
 </script>
 
 {#if notePath}
-  <MilkdownEditor
-    content={editor.content}
-    onReady={(inst) => {
-      milkdownInstance = inst;
-    }}
-    onUpdate={(markdown: string) => editor.updateContent(markdown)}
-    plugins={stablePlugins}
-    activeThreadIndex={sessionState.activePopup === 'threadOptions'
-      ? editor.threads.findIndex(
-          (t: NoteThread) => t.id === sessionState.selectedThreadForOptions?.id,
-        )
-      : -1}
-  />
-  {#if settings.floatingToolbarEnabled}
-    <FloatingToolbar editorInstance={milkdownInstance} />
-  {/if}
+  <div
+    class="editor-transition-container"
+    class:transitioning={isTransitioning}
+  >
+    <MilkdownEditor
+      content={editor.content}
+      onReady={(inst) => {
+        milkdownInstance = inst;
+      }}
+      onUpdate={(markdown: string) => editor.updateContent(markdown)}
+      plugins={stablePlugins}
+      activeThreadIndex={sessionState.activePopup === 'threadOptions'
+        ? editor.threads.findIndex(
+            (t: NoteThread) =>
+              t.id === sessionState.selectedThreadForOptions?.id,
+          )
+        : -1}
+    />
+    {#if settings.floatingToolbarEnabled}
+      <FloatingToolbar editorInstance={milkdownInstance} />
+    {/if}
+  </div>
 {/if}
+
+<style>
+  .editor-transition-container {
+    opacity: 1;
+    transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .editor-transition-container.transitioning {
+    opacity: 0;
+    overflow: hidden;
+  }
+</style>
