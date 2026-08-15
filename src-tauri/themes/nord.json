@@ -1,31 +1,45 @@
 {
 	"--bg-base": "#2e3440",
 	"--bg-surface": "#3b4252",
+
 	"--text-main": "#d8dee9",
 	"--text-muted": "#88c0d0",
 	"--text-ui-muted": "#96a1b1",
+
 	"--shortcut-bg": "#444444",
+
 	"--accent": "#88c0d0",
 	"--accent-text": "#2e3440",
+
 	"--border": "#434c5e",
+
 	"--success": "#a3be8c",
 	"--error": "#bf616a",
 	"--remove": "#bf616a",
+
 	"--md-h1": "#81a1c1",
 	"--md-h2": "#bf616a",
 	"--md-h3": "#d08770",
 	"--md-h4": "#ebcb8b",
+
 	"--md-bold": "#bf616a",
 	"--md-italic": "#ebcb8b",
+
 	"--md-list-marker": "#a3be8c",
+
 	"--md-link": "#88c0d0",
 	"--md-link-hover": "#81a1c1",
+
 	"--md-quote-border": "#b48ead",
+
 	"--md-hr": "#434c5e",
+
 	"--md-code-bg": "#3b4252",
 	"--md-code-inline-bg": "#2e3440",
 	"--md-code-text": "#d8dee9",
+
 	"--text-selection": "#81a1c1",
+
 	"--identicon-1": "#bf616a",
 	"--identicon-2": "#d08770",
 	"--identicon-3": "#ebcb8b",
@@ -36,9 +50,12 @@
 	"--identicon-8": "#5e81ac",
 	"--identicon-9": "#8fbcbb",
 	"--identicon-10": "#d8dee9",
+
 	"--thread-mode-navigation-bg": "#a3be8c",
 	"--thread-mode-actions-bg": "#88c0d0",
+
 	"--thread-mode-navigation-text": "#2e3440",
 	"--thread-mode-actions-text": "#2e3440",
+
 	"--thread-marker-color": "#88c0d0"
 }

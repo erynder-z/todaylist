@@ -8,7 +8,7 @@
 
 	"--shortcut-bg": "#3b382f",
 
-	"--accent": "#d8a657",
+	"--accent": "#eabba0",
 	"--accent-text": "#1e1e1b",
 
 	"--border": "#454238",
@@ -52,10 +52,10 @@
 	"--identicon-10": "#e7dfc8",
 
 	"--thread-mode-navigation-bg": "#9fbd5a",
-	"--thread-mode-actions-bg": "#d8a657",
+	"--thread-mode-actions-bg": "#eabba0",
 
 	"--thread-mode-navigation-text": "#1e1e1b",
 	"--thread-mode-actions-text": "#1e1e1b",
 
-	"--thread-marker-color": "#d8a657"
+	"--thread-marker-color": "#eabba0"
 }

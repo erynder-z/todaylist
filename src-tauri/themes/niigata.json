@@ -8,7 +8,7 @@
 
 	"--shortcut-bg": "#303946",
 
-	"--accent": "#e09f3e",
+	"--accent": "#f8d686",
 	"--accent-text": "#11151c",
 
 	"--border": "#303946",
@@ -17,7 +17,7 @@
 	"--error": "#d1495b",
 	"--remove": "#d1495b",
 
-	"--md-h1": "#e09f3e",
+	"--md-h1": "#f8d686",
 	"--md-h2": "#d65a7a",
 	"--md-h3": "#8fc93a",
 	"--md-h4": "#8ecae6",
@@ -30,7 +30,7 @@
 	"--md-link": "#8ecae6",
 	"--md-link-hover": "#bde0fe",
 
-	"--md-quote-border": "#e09f3e",
+	"--md-quote-border": "#f8d686",
 
 	"--md-hr": "#303946",
 
@@ -40,7 +40,7 @@
 
 	"--text-selection": "#3b4a5c",
 
-	"--identicon-1": "#e09f3e",
+	"--identicon-1": "#f8d686",
 	"--identicon-2": "#d1495b",
 	"--identicon-3": "#5fb49c",
 	"--identicon-4": "#8ecae6",
@@ -52,10 +52,10 @@
 	"--identicon-10": "#e5e1d8",
 
 	"--thread-mode-navigation-bg": "#5fb49c",
-	"--thread-mode-actions-bg": "#e09f3e",
+	"--thread-mode-actions-bg": "#f8d686",
 
 	"--thread-mode-navigation-text": "#11151c",
 	"--thread-mode-actions-text": "#11151c",
 
-	"--thread-marker-color": "#e09f3e"
+	"--thread-marker-color": "#f8d686"
 }

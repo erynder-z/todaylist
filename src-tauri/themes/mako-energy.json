@@ -8,29 +8,29 @@
 
 	"--shortcut-bg": "#3a3154",
 
-	"--accent": "#ffcf33",
+	"--accent": "#e8d34a",
 	"--accent-text": "#171326",
 
 	"--border": "#40365c",
 
-	"--success": "#39d98a",
-	"--error": "#ff4f81",
-	"--remove": "#ff4f81",
+	"--success": "#45d6a0",
+	"--error": "#f05a83",
+	"--remove": "#f05a83",
 
-	"--md-h1": "#ffcf33",
-	"--md-h2": "#ff6b9d",
-	"--md-h3": "#43e8d8",
-	"--md-h4": "#a78bfa",
+	"--md-h1": "#e8d34a",
+	"--md-h2": "#f06b9d",
+	"--md-h3": "#4bd8d0",
+	"--md-h4": "#b49af5",
 
-	"--md-bold": "#ff7b54",
-	"--md-italic": "#c084fc",
+	"--md-bold": "#ff805f",
+	"--md-italic": "#c58df2",
 
-	"--md-list-marker": "#39d98a",
+	"--md-list-marker": "#45d6a0",
 
-	"--md-link": "#43e8d8",
-	"--md-link-hover": "#8ff9ef",
+	"--md-link": "#4bd8d0",
+	"--md-link-hover": "#8ceee7",
 
-	"--md-quote-border": "#ffcf33",
+	"--md-quote-border": "#e8d34a",
 
 	"--md-hr": "#40365c",
 
@@ -40,22 +40,22 @@
 
 	"--text-selection": "#5b4780",
 
-	"--identicon-1": "#ffcf33",
-	"--identicon-2": "#ff4f81",
-	"--identicon-3": "#43e8d8",
-	"--identicon-4": "#39d98a",
-	"--identicon-5": "#a78bfa",
-	"--identicon-6": "#ff7b54",
-	"--identicon-7": "#3b82f6",
-	"--identicon-8": "#f472b6",
-	"--identicon-9": "#84cc16",
+	"--identicon-1": "#e8d34a",
+	"--identicon-2": "#f05a83",
+	"--identicon-3": "#4bd8d0",
+	"--identicon-4": "#45d6a0",
+	"--identicon-5": "#b49af5",
+	"--identicon-6": "#ff805f",
+	"--identicon-7": "#6d8ee8",
+	"--identicon-8": "#ed72b1",
+	"--identicon-9": "#9bcf52",
 	"--identicon-10": "#f4f0ff",
 
-	"--thread-mode-navigation-bg": "#43e8d8",
-	"--thread-mode-actions-bg": "#ff6b9d",
+	"--thread-mode-navigation-bg": "#4bd8d0",
+	"--thread-mode-actions-bg": "#f06b9d",
 
 	"--thread-mode-navigation-text": "#171326",
 	"--thread-mode-actions-text": "#171326",
 
-	"--thread-marker-color": "#ffcf33"
+	"--thread-marker-color": "#e8d34a"
 }

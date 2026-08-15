@@ -1,32 +1,46 @@
 {
 	"--bg-base": "#24273a",
 	"--bg-surface": "#363a4f",
+
 	"--text-main": "#cad3f5",
 	"--text-muted": "#b8c0e0",
 	"--text-ui-muted": "#a5adcb",
+
 	"--shortcut-bg": "#494d64",
+
 	"--accent": "#8aadf4",
 	"--accent-hover": "#b7bdf8",
 	"--accent-text": "#24273a",
+
 	"--border": "#494d64",
+
 	"--success": "#a6da95",
 	"--error": "#ed8796",
 	"--remove": "#ed8796",
+
 	"--md-h1": "#8aadf4",
 	"--md-h2": "#ee99a0",
 	"--md-h3": "#f5a97f",
 	"--md-h4": "#8bd5ca",
+
 	"--md-bold": "#ed8796",
 	"--md-italic": "#f5bde6",
+
 	"--md-list-marker": "#7dc4e4",
+
 	"--md-link": "#8aadf4",
 	"--md-link-hover": "#b7bdf8",
+
 	"--md-quote-border": "#f0c1c1",
+
 	"--md-hr": "#494d64",
+
 	"--md-code-bg": "#363a4f",
 	"--md-code-inline-bg": "#181926",
 	"--md-code-text": "#f4dbd6",
+
 	"--text-selection": "#f0c1c1",
+
 	"--identicon-1": "#ed8796",
 	"--identicon-2": "#f5a97f",
 	"--identicon-3": "#ee99a0",
@@ -37,9 +51,12 @@
 	"--identicon-8": "#f4b8e4",
 	"--identicon-9": "#7dc4e4",
 	"--identicon-10": "#b7bdf8",
+
 	"--thread-mode-navigation-bg": "#a6da95",
 	"--thread-mode-actions-bg": "#8aadf4",
+
 	"--thread-mode-navigation-text": "#24273a",
 	"--thread-mode-actions-text": "#24273a",
+
 	"--thread-marker-color": "#b7bdf8"
 }

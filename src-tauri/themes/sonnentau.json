@@ -1,61 +1,61 @@
 {
-	"--bg-base": "#191724",
-	"--bg-surface": "#211f2d",
+	"--bg-base": "#0c1411",
+	"--bg-surface": "#17211c",
 
-	"--text-main": "#e0def4",
-	"--text-muted": "#908caa",
-	"--text-ui-muted": "#aaa8c0",
+	"--text-main": "#e5eee8",
+	"--text-muted": "#91a49a",
+	"--text-ui-muted": "#aebdb4",
 
-	"--shortcut-bg": "#312e43",
+	"--shortcut-bg": "#24332b",
 
-	"--accent": "#ebbcba",
-	"--accent-text": "#191724",
+	"--accent": "#a8c957",
+	"--accent-text": "#0c1411",
 
-	"--border": "#393552",
+	"--border": "#34453c",
 
-	"--success": "#9ccfd8",
-	"--error": "#eb6f92",
-	"--remove": "#eb6f92",
+	"--success": "#91c86a",
+	"--error": "#d65a68",
+	"--remove": "#d65a68",
 
-	"--md-h1": "#c4a7e7",
-	"--md-h2": "#ebbcba",
-	"--md-h3": "#f6c177",
-	"--md-h4": "#9ccfd8",
+	"--md-h1": "#c5d98a",
+	"--md-h2": "#a8c957",
+	"--md-h3": "#e4b957",
+	"--md-h4": "#82c5b0",
 
-	"--md-bold": "#eb6f92",
-	"--md-italic": "#f6c177",
+	"--md-bold": "#e06a72",
+	"--md-italic": "#e4b957",
 
-	"--md-list-marker": "#9ccfd8",
+	"--md-list-marker": "#82c5b0",
 
-	"--md-link": "#9ccfd8",
-	"--md-link-hover": "#c4e7eb",
+	"--md-link": "#70bca7",
+	"--md-link-hover": "#a1dfca",
 
-	"--md-quote-border": "#31748f",
+	"--md-quote-border": "#597f70",
 
-	"--md-hr": "#393552",
+	"--md-hr": "#34453c",
 
-	"--md-code-bg": "#1f1d2e",
-	"--md-code-inline-bg": "#14121c",
-	"--md-code-text": "#e0def4",
+	"--md-code-bg": "#131e18",
+	"--md-code-inline-bg": "#09100c",
+	"--md-code-text": "#dce9e1",
 
-	"--text-selection": "#403d52",
+	"--text-selection": "#3b5547",
 
-	"--identicon-1": "#eb6f92",
-	"--identicon-2": "#f6c177",
-	"--identicon-3": "#ebbcba",
-	"--identicon-4": "#9ccfd8",
-	"--identicon-5": "#c4a7e7",
-	"--identicon-6": "#31748f",
-	"--identicon-7": "#908caa",
-	"--identicon-8": "#ea9a97",
-	"--identicon-9": "#c9b8e8",
-	"--identicon-10": "#e0def4",
+	"--identicon-1": "#d65a68",
+	"--identicon-2": "#e4b957",
+	"--identicon-3": "#a8c957",
+	"--identicon-4": "#82c5b0",
+	"--identicon-5": "#c5d98a",
+	"--identicon-6": "#597f70",
+	"--identicon-7": "#91a49a",
+	"--identicon-8": "#b86b78",
+	"--identicon-9": "#a8d47a",
+	"--identicon-10": "#e5eee8",
 
-	"--thread-mode-navigation-bg": "#9ccfd8",
-	"--thread-mode-actions-bg": "#c4a7e7",
+	"--thread-mode-navigation-bg": "#82c5b0",
+	"--thread-mode-actions-bg": "#c5d98a",
 
-	"--thread-mode-navigation-text": "#191724",
-	"--thread-mode-actions-text": "#191724",
+	"--thread-mode-navigation-text": "#0c1411",
+	"--thread-mode-actions-text": "#0c1411",
 
-	"--thread-marker-color": "#ebbcba"
+	"--thread-marker-color": "#a8c957"
 }
