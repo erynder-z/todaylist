@@ -1,61 +1,61 @@
 {
-	"--bg-base": "#0b1118",
-	"--bg-surface": "#121c26",
+	"--bg-base": "#0d1722",
+	"--bg-surface": "#152331",
 
-	"--text-main": "#dce9ed",
-	"--text-muted": "#8297a3",
-	"--text-ui-muted": "#a7bac3",
+	"--text-main": "#dce8ed",
+	"--text-muted": "#899daa",
+	"--text-ui-muted": "#adbec6",
 
-	"--shortcut-bg": "#1d2c37",
+	"--shortcut-bg": "#203342",
 
-	"--accent": "#b8f500",
-	"--accent-text": "#0b1118",
+	"--accent": "#3978d8",
+	"--accent-text": "#f4f8ff",
 
-	"--border": "#263b46",
+	"--border": "#2b4353",
 
 	"--success": "#72d572",
 	"--error": "#f05283",
 	"--remove": "#f05283",
 
-	"--md-h1": "#b8f500",
-	"--md-h2": "#d05cff",
+	"--md-h1": "#3978d8",
+	"--md-h2": "#c56cff",
 	"--md-h3": "#e6c34a",
 	"--md-h4": "#f05283",
 
 	"--md-bold": "#ff7a45",
-	"--md-italic": "#b6a4ff",
+	"--md-italic": "#a99cff",
 
 	"--md-list-marker": "#72d572",
 
-	"--md-link": "#b8f500",
-	"--md-link-hover": "#e2ff7a",
+	"--md-link": "#3978d8",
+	"--md-link-hover": "#72a7ed",
 
 	"--md-quote-border": "#a94dce",
 
-	"--md-hr": "#263b46",
+	"--md-hr": "#2b4353",
 
-	"--md-code-bg": "#0e1820",
-	"--md-code-inline-bg": "#080d12",
-	"--md-code-text": "#dce9ed",
+	"--md-code-bg": "#12202d",
+	"--md-code-inline-bg": "#0b151f",
+	"--md-code-text": "#dce8ed",
 
-	"--text-selection": "#344b35",
+	"--text-selection": "#294667",
 
-	"--identicon-1": "#b8f500",
-	"--identicon-2": "#d05cff",
+	"--identicon-1": "#3978d8",
+	"--identicon-2": "#c56cff",
 	"--identicon-3": "#f05283",
 	"--identicon-4": "#e6c34a",
 	"--identicon-5": "#72d572",
-	"--identicon-6": "#7fba45",
+	"--identicon-6": "#5a9fcf",
 	"--identicon-7": "#ff7a45",
-	"--identicon-8": "#b6a4ff",
-	"--identicon-9": "#6e8f52",
-	"--identicon-10": "#dce9ed",
+	"--identicon-8": "#a99cff",
+	"--identicon-9": "#619b91",
+	"--identicon-10": "#dce8ed",
 
-	"--thread-mode-navigation-bg": "#b8f500",
-	"--thread-mode-actions-bg": "#d05cff",
+	"--thread-mode-navigation-bg": "#3978d8",
+	"--thread-mode-actions-bg": "#c56cff",
 
-	"--thread-mode-navigation-text": "#0b1118",
-	"--thread-mode-actions-text": "#0b1118",
+	"--thread-mode-navigation-text": "#f4f8ff",
+	"--thread-mode-actions-text": "#0b1119",
 
-	"--thread-marker-color": "#b8f500"
+	"--thread-marker-color": "#3978d8"
 }
