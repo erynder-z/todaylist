@@ -2,7 +2,7 @@
   /**
    * Application entry point. Handles initial bootstrapping and renders the main UI structure.
    */
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import {
     appInitializer,
     lang,
@@ -11,12 +11,18 @@
     Navigation,
     PopupManager,
   } from '$lib';
+  import { dayWatcher } from '$lib/utils/dayWatcher';
 
   /**
    * Bootstraps the app by fetching initial state from the backend.
    */
   onMount(async () => {
     await appInitializer.initialize();
+    dayWatcher.start();
+  });
+
+  onDestroy(() => {
+    dayWatcher.stop();
   });
 </script>
 

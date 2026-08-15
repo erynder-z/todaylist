@@ -6,10 +6,11 @@ mod utils;
 use commands::folder::validate_folder;
 use commands::i18n::get_translations;
 use commands::notes::{
-    apply_default_thread_name, check_todays_note_exists, delete_note_line, detect_threads,
-    ensure_thread, get_last_available_note_path, get_note_path_by_offset, get_statistics,
-    insert_note_line, list_notes, purge_empty_notes, read_last_available_note, read_note_by_offset,
-    read_note_content, remove_thread, save_note_content, update_note_line,
+    apply_default_thread_name, check_day_boundary, check_todays_note_exists, delete_note_line,
+    detect_threads, ensure_thread, get_last_available_note_path, get_note_path_by_offset,
+    get_statistics, insert_note_line, list_notes, open_todays_note, purge_empty_notes,
+    read_last_available_note, read_note_by_offset, read_note_content, remove_thread,
+    save_note_content, update_note_line,
 };
 use commands::search::{
     aggregate_thread, process_search_results, search_notes, search_notes_by_tag, search_tags,
@@ -70,6 +71,7 @@ pub fn run() {
             add_note_tag,
             remove_note_tag,
             apply_default_thread_name,
+            check_day_boundary,
             check_todays_note_exists,
             detect_threads,
             get_last_available_note_path,
@@ -83,6 +85,7 @@ pub fn run() {
             delete_note_line,
             ensure_thread,
             remove_thread,
+            open_todays_note,
             initialize_app,
             show_window,
             search_notes,

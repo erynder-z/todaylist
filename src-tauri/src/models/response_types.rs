@@ -7,6 +7,14 @@ use crate::services::tag_manager::TagManager;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// Status of day boundary check comparing active note path with current date.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DayBoundaryStatus {
+    pub is_new_day: bool,
+    pub current_date: String,
+}
+
 /// Serialized version of the application configuration.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

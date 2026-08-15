@@ -88,6 +88,8 @@
 	"notes.list.wordCountWithCode_multiple": "{{count}} Wörter + etwas Code",
 	"notes.list.load_all": "Alle Notizen laden ({{count}} insgesamt)",
 	"note.header": "Notizen",
+	"notes.new_day_prompt": "Ein neuer Tag hat begonnen. Neue Notiz erstellen?",
+	"notes.switch_to_today": "Neute Notiz",
 	"tag.manager.title": "Tags verwalten",
 	"tag.placeholder": "Tag...",
 	"tag.remove": "Entfernen...",

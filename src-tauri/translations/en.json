@@ -89,6 +89,8 @@
 	"notes.list.wordCountWithCode_multiple": "{{count}} words + some code",
 	"notes.list.load_all": "Load all notes ({{count}} total)",
 	"note.header": "Notes",
+	"notes.new_day_prompt": "A new day has started. Create new note?",
+	"notes.switch_to_today": "New note",
 	"tag.manager.title": "Tag manager ",
 	"tag.placeholder": "tag...",
 	"tag.remove": "remove",

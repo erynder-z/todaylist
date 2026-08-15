@@ -88,6 +88,8 @@
 	"notes.list.wordCountWithCode_multiple": "{{count}} 単語 +　コード",
 	"notes.list.load_all": "すべてのノートを読み込む (合計 {{count}})",
 	"note.header": "ノート",
+	"notes.new_day_prompt": "新しい日が始まりました。 新しいノートを作成しますか？",
+	"notes.switch_to_today": "新しいノート",
 	"tag.manager.title": "タグマネジャー ",
 	"tag.placeholder": "タグ...",
 	"tag.remove": "削除...",

@@ -4,7 +4,9 @@
 
 use crate::models::app_state::AppState;
 use crate::models::note_session::{NoteSession, NoteThread};
-use crate::models::response_types::{AppStatistics, NoteContentResponse, NoteListResponse};
+use crate::models::response_types::{
+    AppStatistics, DayBoundaryStatus, NoteContentResponse, NoteListResponse,
+};
 use std::fs;
 use std::path::PathBuf;
 use tauri::State;
@@ -198,6 +200,62 @@ pub async fn read_note_by_offset(
 pub async fn check_todays_note_exists(state: State<'_, AppState>) -> Result<bool, String> {
     let note_manager = state.note_manager()?;
     Ok(note_manager.todays_note_exists())
+}
+
+/// Checks whether the active note path corresponds to an older date than today.
+#[tauri::command]
+pub async fn check_day_boundary(
+    active_note_path: Option<String>,
+) -> Result<DayBoundaryStatus, String> {
+    let current_date = crate::utils::date::get_current_date();
+
+    let active_note_date = active_note_path.as_ref().and_then(|p| {
+        std::path::Path::new(p)
+            .file_name()
+            .and_then(|f| f.to_str())
+            .map(|s| s.trim_end_matches(".md").to_string())
+    });
+
+    let is_new_day = match &active_note_date {
+        Some(date) => date < &current_date,
+        None => false,
+    };
+
+    Ok(DayBoundaryStatus {
+        is_new_day,
+        current_date,
+    })
+}
+
+/// Creates today's daily note if needed and returns its loaded content.
+#[tauri::command]
+pub async fn open_todays_note(state: State<'_, AppState>) -> Result<NoteContentResponse, String> {
+    // First, create the note
+    let note_manager = state.note_manager()?;
+    let config = state.config()?;
+    let translations = crate::commands::i18n::get_translations(config.locale.clone());
+    let note_header = crate::commands::setup::create_note_header(&config, &translations);
+    let created_path = note_manager.create_todays_note(&note_header)?;
+
+    // Drop the guards we no longer need
+    drop(note_manager);
+    drop(config);
+
+    // Now read the content and load it into the session
+    let path_buf = PathBuf::from(&created_path);
+    let note_manager = state.note_manager()?;
+    let content = note_manager.read_note_content(&path_buf)?;
+
+    let mut session = state.note_session()?;
+    session.load(path_buf.clone(), content);
+
+    let tag_manager = state.tag_manager()?;
+
+    Ok(NoteContentResponse::from_session(
+        &session,
+        &*note_manager,
+        &*tag_manager,
+    ))
 }
 
 /// Reads the content of a note file from the specified path.

@@ -124,7 +124,7 @@ fn get_ui_metadata(
     )
 }
 /// Creates a note header based on the current configuration.
-fn create_note_header(config: &AppConfig, translations: &HashMap<String, String>) -> String {
+pub fn create_note_header(config: &AppConfig, translations: &HashMap<String, String>) -> String {
     // When use_default_thread_name is false, return an empty header
     if !config.use_default_thread_name {
         return String::new();

@@ -1,9 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
-import { get } from "svelte/store";
 import type { NoteContentResponse } from "$lib/interfaces/notes";
 import { sessionState } from "../stores/sessionState.svelte";
 import { toast } from "../stores/toast.svelte";
-import { t } from "./i18n";
 
 /**
  * Navigates to a note with the specified date offset.
@@ -25,7 +23,7 @@ export const navigateToOffset = async (offset: number) => {
 		sessionState.pendingThreadJump = null;
 		return content;
 	} catch (error) {
-		toast.error(get(t)("notes.error.not_found"));
+		toast.error("notes.error.not_found");
 		console.error(error);
 		return null;
 	}
@@ -41,7 +39,7 @@ export const navigateToLastAvailable = async () => {
 		)) as NoteContentResponse | null;
 
 		if (!content) {
-			toast.error(get(t)("notes.error.not_found"));
+			toast.error("notes.error.not_found");
 			return null;
 		}
 
@@ -50,7 +48,7 @@ export const navigateToLastAvailable = async () => {
 		sessionState.pendingThreadJump = null;
 		return content;
 	} catch (error) {
-		toast.error(get(t)("notes.error.not_found"));
+		toast.error("notes.error.not_found");
 		console.error(error);
 		return null;
 	}
