@@ -76,9 +76,7 @@ export class DayWatcher {
 	 */
 	private async check() {
 		try {
-			const status = (await invoke("check_day_boundary", {
-				activeNotePath: sessionState.todayNotePath,
-			})) as DayBoundaryStatus;
+			const status = (await invoke("check_day_boundary")) as DayBoundaryStatus;
 
 			if (status.isNewDay && status.currentDate !== this.lastPromptedDate) {
 				this.lastPromptedDate = status.currentDate;

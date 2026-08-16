@@ -202,23 +202,22 @@ pub async fn check_todays_note_exists(state: State<'_, AppState>) -> Result<bool
     Ok(note_manager.todays_note_exists())
 }
 
-/// Checks whether the active note path corresponds to an older date than today.
+/// Checks whether the newest note corresponds to an older date than today.
+/// This detects when a new day has started and there are no notes for today yet.
 #[tauri::command]
-pub async fn check_day_boundary(
-    active_note_path: Option<String>,
-) -> Result<DayBoundaryStatus, String> {
+pub async fn check_day_boundary(state: State<'_, AppState>) -> Result<DayBoundaryStatus, String> {
     let current_date = crate::utils::date::get_current_date();
+    let note_manager = state.note_manager()?;
 
-    let active_note_date = active_note_path.as_ref().and_then(|p| {
-        std::path::Path::new(p)
-            .file_name()
-            .and_then(|f| f.to_str())
-            .map(|s| s.trim_end_matches(".md").to_string())
-    });
+    let sorted_files = note_manager.get_sorted_note_files()?;
 
-    let is_new_day = match &active_note_date {
+    let newest_note_date = sorted_files
+        .first()
+        .and_then(|filename| Some(filename.trim_end_matches(".md").to_string()));
+
+    let is_new_day = match &newest_note_date {
         Some(date) => date < &current_date,
-        None => false,
+        None => false, // No notes exist yet
     };
 
     Ok(DayBoundaryStatus {
