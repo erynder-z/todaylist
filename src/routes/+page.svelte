@@ -10,6 +10,7 @@
     MainView,
     Navigation,
     PopupManager,
+    settings,
   } from '$lib';
   import { dayWatcher } from '$lib/utils/dayWatcher';
 
@@ -19,6 +20,18 @@
   onMount(async () => {
     await appInitializer.initialize();
     dayWatcher.start();
+  });
+
+  // Apply custom font when settings change
+  $effect(() => {
+    if (settings.useCustomFont && settings.fontFamily) {
+      document.documentElement.style.setProperty(
+        '--font-mono',
+        `'${settings.fontFamily.replaceAll("'", "\\'")}'`,
+      );
+    } else {
+      document.documentElement.style.removeProperty('--font-mono');
+    }
   });
 
   onDestroy(() => {
@@ -38,7 +51,7 @@
 
 <style>
   @font-face {
-    font-family: 0xProtoNerd;
+    font-family: '0xProtoNerd';
     src: url(../assets/font/0xProtoNerdFontPropo-Regular.ttf) format('truetype');
   }
 

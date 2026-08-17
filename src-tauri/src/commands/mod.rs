@@ -4,6 +4,7 @@
 //! to the Svelte frontend via Tauri's `invoke` system.
 
 pub mod folder;
+pub mod font;
 pub mod i18n;
 pub mod notes;
 pub mod search;

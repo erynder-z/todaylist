@@ -39,6 +39,8 @@ export interface AppPayload {
 	threadShortcutsMode: "navigation" | "actions";
 	dateFormatStyle: "medium" | "narrow";
 	floatingToolbarEnabled: boolean;
+	fontFamily: string | null;
+	useCustomFont: boolean;
 	availableLocales: LocaleInfo[];
 	availableThemes: ThemeInfo[];
 	translations: Record<string, string>;

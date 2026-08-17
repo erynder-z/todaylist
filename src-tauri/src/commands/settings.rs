@@ -38,6 +38,8 @@ pub async fn update_config(
         config.date_format_style = new_config.date_format_style;
         config.floating_toolbar_enabled = new_config.floating_toolbar_enabled;
         config.shortcuts = new_config.shortcuts;
+        config.font_family = new_config.font_family;
+        config.use_custom_font = new_config.use_custom_font;
 
         config.save();
         (folder_changed, locale_changed, theme_changed)
@@ -70,6 +72,8 @@ pub async fn update_config(
             date_format_style: config.date_format_style.clone(),
             floating_toolbar_enabled: config.floating_toolbar_enabled,
             shortcuts: config.shortcuts.clone(),
+            font_family: config.font_family.clone(),
+            use_custom_font: config.use_custom_font,
         }
     };
 
@@ -189,6 +193,8 @@ pub async fn reset_config_to_defaults(state: State<'_, AppState>) -> Result<(), 
     config.date_format_style = default_config.date_format_style;
     config.floating_toolbar_enabled = default_config.floating_toolbar_enabled;
     config.shortcuts = default_config.shortcuts;
+    config.font_family = default_config.font_family;
+    config.use_custom_font = default_config.use_custom_font;
 
     config.save();
     Ok(())
@@ -262,6 +268,8 @@ pub async fn switch_notes_folder(
             date_format_style: config.date_format_style.clone(),
             floating_toolbar_enabled: config.floating_toolbar_enabled,
             shortcuts: config.shortcuts.clone(),
+            font_family: config.font_family.clone(),
+            use_custom_font: config.use_custom_font,
         }
     };
 

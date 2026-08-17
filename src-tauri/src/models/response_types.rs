@@ -37,6 +37,8 @@ pub struct ConfigResponse {
     pub date_format_style: String,
     pub floating_toolbar_enabled: bool,
     pub shortcuts: HashMap<String, ShortcutConfig>,
+    pub font_family: Option<String>,
+    pub use_custom_font: bool,
 }
 
 /// Metadata for a single note file in the list.
@@ -128,6 +130,8 @@ pub struct AppPayload {
     pub date_format_style: String,
     pub floating_toolbar_enabled: bool,
     pub shortcuts: HashMap<String, ShortcutConfig>,
+    pub font_family: Option<String>,
+    pub use_custom_font: bool,
     pub available_locales: Vec<LocaleInfo>,
     pub available_themes: Vec<ThemeInfo>,
     pub translations: HashMap<String, String>,

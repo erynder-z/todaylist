@@ -20,6 +20,8 @@ export interface AppSettings {
 	dateFormatStyle: "medium" | "narrow";
 	floatingToolbarEnabled: boolean;
 	shortcuts: Partial<Record<ShortcutAction, ShortcutConfig>>;
+	fontFamily: string | null;
+	useCustomFont: boolean;
 }
 
 export interface ThemeInfo {

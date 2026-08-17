@@ -28,12 +28,13 @@ export class SettingsStore {
 	threadShortcutsMode = $state<"navigation" | "actions">("navigation");
 	dateFormatStyle = $state<"medium" | "narrow">("medium");
 	floatingToolbarEnabled = $state(true);
+	fontFamily = $state<string | null>(null);
+	useCustomFont = $state(false);
 	shortcuts = $state<Partial<Record<ShortcutAction, ShortcutConfig>>>({});
 
 	/**
 	 * Private promise chain to ensure saves happen sequentially.
 	 */
-
 	#saveQueue = Promise.resolve(true);
 
 	/**
@@ -58,6 +59,8 @@ export class SettingsStore {
 			threadShortcutsMode: this.threadShortcutsMode,
 			dateFormatStyle: this.dateFormatStyle,
 			floatingToolbarEnabled: this.floatingToolbarEnabled,
+			fontFamily: this.fontFamily,
+			useCustomFont: this.useCustomFont,
 			shortcuts: this.shortcuts,
 		};
 	}
@@ -204,6 +207,40 @@ export class SettingsStore {
 			return await this.save({ floatingToolbarEnabled: enabled });
 
 		this.floatingToolbarEnabled = enabled;
+		return true;
+	}
+
+	/**
+	 * Granular setter for font family that handles conditional persistence.
+	 */
+	async saveFontFamily(fontFamily: string | null): Promise<boolean> {
+		if (this.rememberSettings)
+			return await this.save({
+				fontFamily,
+				useCustomFont: fontFamily !== null,
+			});
+
+		this.fontFamily = fontFamily;
+		this.useCustomFont = fontFamily !== null;
+		return true;
+	}
+
+	/**
+	 * Granular setter for use custom font that handles conditional persistence.
+	 * When disabling custom font, also resets the font family to null.
+	 */
+	async saveUseCustomFont(useCustom: boolean): Promise<boolean> {
+		if (this.rememberSettings) {
+			// If disabling custom font, reset fontFamily to null
+			const updates: Partial<AppSettings> = { useCustomFont: useCustom };
+			if (!useCustom) updates.fontFamily = null;
+
+			return await this.save(updates);
+		}
+
+		this.useCustomFont = useCustom;
+		if (!useCustom) this.fontFamily = null;
+
 		return true;
 	}
 

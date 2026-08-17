@@ -96,6 +96,8 @@ export class AppInitializer {
 				state.floatingToolbarEnabled !== undefined
 					? state.floatingToolbarEnabled
 					: true;
+			settings.fontFamily = state.fontFamily || null;
+			settings.useCustomFont = state.useCustomFont || false;
 		} else {
 			// Use default values for component settings
 			settings.searchMode = "notes";
@@ -106,6 +108,8 @@ export class AppInitializer {
 			settings.identiconStyle = "dotmatrix";
 			settings.dateFormatStyle = "medium";
 			settings.floatingToolbarEnabled = true;
+			settings.fontFamily = null;
+			settings.useCustomFont = false;
 		}
 
 		const width = state.controlCenterWidth;

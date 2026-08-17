@@ -4,6 +4,7 @@ mod services;
 mod utils;
 
 use commands::folder::validate_folder;
+use commands::font::{get_system_fonts, set_font_family, set_use_custom_font};
 use commands::i18n::get_translations;
 use commands::notes::{
     apply_default_thread_name, check_day_boundary, check_todays_note_exists, delete_note_line,
@@ -96,6 +97,7 @@ pub fn run() {
             process_search_results,
             get_translations,
             get_theme_colors,
+            get_system_fonts,
             get_all_tags,
             get_tag_suggestions,
             get_statistics,
@@ -113,6 +115,8 @@ pub fn run() {
             set_search_selected_tag,
             set_sidebar_open,
             set_theme,
+            set_font_family,
+            set_use_custom_font,
             switch_notes_folder,
             update_config,
             validate_folder

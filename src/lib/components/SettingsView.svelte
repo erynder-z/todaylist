@@ -9,6 +9,7 @@
   import DefaultThreadNameSelector from './DefaultThreadNameSelector.svelte';
   import FloatingToolbarSelector from './FloatingToolbarSelector.svelte';
   import FolderSelector from './FolderSelector.svelte';
+  import FontSelector from './FontSelector.svelte';
   import IdentIconStyleSelector from './IdentIconStyleSelector.svelte';
   import LanguageSelector from './LanguageSelector.svelte';
   import PurgeEmptyNotesSelector from './PurgeEmptyNotesSelector.svelte';
@@ -36,6 +37,7 @@
     DefaultThreadNameSelector,
     LanguageSelector,
     ThemeSelector,
+    FontSelector,
     IdentIconStyleSelector,
     DateFormatStyleSelector,
     WindowSizeSelector,

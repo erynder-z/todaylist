@@ -59,6 +59,10 @@ pub struct AppConfig {
     pub floating_toolbar_enabled: bool,
     /// Global keyboard shortcuts configuration.
     pub shortcuts: HashMap<String, ShortcutConfig>,
+    /// Custom font family to use for the application.
+    pub font_family: Option<String>,
+    /// Whether to use custom font or the default app font.
+    pub use_custom_font: bool,
 }
 
 impl Default for AppConfig {
@@ -348,6 +352,8 @@ impl Default for AppConfig {
             date_format_style: "medium".to_string(),
             floating_toolbar_enabled: true,
             shortcuts,
+            font_family: None,
+            use_custom_font: false,
         }
     }
 }
