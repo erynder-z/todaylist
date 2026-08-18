@@ -55,71 +55,76 @@ fn get_all_macos_fonts() -> Result<Vec<String>, String> {
         Ok(fonts)
     }
 }
-
 #[cfg(target_os = "windows")]
 fn get_all_windows_fonts() -> Result<Vec<String>, String> {
+    unsafe { get_all_windows_fonts_impl() }
+}
+
+#[cfg(target_os = "windows")]
+unsafe fn get_all_windows_fonts_impl() -> Result<Vec<String>, String> {
     use windows::Win32::Graphics::DirectWrite::{
-        DWriteCreateFactory, IDWriteFactory, DWRITE_FACTORY_TYPE_SHARED,
+        DWriteCreateFactory, IDWriteFactory, IDWriteFontCollection, DWRITE_FACTORY_TYPE_SHARED,
     };
 
-    unsafe {
-        let factory: IDWriteFactory = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED)
-            .map_err(|e| format!("Failed to create DirectWrite factory: {e}"))?;
+    let factory: IDWriteFactory = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED)
+        .map_err(|e| format!("Failed to create DirectWrite factory: {e}"))?;
 
-        let collection = factory
-            .GetSystemFontCollection(false)
-            .map_err(|e| format!("Failed to get system font collection: {e}"))?;
+    let mut collection: Option<IDWriteFontCollection> = None;
 
-        let family_count = collection.GetFontFamilyCount();
+    factory
+        .GetSystemFontCollection(&mut collection, false)
+        .map_err(|e| format!("Failed to get system font collection: {e}"))?;
 
-        let mut fonts = Vec::with_capacity(family_count as usize);
+    let collection =
+        collection.ok_or_else(|| "DirectWrite returned no system font collection".to_string())?;
 
-        for i in 0..family_count {
-            let family = collection
-                .GetFontFamily(i)
-                .map_err(|e| format!("Failed to get font family {i}: {e}"))?;
+    let family_count = collection.GetFontFamilyCount();
+    let mut fonts = Vec::with_capacity(family_count as usize);
 
-            let names = family
-                .GetFamilyNames()
-                .map_err(|e| format!("Failed to get family names for font {i}: {e}"))?;
+    for i in 0..family_count {
+        let family = collection
+            .GetFontFamily(i)
+            .map_err(|e| format!("Failed to get font family {i}: {e}"))?;
 
-            // Get the user's preferred localized name.
-            let mut index = 0;
-            let mut exists = false;
+        let names = family
+            .GetFamilyNames()
+            .map_err(|e| format!("Failed to get family names for font {i}: {e}"))?;
 
-            names
-                .FindLocaleName(windows::core::w!("en-us"), &mut index, &mut exists)
-                .ok();
+        let mut index = 0u32;
+        let mut exists = windows::core::BOOL(0);
 
-            if !exists {
-                index = 0;
-            }
+        names
+            .FindLocaleName(windows::core::w!("en-us"), &mut index, &mut exists)
+            .ok();
 
-            let length = names
-                .GetStringLength(index)
-                .map_err(|e| format!("Failed to get font name length: {e}"))?;
-
-            let mut buffer = vec![0u16; length as usize + 1];
-
-            names
-                .GetString(index, &mut buffer)
-                .map_err(|e| format!("Failed to get font family name: {e}"))?;
-
-            let name = String::from_utf16_lossy(&buffer[..length as usize]);
-
-            if !name.is_empty() {
-                fonts.push(name);
-            }
+        if !exists.as_bool() {
+            index = 0;
         }
 
-        fonts.sort_unstable();
-        fonts.dedup();
+        let length = names
+            .GetStringLength(index)
+            .map_err(|e| format!("Failed to get font name length: {e}"))?;
 
-        if fonts.is_empty() {
-            Err("DirectWrite returned no installed fonts".into())
-        } else {
-            Ok(fonts)
+        let mut buffer = vec![0u16; length as usize + 1];
+
+        names
+            .GetString(index, &mut buffer)
+            .map_err(|e| format!("Failed to get font family name: {e}"))?;
+
+        let name = String::from_utf16_lossy(&buffer[..length as usize]);
+
+        if !name.is_empty() {
+            fonts.push(name);
         }
+    }
+
+    fonts.sort_unstable();
+    fonts.dedup();
+
+    if fonts.is_empty() {
+        Err("DirectWrite returned no installed fonts".into())
+    } else {
+        Ok(fonts)
     }
 }
 
@@ -180,7 +185,7 @@ fn scan_font_directory(dir: &str, fonts: &mut Vec<String>) {
 
 /// Extract font family name from a filename
 /// Handles cases like "Arial.ttf", "Arial Bold.ttf", "Arial_Bold_Italic.ttf"
-#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[cfg(target_os = "linux")]
 fn extract_font_family_from_filename(filename: &str) -> Option<String> {
     // Remove file extension
     let name = filename.split('.').next()?;
