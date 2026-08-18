@@ -30,3 +30,6 @@ tauri-plugin-opener = "2.5.4"
 tauri-plugin-window-state = "2.4.1"
 uuid = { version = "1.24.0", features = ["v4", "serde"] }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+core-text = "22.0.0"
+

@@ -30,116 +30,27 @@ fn get_all_system_fonts() -> Result<Vec<String>, String> {
 
     #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
     {
-        // For other platforms, try macOS method first (might work on BSD), then fallback
-        get_all_macos_fonts().or_else(|_| Ok(get_fallback_fonts()))
+        Err("Font enumeration is not supported on this platform".to_string())
     }
 }
 
 #[cfg(target_os = "macos")]
 fn get_all_macos_fonts() -> Result<Vec<String>, String> {
-    use std::process::Command;
+    use core_text::font_manager::copy_available_font_family_names;
 
-    // Method 1: Try using system_profiler to get all installed fonts
-    let output = Command::new("system_profiler")
-        .arg("SPFontsDataType")
-        .output();
+    let font_names = copy_available_font_family_names();
 
-    match output {
-        Ok(result) if result.status.success() => {
-            let output_str = String::from_utf8_lossy(&result.stdout);
-            let mut fonts = Vec::new();
+    let mut fonts: Vec<String> = font_names
+        .iter()
+        .map(|font| font.to_string())
+        .filter(|font| !font.is_empty())
+        .collect();
 
-            // Parse the output to extract ALL font names
-            // The output contains lines like: "    Font: Font Name (Font Type)"
-            for line in output_str.lines() {
-                if line.trim().starts_with("Font:") {
-                    if let Some(font_part) = line.split('(').next() {
-                        let font_name = font_part.trim().trim_start_matches("Font: ").trim();
-                        if !font_name.is_empty() {
-                            fonts.push(font_name.to_string());
-                        }
-                    }
-                }
-            }
-
-            // Sort and deduplicate
-            fonts.sort();
-            fonts.dedup();
-
-            if fonts.is_empty() {
-                // If system_profiler didn't return any fonts, try alternative method
-                return get_macos_fonts_alternative();
-            }
-
-            Ok(fonts)
-        }
-        _ => {
-            // Fallback to alternative method if system_profiler fails
-            get_macos_fonts_alternative()
-        }
-    }
-}
-
-#[cfg(target_os = "macos")]
-fn get_macos_fonts_alternative() -> Result<Vec<String>, String> {
-    use std::fs;
-    use std::path::Path;
-
-    let mut fonts = Vec::new();
-
-    // Common macOS font directories
-    let font_dirs = [
-        "/Library/Fonts",
-        "/System/Library/Fonts",
-        "/Network/Library/Fonts",
-    ];
-
-    // Also check user font directories
-    if let Some(home) = std::env::var("HOME").ok() {
-        let user_font_dirs = [format!("{}/Library/Fonts", home)];
-
-        for dir in user_font_dirs {
-            if Path::new(&dir).exists() {
-                if let Ok(entries) = fs::read_dir(&dir) {
-                    for entry in entries {
-                        if let Ok(entry) = entry {
-                            if let Some(name) = entry.file_name().to_str() {
-                                // Extract font family name from filename
-                                if let Some(family) = extract_font_family_from_filename(name) {
-                                    fonts.push(family);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Check system font directories
-    for dir in font_dirs {
-        if Path::new(dir).exists() {
-            if let Ok(entries) = fs::read_dir(dir) {
-                for entry in entries {
-                    if let Ok(entry) = entry {
-                        if let Some(name) = entry.file_name().to_str() {
-                            if let Some(family) = extract_font_family_from_filename(name) {
-                                fonts.push(family);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Sort and deduplicate
     fonts.sort();
     fonts.dedup();
 
     if fonts.is_empty() {
-        // If we still have no fonts, return fallback
-        Ok(get_fallback_fonts())
+        Err("CoreText returned no installed fonts".to_string())
     } else {
         Ok(fonts)
     }
@@ -234,8 +145,8 @@ fn get_all_windows_fonts() -> Result<Vec<String>, String> {
         }
     }
 
-    // Final fallback
-    Ok(get_fallback_fonts())
+    // No fonts found
+    Err("Failed to enumerate installed Windows fonts".to_string())
 }
 
 #[cfg(target_os = "linux")]
@@ -261,7 +172,7 @@ fn get_all_linux_fonts() -> Result<Vec<String>, String> {
     fonts.dedup();
 
     if fonts.is_empty() {
-        Ok(get_fallback_fonts())
+        Err("fontconfig returned no installed fonts".to_string())
     } else {
         Ok(fonts)
     }
@@ -295,6 +206,7 @@ fn scan_font_directory(dir: &str, fonts: &mut Vec<String>) {
 
 /// Extract font family name from a filename
 /// Handles cases like "Arial.ttf", "Arial Bold.ttf", "Arial_Bold_Italic.ttf"
+#[cfg(any(target_os = "windows", target_os = "linux"))]
 fn extract_font_family_from_filename(filename: &str) -> Option<String> {
     // Remove file extension
     let name = filename.split('.').next()?;
@@ -326,45 +238,6 @@ fn extract_font_family_from_filename(filename: &str) -> Option<String> {
     } else {
         Some(base_name.to_string())
     }
-}
-
-fn get_fallback_fonts() -> Vec<String> {
-    // Common web-safe fonts as fallback
-    vec![
-        "Arial".to_string(),
-        "Arial Black".to_string(),
-        "Comic Sans MS".to_string(),
-        "Courier New".to_string(),
-        "Georgia".to_string(),
-        "Impact".to_string(),
-        "Lucida Console".to_string(),
-        "Lucida Sans Unicode".to_string(),
-        "Palatino Linotype".to_string(),
-        "Tahoma".to_string(),
-        "Times New Roman".to_string(),
-        "Trebuchet MS".to_string(),
-        "Verdana".to_string(),
-        "Microsoft Sans Serif".to_string(),
-        "Microsoft Serif".to_string(),
-        "Monaco".to_string(),
-        "Menlo".to_string(),
-        "Consolas".to_string(),
-        "Ubuntu".to_string(),
-        "Roboto".to_string(),
-        "Open Sans".to_string(),
-        "Lato".to_string(),
-        "Source Sans Pro".to_string(),
-        "Helvetica".to_string(),
-        "Geneva".to_string(),
-        "San Francisco".to_string(),
-        "Segoe UI".to_string(),
-        "DejaVu Sans".to_string(),
-        "DejaVu Serif".to_string(),
-        "DejaVu Sans Mono".to_string(),
-        "Liberation Sans".to_string(),
-        "Liberation Serif".to_string(),
-        "Liberation Mono".to_string(),
-    ]
 }
 
 /// Sets the application font family.

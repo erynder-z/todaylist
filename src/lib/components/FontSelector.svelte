@@ -14,30 +14,16 @@
    */
   const loadSystemFonts = async () => {
     if (systemFonts.length > 0) return;
+
     try {
       isLoading = true;
 
-      systemFonts = (await invoke('get_system_fonts')) as string[];
-      systemFonts.sort((a, b) => a.localeCompare(b));
+      systemFonts = (await invoke<string[]>('get_system_fonts')).sort((a, b) =>
+        a.localeCompare(b),
+      );
     } catch (err) {
       console.error('Failed to load system fonts:', err);
-      systemFonts = [
-        'Arial',
-        'Courier New',
-        'Georgia',
-        'Helvetica',
-        'Menlo',
-        'Monaco',
-        'San Francisco',
-        'Times New Roman',
-        'Verdana',
-        'Segoe UI',
-        'Roboto',
-        'Open Sans',
-        'Ubuntu',
-        'DejaVu Sans',
-        'Liberation Sans',
-      ];
+      systemFonts = [];
     } finally {
       isLoading = false;
     }
