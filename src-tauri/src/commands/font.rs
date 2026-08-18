@@ -58,95 +58,69 @@ fn get_all_macos_fonts() -> Result<Vec<String>, String> {
 
 #[cfg(target_os = "windows")]
 fn get_all_windows_fonts() -> Result<Vec<String>, String> {
-    use std::process::Command;
+    use windows::Win32::Graphics::DirectWrite::{
+        DWriteCreateFactory, IDWriteFactory, DWRITE_FACTORY_TYPE_SHARED,
+    };
 
-    // Method 1: Try using PowerShell to get installed fonts
-    let output = Command::new("powershell")
-        .arg("-Command")
-        .arg("Get-WmiObject -Class Win32_LogicalFont | Select-Object -ExpandProperty Name")
-        .output();
+    unsafe {
+        let factory: IDWriteFactory = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED)
+            .map_err(|e| format!("Failed to create DirectWrite factory: {e}"))?;
 
-    match output {
-        Ok(result) if result.status.success() => {
-            let output_str = String::from_utf8_lossy(&result.stdout);
-            let mut fonts = Vec::new();
+        let collection = factory
+            .GetSystemFontCollection(false)
+            .map_err(|e| format!("Failed to get system font collection: {e}"))?;
 
-            for line in output_str.lines() {
-                let font_name = line.trim().to_string();
-                if !font_name.is_empty() {
-                    fonts.push(font_name);
-                }
+        let family_count = collection.GetFontFamilyCount();
+
+        let mut fonts = Vec::with_capacity(family_count as usize);
+
+        for i in 0..family_count {
+            let family = collection
+                .GetFontFamily(i)
+                .map_err(|e| format!("Failed to get font family {i}: {e}"))?;
+
+            let names = family
+                .GetFamilyNames()
+                .map_err(|e| format!("Failed to get family names for font {i}: {e}"))?;
+
+            // Get the user's preferred localized name.
+            let mut index = 0;
+            let mut exists = false;
+
+            names
+                .FindLocaleName(windows::core::w!("en-us"), &mut index, &mut exists)
+                .ok();
+
+            if !exists {
+                index = 0;
             }
 
-            if !fonts.is_empty() {
-                fonts.sort();
-                fonts.dedup();
-                return Ok(fonts);
-            }
-        }
-        _ => {}
-    }
+            let length = names
+                .GetStringLength(index)
+                .map_err(|e| format!("Failed to get font name length: {e}"))?;
 
-    // Method 2: Try using reg query to get fonts from registry
-    let output = Command::new("reg")
-        .arg("query")
-        .arg("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts")
-        .output();
+            let mut buffer = vec![0u16; length as usize + 1];
 
-    match output {
-        Ok(result) if result.status.success() => {
-            let output_str = String::from_utf8_lossy(&result.stdout);
-            let mut fonts = Vec::new();
+            names
+                .GetString(index, &mut buffer)
+                .map_err(|e| format!("Failed to get font family name: {e}"))?;
 
-            // Parse registry output to extract font names
-            for line in output_str.lines().skip(1) {
-                // Skip header line
-                if let Some(font_name) = line.split_whitespace().next() {
-                    // Remove quotes and .ttf/.otf extensions
-                    let clean_name = font_name
-                        .trim_matches('"')
-                        .trim_end_matches(".ttf")
-                        .trim_end_matches(".otf")
-                        .trim();
-                    if !clean_name.is_empty() {
-                        fonts.push(clean_name.to_string());
-                    }
-                }
-            }
+            let name = String::from_utf16_lossy(&buffer[..length as usize]);
 
-            if !fonts.is_empty() {
-                fonts.sort();
-                fonts.dedup();
-                return Ok(fonts);
-            }
-        }
-        _ => {}
-    }
-
-    // Method 3: Fallback to reading C:\Windows\Fonts directory
-    let fonts_dir = "C:\\Windows\\Fonts";
-    if let Ok(entries) = std::fs::read_dir(fonts_dir) {
-        let mut fonts = Vec::new();
-
-        for entry in entries {
-            if let Ok(entry) = entry {
-                if let Some(name) = entry.file_name().to_str() {
-                    if let Some(family) = extract_font_family_from_filename(name) {
-                        fonts.push(family);
-                    }
-                }
+            if !name.is_empty() {
+                fonts.push(name);
             }
         }
 
-        if !fonts.is_empty() {
-            fonts.sort();
-            fonts.dedup();
-            return Ok(fonts);
+        fonts.sort_unstable();
+        fonts.dedup();
+
+        if fonts.is_empty() {
+            Err("DirectWrite returned no installed fonts".into())
+        } else {
+            Ok(fonts)
         }
     }
-
-    // No fonts found
-    Err("Failed to enumerate installed Windows fonts".to_string())
 }
 
 #[cfg(target_os = "linux")]

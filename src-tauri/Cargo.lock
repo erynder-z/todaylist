@@ -3784,6 +3784,7 @@ dependencies = [
  "tauri-plugin-opener",
  "tauri-plugin-window-state",
  "uuid",
+ "windows",
 ]
 
 [[package]]
