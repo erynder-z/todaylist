@@ -157,68 +157,6 @@ fn get_all_linux_fonts() -> Result<Vec<String>, String> {
     }
 }
 
-/// Recursively scan a font directory and extract font family names
-#[cfg(target_os = "linux")]
-fn scan_font_directory(dir: &str, fonts: &mut Vec<String>) {
-    use std::fs;
-
-    if let Ok(entries) = fs::read_dir(dir) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-
-                if path.is_dir() {
-                    // Recursively scan subdirectories
-                    if let Some(dir_str) = path.to_str() {
-                        scan_font_directory(dir_str, fonts);
-                    }
-                } else if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                    // Extract font family from filename
-                    if let Some(family) = extract_font_family_from_filename(name) {
-                        fonts.push(family);
-                    }
-                }
-            }
-        }
-    }
-}
-
-/// Extract font family name from a filename
-/// Handles cases like "Arial.ttf", "Arial Bold.ttf", "Arial_Bold_Italic.ttf"
-#[cfg(target_os = "linux")]
-fn extract_font_family_from_filename(filename: &str) -> Option<String> {
-    // Remove file extension
-    let name = filename.split('.').next()?;
-
-    // Handle common naming patterns
-    let clean_name = name
-        .replace("_", " ")  // Replace underscores with spaces
-        .replace("-", " ")  // Replace hyphens with spaces
-        ;
-
-    // Extract base family name (remove style suffixes like "Bold", "Italic", etc.)
-    let base_name = clean_name
-        .trim_end_matches(" Bold Italic")
-        .trim_end_matches(" Italic Bold")
-        .trim_end_matches(" Bold")
-        .trim_end_matches(" Italic")
-        .trim_end_matches(" Regular")
-        .trim_end_matches(" Normal")
-        .trim_end_matches(" Light")
-        .trim_end_matches(" Medium")
-        .trim_end_matches(" Thin")
-        .trim_end_matches(" Black")
-        .trim_end_matches(" ExtraBold")
-        .trim_end_matches(" SemiBold")
-        .trim();
-
-    if base_name.is_empty() {
-        None
-    } else {
-        Some(base_name.to_string())
-    }
-}
-
 /// Sets the application font family.
 #[tauri::command]
 pub async fn set_font_family(
