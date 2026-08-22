@@ -174,7 +174,7 @@ impl Default for AppConfig {
         shortcuts.insert(
             "toggleFuzzy".to_string(),
             ShortcutConfig {
-                key: "Z".to_string(),
+                key: "F".to_string(),
                 primary: true,
                 secondary: true,
                 shift: false,
