@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Editor } from '@milkdown/core';
-  import { editorViewCtx } from '@milkdown/core';
-  import type { Ctx } from '@milkdown/ctx';
+  import type { Editor } from '@milkdown/kit/core';
+  import { editorViewCtx } from '@milkdown/kit/core';
+  import type { Ctx } from '@milkdown/kit/ctx';
   import { type Snippet, tick } from 'svelte';
   import { fade, scale } from 'svelte/transition';
 

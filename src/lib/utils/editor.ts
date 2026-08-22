@@ -1,5 +1,5 @@
-import { type Editor, editorViewCtx, parserCtx } from "@milkdown/core";
-import { Selection } from "@milkdown/prose/state";
+import { type Editor, editorViewCtx, parserCtx } from "@milkdown/kit/core";
+import { Selection } from "@milkdown/kit/prose/state";
 
 /**
  * Service class for Milkdown editor operations.

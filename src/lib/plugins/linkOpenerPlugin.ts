@@ -1,7 +1,7 @@
-import type { MilkdownPlugin } from "@milkdown/ctx";
-import { Plugin } from "@milkdown/prose/state";
-import type { EditorView } from "@milkdown/prose/view";
-import { $prose } from "@milkdown/utils";
+import type { MilkdownPlugin } from "@milkdown/kit/ctx";
+import { Plugin } from "@milkdown/kit/prose/state";
+import type { EditorView } from "@milkdown/kit/prose/view";
+import { $prose } from "@milkdown/kit/utils";
 import { openUrl } from "@tauri-apps/plugin-opener";
 
 /**

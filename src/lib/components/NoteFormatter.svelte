@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { Editor } from '@milkdown/core';
-  import { editorViewCtx } from '@milkdown/core';
-  import type { Ctx } from '@milkdown/ctx';
-  import { lift, toggleMark, wrapIn } from '@milkdown/prose/commands';
-  import type { Mark, Node as PMNode } from 'prosemirror-model';
-  import type { EditorState } from 'prosemirror-state';
+  import type { Editor } from '@milkdown/kit/core';
+  import { editorViewCtx } from '@milkdown/kit/core';
+  import type { Ctx } from '@milkdown/kit/ctx';
+  import { lift, toggleMark, wrapIn } from '@milkdown/kit/prose/commands';
+  import type { Mark, Node as PMNode } from '@milkdown/kit/prose/model';
+  import type { EditorState } from '@milkdown/kit/prose/state';
   import { inputManager } from '$lib/stores/input.svelte';
   import { t } from '$lib/utils/i18n';
   import { useShortcuts } from '$lib/utils/shortcuts';

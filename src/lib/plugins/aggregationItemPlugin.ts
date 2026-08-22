@@ -1,4 +1,4 @@
-import { $nodeSchema, $remark } from "@milkdown/utils";
+import { $nodeSchema, $remark } from "@milkdown/kit/utils";
 import type { Node as MdastNode } from "unist";
 
 /**

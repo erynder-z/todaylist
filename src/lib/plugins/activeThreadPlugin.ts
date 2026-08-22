@@ -1,10 +1,10 @@
-import { Plugin, PluginKey, type PluginView } from "@milkdown/prose/state";
+import { Plugin, PluginKey, type PluginView } from "@milkdown/kit/prose/state";
 import {
 	Decoration,
 	DecorationSet,
 	type EditorView,
-} from "@milkdown/prose/view";
-import { $prose } from "@milkdown/utils";
+} from "@milkdown/kit/prose/view";
+import { $prose } from "@milkdown/kit/utils";
 
 /**
  * Plugin key used to store and access the active thread state.

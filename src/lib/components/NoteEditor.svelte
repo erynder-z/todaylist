@@ -3,10 +3,10 @@
    * The main note editor component. Coordinates the Milkdown instance with the EditorStore.
    * Handles high-level actions like shortcuts and thread navigation.
    */
-  import type { Editor } from '@milkdown/core';
-  import { keymap } from '@milkdown/prose/keymap';
-  import { $prose as prosePlugin } from '@milkdown/utils';
-  import { tick, untrack } from 'svelte';
+  import type { Editor } from '@milkdown/kit/core';
+  import { keymap } from '@milkdown/kit/prose/keymap';
+  import { $prose as prosePlugin } from '@milkdown/kit/utils';
+  import { tick } from 'svelte';
   import type { NoteContentResponse, NoteThread } from '$lib/interfaces/notes';
   import { tagSuggestionShortcuts } from '../config/shortcuts';
   import { linkOpenerPlugin } from '../plugins/linkOpenerPlugin';

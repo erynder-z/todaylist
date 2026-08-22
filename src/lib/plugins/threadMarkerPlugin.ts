@@ -1,5 +1,5 @@
-import { textblockTypeInputRule } from "@milkdown/prose/inputrules";
-import { $inputRule, $nodeSchema, $remark } from "@milkdown/utils";
+import { textblockTypeInputRule } from "@milkdown/kit/prose/inputrules";
+import { $inputRule, $nodeSchema, $remark } from "@milkdown/kit/utils";
 import type { Node as MdastNode } from "unist";
 
 /**

@@ -9,12 +9,12 @@
     editorViewCtx,
     editorViewOptionsCtx,
     rootCtx,
-  } from '@milkdown/core';
-  import type { MilkdownPlugin } from '@milkdown/ctx';
+  } from '@milkdown/kit/core';
+  import type { MilkdownPlugin } from '@milkdown/kit/ctx';
+  import { listener, listenerCtx } from '@milkdown/kit/plugin/listener';
+  import { commonmark } from '@milkdown/kit/preset/commonmark';
+  import { gfm } from '@milkdown/kit/preset/gfm';
   import { highlight, highlightPluginConfig } from '@milkdown/plugin-highlight';
-  import { listener, listenerCtx } from '@milkdown/plugin-listener';
-  import { commonmark } from '@milkdown/preset-commonmark';
-  import { gfm } from '@milkdown/preset-gfm';
   import { untrack } from 'svelte';
   import {
     activeThreadPlugin,
