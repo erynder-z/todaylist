@@ -96,7 +96,7 @@ impl<'a> SearchService<'a> {
         let mut results = Vec::new();
 
         for (i, line) in content.lines().enumerate().skip(frontmatter_len) {
-            let stripped = crate::utils::markdown::strip_markdown(line);
+            let stripped = crate::utils::markdown::strip_markdown_line(line);
             if stripped.is_empty() {
                 continue;
             }

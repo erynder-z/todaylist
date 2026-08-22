@@ -1,7 +1,7 @@
 //! Utilities for processing Markdown text.
 
 /// Strips common markdown characters from a line for cleaner display.
-pub fn strip_markdown(line: &str) -> String {
+pub fn strip_markdown_line(line: &str) -> String {
     let trimmed = line.trim();
     if trimmed.is_empty() {
         return String::new();

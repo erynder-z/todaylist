@@ -163,7 +163,7 @@ impl NoteManager {
 
         let mut preview_text = Vec::new();
         for line in lines.iter().skip(start_idx) {
-            let stripped = crate::utils::markdown::strip_markdown(line);
+            let stripped = crate::utils::markdown::strip_markdown_line(line);
             if stripped.is_empty() {
                 continue;
             }
