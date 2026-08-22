@@ -261,6 +261,16 @@ impl Default for AppConfig {
                 description: "Show linked threads".to_string(),
             },
         );
+        shortcuts.insert(
+            "threadOptionCopy".to_string(),
+            ShortcutConfig {
+                key: "C".to_string(),
+                primary: true,
+                secondary: true,
+                shift: false,
+                description: "Copy thread content".to_string(),
+            },
+        );
         //
         shortcuts.insert(
             "toggleBold".to_string(),

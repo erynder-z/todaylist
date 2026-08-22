@@ -28,6 +28,7 @@
   const searchModeShortcut = settings.shortcuts.toggleSearchMode;
   const threadOptionRemoveShortcut = settings.shortcuts.threadOptionRemove;
   const threadOptionLinkedShortcut = settings.shortcuts.threadOptionLinked;
+  const threadOptionCopyShortcut = settings.shortcuts.threadOptionCopy;
 
   // Text formatting shortcuts
   const toggleBoldShortcut = settings.shortcuts.toggleBold;
@@ -131,6 +132,18 @@
             primary={threadOptionLinkedShortcut.primary}
             secondary={threadOptionLinkedShortcut.secondary}
             key={threadOptionLinkedShortcut.key.toUpperCase()}
+          />
+        </div>
+      </div>
+    {/if}
+    {#if threadOptionCopyShortcut}
+      <div class="shortcut-item">
+        <span class="shortcut-description">{$t('shortcuts.thread.copy')}</span>
+        <div class="shortcut-keys">
+          <KeyboardShortcut
+            primary={threadOptionCopyShortcut.primary}
+            secondary={threadOptionCopyShortcut.secondary}
+            key={threadOptionCopyShortcut.key.toUpperCase()}
           />
         </div>
       </div>

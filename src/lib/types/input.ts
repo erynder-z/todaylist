@@ -22,6 +22,7 @@ export type ShortcutAction =
 	| "toggleThreadOptionsMode"
 	| "threadOptionRemove"
 	| "threadOptionLinked"
+	| "threadOptionCopy"
 	| "toggleBold"
 	| "toggleItalic"
 	| "toggleStrikethrough"
