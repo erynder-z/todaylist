@@ -11,6 +11,7 @@
     rootCtx,
   } from '@milkdown/kit/core';
   import type { MilkdownPlugin } from '@milkdown/kit/ctx';
+  import { history } from '@milkdown/kit/plugin/history';
   import { listener, listenerCtx } from '@milkdown/kit/plugin/listener';
   import { commonmark } from '@milkdown/kit/preset/commonmark';
   import { gfm } from '@milkdown/kit/preset/gfm';
@@ -46,6 +47,7 @@
     threadMarkerPlugin,
     activeThreadPlugin,
     highlight,
+    history,
     ...plugins,
   ]);
 
