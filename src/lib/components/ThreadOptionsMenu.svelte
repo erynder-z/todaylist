@@ -96,6 +96,37 @@
   };
 
   /**
+   * Toggles the pin status of the current thread
+   */
+  const handleTogglePin = async () => {
+    try {
+      const currentContent = sessionState.todayNoteContent?.content;
+
+      if (!currentContent) {
+        toast.error($t('thread.options.pin_error'));
+        return;
+      }
+
+      const result = await notesService.toggleThreadPin(
+        thread.id,
+        currentContent,
+      );
+
+      // Update the session state with the new content
+      if (result) {
+        // Force a refresh by creating a new object with the same data
+        const newContent = JSON.parse(JSON.stringify(result));
+        sessionState.todayNoteContent = newContent;
+        const updatedThread = result.threads.find((t) => t.id === thread.id);
+        if (updatedThread)
+          sessionState.selectedThreadForOptions = updatedThread;
+      }
+    } catch {
+      toast.error($t('thread.options.pin_error'));
+    }
+  };
+
+  /**
    * Deletes the current thread
    */
   const handleRemoveThread = async () => {
@@ -127,10 +158,11 @@
     loadLinkedThreads();
   });
 
-  useShortcuts({
+  useShortcuts('thread-options', {
     threadOptionRemove: handleRemoveThread,
     threadOptionLinked: handleLinked,
     threadOptionCopy: handleCopyThread,
+    threadOptionPin: handleTogglePin,
     closePopup: closeMenu,
   });
 </script>
@@ -158,6 +190,43 @@
     </div>
 
     <div class="taskbar-actions">
+      <button
+        class="action-button"
+        class:active={thread.pinned}
+        title={thread.pinned
+          ? $t('thread.options.unpin')
+          : $t('thread.options.pin')}
+        onclick={handleTogglePin}
+      >
+        {#if thread.pinned}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="1.2rem"
+            viewBox="0 -960 960 960"
+            width="1.2rem"
+            fill="currentColor"
+            ><path
+              d="m640-480 80 80v80H520v240l-40 40-40-40v-240H240v-80l80-80v-280h-40v-80h400v80h-40v280Z"
+            /></svg
+          >
+          <span>{$t('thread.options.unpin')}</span>
+        {:else}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="1.2rem"
+            viewBox="0 -960 960 960"
+            width="1.2rem"
+            fill="currentColor"
+            ><path
+              d="m640-480 80 80v80H520v240l-40 40-40-40v-240H240v-80l80-80v-280h-40v-80h400v80h-40v280Zm-286 80h252l-46-46v-314H400v314l-46 46Zm126 0Z"
+            />
+          </svg>
+          <span>{$t('thread.options.pin')}</span>
+        {/if}
+        <div class="shortcut-hint">
+          <KeyboardShortcut primary secondary key="P" />
+        </div>
+      </button>
       {#if hasLinkedThreads}
         <button
           class="action-button"

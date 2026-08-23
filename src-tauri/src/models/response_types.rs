@@ -282,6 +282,7 @@ impl NoteContentResponse {
                     name: s.name.clone(),
                     start_line: rel_start,
                     end_line: rel_end,
+                    pinned: s.pinned,
                 }
             })
             .collect();

@@ -263,6 +263,26 @@ export class NotesService {
 	}
 
 	/**
+	 * Toggles the pinned status of a thread by ID in the current note and returns the updated note content.
+	 * Pass the current content to ensure unsaved edits are not lost.
+	 */
+	async toggleThreadPin(
+		threadId: string,
+		currentContent: string,
+	): Promise<NoteContentResponse | null> {
+		try {
+			const content = (await invoke("toggle_thread_pin", {
+				threadId,
+				currentContent,
+			})) as NoteContentResponse;
+			return content;
+		} catch (error) {
+			console.error(`Error toggling pin for thread ${threadId}:`, error);
+			return null;
+		}
+	}
+
+	/**
 	 * Formats a note's filename into a human-readable, localized string.
 	 */
 	formatNoteName(

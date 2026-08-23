@@ -11,7 +11,7 @@ use commands::notes::{
     detect_threads, ensure_thread, get_last_available_note_path, get_note_path_by_offset,
     get_statistics, insert_note_line, list_notes, open_todays_note, purge_empty_notes,
     read_last_available_note, read_note_by_offset, read_note_content, remove_thread,
-    save_note_content, update_note_line,
+    save_note_content, toggle_thread_pin, update_note_line,
 };
 use commands::search::{
     aggregate_thread, process_search_results, search_notes, search_notes_by_tag, search_tags,
@@ -86,6 +86,7 @@ pub fn run() {
             delete_note_line,
             ensure_thread,
             remove_thread,
+            toggle_thread_pin,
             open_todays_note,
             initialize_app,
             show_window,

@@ -378,6 +378,7 @@ pub async fn ensure_thread(
                 name: name.clone(),
                 start_line: last_idx,
                 end_line: session.lines.len(),
+                pinned: false,
             });
 
             // Update frontmatter with the new thread
@@ -516,6 +517,29 @@ pub async fn remove_thread(
             Ok(())
         } else {
             // Debug: print all thread IDs
+            let found_ids: Vec<String> = session.threads.iter().map(|t| t.id.clone()).collect();
+            Err(format!(
+                "Thread '{}' not found. Available thread IDs: {:?}",
+                thread_id, found_ids
+            ))
+        }
+    })
+    .await
+}
+
+/// Toggles the pinned status of a thread by ID in the current note session.
+#[tauri::command]
+pub async fn toggle_thread_pin(
+    thread_id: String,
+    current_content: String,
+    state: State<'_, AppState>,
+) -> Result<NoteContentResponse, String> {
+    perform_thread_operation(current_content, state, |session| {
+        if let Some(thread) = session.threads.iter_mut().find(|t| t.id == thread_id) {
+            thread.pinned = !thread.pinned;
+            session.update_threads_in_frontmatter();
+            Ok(())
+        } else {
             let found_ids: Vec<String> = session.threads.iter().map(|t| t.id.clone()).collect();
             Err(format!(
                 "Thread '{}' not found. Available thread IDs: {:?}",

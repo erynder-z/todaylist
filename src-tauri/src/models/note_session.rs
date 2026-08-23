@@ -4,6 +4,14 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+/// Represents parsed thread metadata from frontmatter.
+#[derive(Debug, Clone)]
+pub struct FrontmatterThread {
+    pub id: String,
+    pub relative_line: usize,
+    pub pinned: bool,
+}
+
 /// Represents a named block or thread within a note, defined by a `!!!` thread marker.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,6 +24,9 @@ pub struct NoteThread {
     pub start_line: usize,
     /// The absolute line index where the thread ends (exclusive).
     pub end_line: usize,
+    /// Whether the thread is pinned.
+    #[serde(default)]
+    pub pinned: bool,
 }
 
 /// Represents an active note session, maintaining an in-memory
@@ -80,13 +91,15 @@ impl NoteSession {
         // Try to parse thread IDs from frontmatter first
         let frontmatter_threads = self.parse_threads_from_frontmatter();
 
-        // Build a map of line -> ID from frontmatter
-        let mut id_map: std::collections::HashMap<usize, String> = std::collections::HashMap::new();
-        for (id, relative_line) in &frontmatter_threads {
-            let absolute_line = content_start + relative_line;
-            id_map.insert(absolute_line, id.clone());
+        // Build a map of line -> FrontmatterThread from frontmatter
+        let mut id_map: std::collections::HashMap<usize, &FrontmatterThread> =
+            std::collections::HashMap::new();
+        for meta in &frontmatter_threads {
+            let absolute_line = content_start + meta.relative_line;
+            id_map.insert(absolute_line, meta);
         }
 
+        let mut thread_idx = 0;
         for i in content_start..self.lines.len() {
             let line = &self.lines[i];
             // Only match thread identifiers (!!! followed by space)
@@ -99,12 +112,14 @@ impl NoteSession {
                         prev.end_line = i;
                     }
 
-                    // Use ID from frontmatter if available, otherwise generate new UUID
-                    let id = if let Some(existing_id) = id_map.get(&i) {
-                        existing_id.clone()
+                    // Use ID and pinned status from frontmatter if available, otherwise generate new UUID
+                    let (id, pinned) = if let Some(existing) = id_map.get(&i) {
+                        (existing.id.clone(), existing.pinned)
+                    } else if let Some(existing) = frontmatter_threads.get(thread_idx) {
+                        (existing.id.clone(), existing.pinned)
                     } else {
                         // Generate new UUID for this thread
-                        Uuid::new_v4().to_string()
+                        (Uuid::new_v4().to_string(), false)
                     };
 
                     self.threads.push(NoteThread {
@@ -112,7 +127,9 @@ impl NoteSession {
                         name,
                         start_line: i,
                         end_line: self.lines.len(),
+                        pinned,
                     });
+                    thread_idx += 1;
                 }
             }
         }
@@ -256,13 +273,13 @@ impl NoteSession {
     }
 
     /// Updates the threads metadata in the frontmatter.
-    /// Stores thread IDs and their relative line positions (from content start).
+    /// Stores thread IDs, relative line positions, and optional pinned flags.
     pub fn update_threads_in_frontmatter(&mut self) {
         self.ensure_frontmatter();
         let (start, end) = self.frontmatter_range.unwrap();
         let content_start = self.get_content_start_index();
 
-        // Build the threads metadata as a comma-separated list of id:line pairs
+        // Build the threads metadata as a comma-separated list of id:line[:pinned] pairs
         let threads_meta: String = self
             .threads
             .iter()
@@ -272,7 +289,11 @@ impl NoteSession {
                 } else {
                     0
                 };
-                format!("{}:{}", t.id, relative_line)
+                if t.pinned {
+                    format!("{}:{}:pinned", t.id, relative_line)
+                } else {
+                    format!("{}:{}", t.id, relative_line)
+                }
             })
             .collect::<Vec<_>>()
             .join(",");
@@ -298,8 +319,8 @@ impl NoteSession {
     }
 
     /// Parses thread metadata from the frontmatter.
-    /// Expected format: threads: id1:line1,id2:line2,...
-    pub fn parse_threads_from_frontmatter(&self) -> Vec<(String, usize)> {
+    /// Expected format: threads: id1:line1,id2:line2:pinned,...
+    pub fn parse_threads_from_frontmatter(&self) -> Vec<FrontmatterThread> {
         let (start, end) = match self.frontmatter_range {
             Some(range) => range,
             None => return Vec::new(),
@@ -314,9 +335,19 @@ impl NoteSession {
                     .filter(|s| !s.is_empty())
                     .filter_map(|s| {
                         let parts: Vec<&str> = s.split(':').collect();
-                        if parts.len() == 2 {
+                        if parts.len() >= 2 {
                             if let Ok(line_num) = parts[1].parse() {
-                                return Some((parts[0].to_string(), line_num));
+                                let pinned = parts
+                                    .get(2)
+                                    .map(|&f| {
+                                        f == "pinned" || f == "p" || f == "true" || f == "1"
+                                    })
+                                    .unwrap_or(false);
+                                return Some(FrontmatterThread {
+                                    id: parts[0].to_string(),
+                                    relative_line: line_num,
+                                    pinned,
+                                });
                             }
                         }
                         None

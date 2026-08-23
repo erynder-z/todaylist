@@ -22,10 +22,11 @@ export interface NoteMetadata {
 export interface NoteThread {
 	id: string;
 	name: string;
-	level: number;
+	level?: number;
 	startLine: number;
 	endLine: number;
 	shortcut?: string;
+	pinned?: boolean;
 }
 
 export interface NoteContentResponse {

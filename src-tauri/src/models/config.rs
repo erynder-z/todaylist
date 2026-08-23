@@ -271,6 +271,16 @@ impl Default for AppConfig {
                 description: "Copy thread content".to_string(),
             },
         );
+        shortcuts.insert(
+            "threadOptionPin".to_string(),
+            ShortcutConfig {
+                key: "P".to_string(),
+                primary: true,
+                secondary: true,
+                shift: false,
+                description: "Pin/Unpin note-thread".to_string(),
+            },
+        );
         //
         shortcuts.insert(
             "toggleBold".to_string(),

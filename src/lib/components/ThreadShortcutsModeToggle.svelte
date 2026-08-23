@@ -9,6 +9,8 @@
    */
 
   const toggleThreadMode = async () => {
+    if (sessionState.activePopup !== null) return;
+
     const newMode =
       sessionState.threadShortcutsMode === 'navigation'
         ? 'actions'

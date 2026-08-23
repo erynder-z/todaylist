@@ -92,6 +92,21 @@ export class EditorStore {
 		}
 	}
 
+	/**
+	 * Toggles the pinned status of a thread and updates the store.
+	 */
+	async toggleThreadPin(threadId: string) {
+		const updated = await notesService.toggleThreadPin(threadId, this.content);
+
+		if (updated) {
+			this.content = updated.content;
+			this.threads = updated.threads;
+			this.pendingExternalUpdate = true;
+			this.hasChanges = false;
+			this.onContentUpdate(updated);
+		}
+	}
+
 	// --- Persistence ---
 
 	/**
