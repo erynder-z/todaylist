@@ -22,6 +22,7 @@ export const activeThreadPlugin = $prose(() => {
 			init() {
 				return {
 					index: -1 as number,
+					shouldScroll: false,
 				};
 			},
 
@@ -31,10 +32,14 @@ export const activeThreadPlugin = $prose(() => {
 				if (meta !== undefined) {
 					return {
 						index: meta,
+						shouldScroll: meta >= 0,
 					};
 				}
 
-				return value;
+				return {
+					...value,
+					shouldScroll: false,
+				};
 			},
 		},
 
@@ -70,51 +75,45 @@ export const activeThreadPlugin = $prose(() => {
 		},
 
 		view(): PluginView {
-			let lastActiveIndex = -1;
 			let scrollPending = false;
 
 			return {
 				update(view: EditorView) {
-					const currentActiveIndex =
-						activeThreadPluginKey.getState(view.state)?.index ?? -1;
+					const pluginState = activeThreadPluginKey.getState(view.state);
+					const currentActiveIndex = pluginState?.index ?? -1;
+					const shouldScroll = pluginState?.shouldScroll ?? false;
 
-					// Only scroll when the active thread changes and it's not invalid (-1)
-					if (currentActiveIndex !== lastActiveIndex) {
-						lastActiveIndex = currentActiveIndex;
-						if (currentActiveIndex >= 0) {
-							scrollPending = true;
+					if (shouldScroll && currentActiveIndex >= 0) {
+						scrollPending = true;
 
-							requestAnimationFrame(() => {
-								if (!scrollPending) return;
-								scrollPending = false;
+						requestAnimationFrame(() => {
+							if (!scrollPending) return;
+							scrollPending = false;
 
-								const { state } = view;
-								let threadPos = -1;
-								let currentIndex = 0;
+							const { state } = view;
+							const threadPositions: number[] = [];
 
-								// Find the position of the active thread marker
-								state.doc.descendants((node, pos) => {
-									if (node.type.name === "thread_marker") {
-										if (currentIndex === currentActiveIndex) {
-											threadPos = pos;
-											return false;
-										}
-										currentIndex++;
-									}
-								});
-
-								if (threadPos >= 0) {
-									const dom = view.nodeDOM(threadPos);
-
-									if (dom instanceof HTMLElement) {
-										dom.scrollIntoView({
-											behavior: "smooth",
-											block: "start",
-										});
-									}
-								}
+							// Find the positions of all thread markers
+							state.doc.descendants((node, pos) => {
+								if (node.type.name === "thread_marker")
+									threadPositions.push(pos);
 							});
-						}
+
+							if (
+								currentActiveIndex >= 0 &&
+								currentActiveIndex < threadPositions.length
+							) {
+								const threadPos = threadPositions[currentActiveIndex];
+								const dom = view.nodeDOM(threadPos);
+
+								if (dom instanceof HTMLElement) {
+									dom.scrollIntoView({
+										behavior: "smooth",
+										block: "start",
+									});
+								}
+							}
+						});
 					}
 				},
 			};
