@@ -45,16 +45,19 @@
     };
   });
 
-  // Memoize plugins array to prevent unnecessary recreations
+  // Disable built-in milkdown keymaps
   const customKeymap = prosePlugin(() =>
     keymap({
-      'Mod-1': () => true,
-      'Mod-2': () => true,
+      'Mod-Alt-1': () => true,
+      'Mod-Alt-2': () => true,
+      'Mod-Alt-3': () => true,
+      'Mod-Alt-4': () => true,
+      'Mod-Alt-5': () => true,
+      'Mod-Alt-6': () => true,
       'Mod-b': () => true,
       'Mod-i': () => true,
-      'Mod-`': () => true,
-      'Ctrl->': () => true,
-      'Mod-k': () => true,
+      'Mod-e': () => true,
+      'Mod-x`': () => true,
     }),
   );
   const stablePlugins = $derived([customKeymap, linkOpenerPlugin]);
