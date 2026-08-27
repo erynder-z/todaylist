@@ -100,6 +100,9 @@
    */
   const handleTogglePin = async () => {
     try {
+      // Do nothing if the thread has no content
+      if (!hasContent) return;
+
       const currentContent = sessionState.todayNoteContent?.content;
 
       if (!currentContent) {
@@ -193,6 +196,7 @@
       <button
         class="action-button"
         class:active={thread.pinned}
+        disabled={!hasContent}
         title={thread.pinned
           ? $t('thread.options.unpin')
           : $t('thread.options.pin')}
