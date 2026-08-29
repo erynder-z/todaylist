@@ -8,6 +8,7 @@ export type ShortcutAction =
 	| "toggleNoteBrowser"
 	| "toggleSettings"
 	| "toggleStatistics"
+	| "togglePinnedThreads"
 	| "toggleSidebar"
 	| "toggleNoteBrowserLayout"
 	| "manageTags"

@@ -13,6 +13,7 @@
     'toggleNoteBrowser',
     'toggleSettings',
     'toggleStatistics',
+    'togglePinnedThreads',
     'toggleSidebar',
     'manageTags',
     'closePopup',

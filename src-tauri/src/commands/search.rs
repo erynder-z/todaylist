@@ -1,6 +1,6 @@
 use crate::models::app_state::AppState;
 use crate::models::response_types::{
-    SearchResult, TagSearchResult, ThreadAggregationResult, ThreadSearchResult,
+    PinnedThreadItem, SearchResult, TagSearchResult, ThreadAggregationResult, ThreadSearchResult,
 };
 use crate::services::search::SearchService;
 use tauri::State;
@@ -85,4 +85,14 @@ pub async fn process_search_results(
         filename_filter_ref,
         &sort_by,
     ))
+}
+
+/// Returns all pinned threads across all notes with excerpts.
+#[tauri::command]
+pub async fn get_pinned_threads(
+    state: State<'_, AppState>,
+) -> Result<Vec<PinnedThreadItem>, String> {
+    let note_manager = state.note_manager()?;
+    let service = SearchService::new(&note_manager);
+    service.get_pinned_threads()
 }

@@ -108,6 +108,18 @@ pub struct ThreadAggregationItem {
     pub thread_id: String,
 }
 
+/// A pinned thread with its excerpt and source information.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PinnedThreadItem {
+    pub thread_id: String,
+    pub thread_name: String,
+    pub filename: String,
+    pub formatted_date: String,
+    pub excerpt: String,
+    pub line_number: usize,
+}
+
 /// The complete state payload sent to the frontend during initialization.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

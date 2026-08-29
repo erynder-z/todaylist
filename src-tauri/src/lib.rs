@@ -14,8 +14,8 @@ use commands::notes::{
     save_note_content, toggle_thread_pin, update_note_line,
 };
 use commands::search::{
-    aggregate_thread, process_search_results, search_notes, search_notes_by_tag, search_tags,
-    search_threads,
+    aggregate_thread, get_pinned_threads, process_search_results, search_notes,
+    search_notes_by_tag, search_tags, search_threads,
 };
 use commands::settings::{
     reset_config_to_defaults, set_control_center_width, set_locale, set_notes_folder,
@@ -77,6 +77,7 @@ pub fn run() {
             detect_threads,
             get_last_available_note_path,
             get_note_path_by_offset,
+            get_pinned_threads,
             read_last_available_note,
             read_note_by_offset,
             read_note_content,

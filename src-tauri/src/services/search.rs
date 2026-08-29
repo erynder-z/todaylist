@@ -1,8 +1,8 @@
 //! Note search functionality using fuzzy and exact matching.
 
 use crate::models::response_types::{
-    SearchResult, TagSearchResult, ThreadAggregationItem, ThreadAggregationResult,
-    ThreadSearchResult,
+    PinnedThreadItem, SearchResult, TagSearchResult, ThreadAggregationItem,
+    ThreadAggregationResult, ThreadSearchResult,
 };
 use nucleo_matcher::{Config, Matcher, Utf32Str};
 use std::collections::HashMap;
@@ -664,5 +664,79 @@ impl<'a> SearchService<'a> {
             thread_name: thread_name.to_string(),
             items,
         })
+    }
+
+    /// Returns all pinned threads across all notes with excerpts.
+    pub fn get_pinned_threads(&self) -> Result<Vec<PinnedThreadItem>, String> {
+        use crate::models::note_session::NoteSession;
+
+        let files = self.get_note_files()?;
+        let mut pinned_threads = Vec::new();
+
+        for path in files {
+            let content = match fs::read_to_string(&path) {
+                Ok(c) => c,
+                Err(_) => continue,
+            };
+
+            let filename = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or_default()
+                .to_string();
+            let formatted_date = self.note_manager.format_note_name(&filename);
+
+            // Load the session to get thread metadata including pinned status
+            let mut session = NoteSession::new();
+            session.load(path, content.clone());
+
+            // Find pinned threads
+            for thread in &session.threads {
+                if thread.pinned {
+                    // Extract excerpt from the thread content
+                    let (frontmatter_len, _) = Self::extract_frontmatter(&content);
+                    let lines: Vec<&str> = content.lines().collect();
+
+                    // Get the first non-empty line of the thread for excerpt
+                    let mut excerpt = String::new();
+                    let start = thread.start_line.max(frontmatter_len);
+                    let end = thread.end_line.min(lines.len());
+
+                    for i in start..end {
+                        let line = lines[i].trim();
+                        if !line.is_empty() && !line.starts_with("!!!") {
+                            let stripped = crate::utils::markdown::strip_markdown_line(line);
+                            if !stripped.is_empty() {
+                                excerpt = stripped;
+                                break;
+                            }
+                        }
+                    }
+
+                    // If no content found, use thread name as excerpt
+                    if excerpt.is_empty() {
+                        excerpt = thread.name.clone();
+                    }
+
+                    pinned_threads.push(PinnedThreadItem {
+                        thread_id: thread.id.clone(),
+                        thread_name: thread.name.clone(),
+                        filename: filename.clone(),
+                        formatted_date: formatted_date.clone(),
+                        excerpt,
+                        line_number: thread.start_line,
+                    });
+                }
+            }
+        }
+
+        // Sort by filename descending (newest first), then by thread name
+        pinned_threads.sort_by(|a, b| {
+            b.filename
+                .cmp(&a.filename)
+                .then_with(|| a.thread_name.cmp(&b.thread_name))
+        });
+
+        Ok(pinned_threads)
     }
 }

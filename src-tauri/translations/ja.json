@@ -2,6 +2,7 @@
 	"locale.name": "日本語",
 	"app.title": "今日のリスト",
 	"navigation.note_list": "ノートリスト",
+	"navigation.pinned_threads": "固定されたスレッド",
 	"navigation.settings": "設定",
 	"navigation.statistics": "統計",
 	"navigation.search": "ノートを検索",
@@ -192,5 +193,7 @@
 	"note_formatter.code": "Code",
 	"note_formatter.quote": "Quote",
 	"note_formatter.link": "リンク",
-	"note_formatter.copy": "コピー"
+	"note_formatter.copy": "コピー",
+	"pinned_threads.title": "固定されたスレッド",
+	"pinned_threads.count": "{{count}} 個の固定スレッド"
 }

@@ -18,6 +18,7 @@ export { default as NoteDate } from "./components/NoteDate.svelte";
 export { default as NoteEditor } from "./components/NoteEditor.svelte";
 export { default as NoteTags } from "./components/NoteTags.svelte";
 export { default as NoteThreadShortcuts } from "./components/NoteThreadShortcuts.svelte";
+export { default as PinnedThreads } from "./components/PinnedThreads.svelte";
 export { default as PopupManager } from "./components/PopupManager.svelte";
 export { default as SearchInput } from "./components/SearchInput.svelte";
 export { default as SearchNotes } from "./components/SearchNotes.svelte";

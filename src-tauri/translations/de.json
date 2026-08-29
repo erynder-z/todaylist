@@ -2,6 +2,7 @@
 	"locale.name": "Deutsch",
 	"app.title": "Heute Liste",
 	"navigation.note_list": "Notizen",
+	"navigation.pinned_threads": "Gepinnte Threads",
 	"navigation.search": "Notizen suchen",
 	"navigation.settings": "Einstellungen",
 	"navigation.statistics": "Statistiken",
@@ -192,5 +193,7 @@
 	"note_formatter.code": "Code",
 	"note_formatter.quote": "Quote",
 	"note_formatter.link": "Link",
-	"note_formatter.copy": "Kopieren"
+	"note_formatter.copy": "Kopieren",
+	"pinned_threads.title": "Gepinnte Threads",
+	"pinned_threads.count": "{{count}} gepinnte Threads"
 }

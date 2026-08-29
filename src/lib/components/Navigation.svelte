@@ -19,6 +19,7 @@
     toggleNoteBrowser: () => togglePopup('noteBrowser'),
     toggleSettings: () => togglePopup('folderSelector'),
     toggleStatistics: () => togglePopup('statistics'),
+    togglePinnedThreads: () => togglePopup('pinnedThreads'),
   });
 </script>
 
@@ -38,6 +39,23 @@
         d="M480-400 40-640l440-240 440 240-440 240Zm0 160L63-467l84-46 333 182 333-182 84 46-417 227Zm0 160L63-307l84-46 333 182 333-182 84 46L480-80Zm0-411 273-149-273-149-273 149 273 149Zm0-149Z"
       /></svg
     >
+  </button>
+
+  <button
+    onclick={() => togglePopup('pinnedThreads')}
+    class="nav-icon"
+    title={$t('navigation.pinned_threads')}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      height="1.25rem"
+      viewBox="0 -960 960 960"
+      width="1.25rem"
+      fill="currentColor"
+      ><path
+        d="m640-480 80 80v80H520v240l-40 40-40-40v-240H240v-80l80-80v-280h-40v-80h400v80h-40v280Zm-286 80h252l-46-46v-314H400v314l-46 46Zm126 0Z"
+      />
+    </svg>
   </button>
 
   <button

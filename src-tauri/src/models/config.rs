@@ -112,6 +112,16 @@ impl Default for AppConfig {
             },
         );
         shortcuts.insert(
+            "togglePinnedThreads".to_string(),
+            ShortcutConfig {
+                key: "I".to_string(),
+                primary: true,
+                secondary: false,
+                shift: false,
+                description: "Toggle pinned threads".to_string(),
+            },
+        );
+        shortcuts.insert(
             "toggleSidebar".to_string(),
             ShortcutConfig {
                 key: "B".to_string(),

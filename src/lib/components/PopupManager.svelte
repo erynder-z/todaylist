@@ -15,6 +15,7 @@
   import FindInView from './FindInNote.svelte';
   import Modal from './Modal.svelte';
   import NoteBrowser from './NoteBrowser.svelte';
+  import PinnedThreads from './PinnedThreads.svelte';
   import SearchNotes from './SearchNotes.svelte';
   import SettingsView from './SettingsView.svelte';
   import ShortcutListModal from './ShortcutListModal.svelte';
@@ -49,6 +50,12 @@
       >
         <NoteBrowser />
       </Modal>
+    {:else if sessionState.activePopup === 'pinnedThreads'}
+      <Modal
+        title={$t('pinned_threads.title')}
+        size={settings.notesListLayout === 'masonry' ? 'xl' : 'md'}
+        showLayoutToggle={true}><PinnedThreads /></Modal
+      >
     {:else if sessionState.activePopup === 'search'}
       <Modal
         title={$t('search.title')}

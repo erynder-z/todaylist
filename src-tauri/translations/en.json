@@ -2,6 +2,7 @@
 	"locale.name": "English",
 	"app.title": "Today List",
 	"navigation.note_list": "Note List",
+	"navigation.pinned_threads": "Pinned Threads",
 	"navigation.search": "Search Notes",
 	"navigation.settings": "Settings",
 	"navigation.statistics": "Statistics",
@@ -193,5 +194,7 @@
 	"note_formatter.code": "Code",
 	"note_formatter.quote": "Quote",
 	"note_formatter.link": "Link",
-	"note_formatter.copy": "Copy"
+	"note_formatter.copy": "Copy",
+	"pinned_threads.title": "Pinned Threads",
+	"pinned_threads.count": "{{count}} pinned threads"
 }

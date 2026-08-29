@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
 	NoteContentResponse,
 	NoteThread,
+	PinnedThreadItem,
 	SearchResult,
 	TagSearchResult,
 	ThreadAggregationResult,
@@ -202,6 +203,21 @@ export class NotesService {
 			return tags;
 		} catch (error) {
 			console.error("Error getting tag suggestions:", error);
+			return [];
+		}
+	}
+
+	/**
+	 * Retrieves all pinned threads across all notes.
+	 */
+	async getPinnedThreads(): Promise<PinnedThreadItem[]> {
+		try {
+			const threads = (await invoke(
+				"get_pinned_threads",
+			)) as PinnedThreadItem[];
+			return threads;
+		} catch (error) {
+			console.error("Error getting pinned threads:", error);
 			return [];
 		}
 	}

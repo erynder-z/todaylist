@@ -108,3 +108,12 @@ export interface AggregatedThreadItem {
 	threadId: string;
 	content: string;
 }
+
+export interface PinnedThreadItem {
+	threadId: string;
+	threadName: string;
+	filename: string;
+	formattedDate: string;
+	excerpt: string;
+	lineNumber: number;
+}
