@@ -134,6 +134,7 @@
 	"shortcuts.action.toggle_fuzzy_search": "Toggle Fuzzy Search",
 	"shortcuts.action.toggle_search_mode": "Toggle Search Mode",
 	"shortcuts.action.toggle_thread_options_mode": "Change Thread Options Mode",
+	"shortcuts.action.toggle_pinned_threads": "Toggle Pinned Threads",
 	"shortcuts.thread.description": "While thread options are open:",
 	"shortcuts.thread.linked": "Linked Threads",
 	"shortcuts.thread.delete": "Delete Thread",

@@ -133,6 +133,7 @@
 	"shortcuts.action.toggle_fuzzy_search": "Fuzzy-Suche umschalten",
 	"shortcuts.action.toggle_search_mode": "Suchmodus umschalten",
 	"shortcuts.action.toggle_thread_options_mode": "Thread-Optionen Modus wechseln",
+	"shortcuts.action.toggle_pinned_threads": "Gepinnte Threads einblenden",
 	"shortcuts.thread.description": "Bei geöffneten Thread-Optionen:",
 	"shortcuts.thread.linked": "Verlinkte Threads ansehen",
 	"shortcuts.thread.delete": "Thread löschen",
