@@ -136,7 +136,9 @@
   });
 
   /**
-   * Auto-focus the editor when no popup is active and we have a note path
+   * Auto-focus the editor when no popup is active and we have a note path.
+   * Blur the editor when a popup opens to prevent keystrokes from reaching
+   * ProseMirror's contenteditable behind the modal overlay.
    */
   $effect(() => {
     const instance = milkdownInstance;
@@ -144,6 +146,7 @@
     if (!instance || !service) return;
 
     if (sessionState.activePopup === null && notePath) service.focus();
+    else if (sessionState.activePopup !== null) service.blur();
   });
 
   /**

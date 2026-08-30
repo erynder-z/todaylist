@@ -109,6 +109,16 @@ export class EditorService {
 	}
 
 	/**
+	 * Removes focus from the editor instance.
+	 */
+	blur() {
+		this.editor.action((ctx) => {
+			const view = ctx.get(editorViewCtx);
+			(view.dom as HTMLElement).blur();
+		});
+	}
+
+	/**
 	 * Focuses the editor and moves selection to the end.
 	 */
 	focusEnd() {
