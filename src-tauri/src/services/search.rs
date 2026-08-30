@@ -739,4 +739,56 @@ impl<'a> SearchService<'a> {
 
         Ok(pinned_threads)
     }
+
+    /// Returns the content of a specific thread from a specific note file.
+    pub fn get_thread_content(
+        &self,
+        filename: &str,
+        thread_id: &str,
+    ) -> Result<Option<String>, String> {
+        use crate::models::note_session::NoteSession;
+
+        let notes_folder = &self.note_manager.notes_folder;
+        let path = notes_folder.join(filename);
+
+        if !path.exists() {
+            return Ok(None);
+        }
+
+        let content = match fs::read_to_string(&path) {
+            Ok(c) => c,
+            Err(_) => return Ok(None),
+        };
+
+        // Load session to get thread metadata
+        let mut session = NoteSession::new();
+        session.load(path, content.clone());
+
+        // Find the thread by ID
+        if let Some(thread) = session.threads.iter().find(|t| t.id == thread_id) {
+            let (frontmatter_len, _) = Self::extract_frontmatter(&content);
+            let lines: Vec<&str> = content.lines().collect();
+
+            let start = thread.start_line.max(frontmatter_len);
+            let end = thread.end_line.min(lines.len());
+
+            let mut thread_lines: Vec<&str> = Vec::new();
+            for i in start..end {
+                thread_lines.push(lines[i]);
+            }
+
+            // Trim trailing empty lines
+            while thread_lines.last().map(|l| l.trim().is_empty()) == Some(true) {
+                thread_lines.pop();
+            }
+
+            if thread_lines.is_empty() {
+                return Ok(None);
+            }
+
+            Ok(Some(thread_lines.join("\n")))
+        } else {
+            Ok(None)
+        }
+    }
 }

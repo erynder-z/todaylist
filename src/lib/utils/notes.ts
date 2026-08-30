@@ -299,6 +299,25 @@ export class NotesService {
 	}
 
 	/**
+	 * Retrieves the content of a specific thread from a specific note.
+	 */
+	async getThreadContent(
+		filename: string,
+		threadId: string,
+	): Promise<string | null> {
+		try {
+			const content = (await invoke("get_thread_content", {
+				filename,
+				threadId,
+			})) as string | null;
+			return content;
+		} catch (error) {
+			console.error("Error getting thread content:", error);
+			return null;
+		}
+	}
+
+	/**
 	 * Formats a note's filename into a human-readable, localized string.
 	 */
 	formatNoteName(

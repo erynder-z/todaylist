@@ -23,6 +23,7 @@
   import TagManagerModal from './TagManagerModal.svelte';
   import ThreadAggregationView from './ThreadAggregationView.svelte';
   import ThreadOptionsMenu from './ThreadOptionsMenu.svelte';
+  import ThreadView from './ThreadView.svelte';
   import Toast from './Toast.svelte';
 
   useShortcuts({
@@ -79,6 +80,10 @@
     {:else if sessionState.activePopup === 'threadAggregation'}
       <Modal title={sessionState.aggregatedThread?.threadName} size="xl">
         <ThreadAggregationView />
+      </Modal>
+    {:else if sessionState.activePopup === 'threadView'}
+      <Modal title={sessionState.threadViewName || 'Thread'} size="lg">
+        <ThreadView />
       </Modal>
     {:else if sessionState.activePopup === 'about'}
       <Modal title="About TodayNote" size="md">

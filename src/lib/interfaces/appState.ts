@@ -14,6 +14,10 @@ export interface SessionState {
 	todayNotePath: string | null;
 	todayNoteContent: NoteContentResponse | null;
 	aggregatedThread: ThreadAggregationResult | null;
+	threadViewContent: string | null;
+	threadViewName: string | null;
+	threadViewThreadId: string | null;
+	threadViewFilename: string | null;
 	activePopup: PopupType;
 	isMac: boolean;
 	sidebarOpen: boolean;

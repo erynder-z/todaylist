@@ -139,6 +139,8 @@
 	"shortcuts.thread.delete": "Thread löschen",
 	"shortcuts.thread.copy": "Thread kopieren",
 	"shortcuts.thread.pin": "Thread pinnen",
+	"shortcuts.thread.unpin": "Thread unpinnen",
+	"shortcuts.thread.unpin_success": "Pin entfernt",
 	"shortcuts.editor_formatting.description": "Bei geöffneter Textsymbolleiste",
 	"shortcuts.editor_formatting.bold": "Bold Formatierung",
 	"shortcuts.editor_formatting.italic": "Italic aFormatierung",
@@ -196,5 +198,6 @@
 	"note_formatter.link": "Link",
 	"note_formatter.copy": "Kopieren",
 	"pinned_threads.title": "Gepinnte Threads",
-	"pinned_threads.count": "{{count}} gepinnte Threads"
+	"pinned_threads.count": "{{count}} gepinnte Threads",
+	"pinned_threads.no_content": "Kein Inhalt verfügbar für diesen Thread"
 }

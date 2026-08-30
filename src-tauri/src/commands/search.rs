@@ -96,3 +96,15 @@ pub async fn get_pinned_threads(
     let service = SearchService::new(&note_manager);
     service.get_pinned_threads()
 }
+
+/// Returns the content of a specific thread from a specific note.
+#[tauri::command]
+pub async fn get_thread_content(
+    filename: String,
+    thread_id: String,
+    state: State<'_, AppState>,
+) -> Result<Option<String>, String> {
+    let note_manager = state.note_manager()?;
+    let service = SearchService::new(&note_manager);
+    service.get_thread_content(&filename, &thread_id)
+}

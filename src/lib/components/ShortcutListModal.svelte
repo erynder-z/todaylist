@@ -31,6 +31,7 @@
   const threadOptionLinkedShortcut = settings.shortcuts.threadOptionLinked;
   const threadOptionCopyShortcut = settings.shortcuts.threadOptionCopy;
   const threadOptionPinShortcut = settings.shortcuts.threadOptionPin;
+  const unpinThreadShortcut = settings.shortcuts.unpinThread;
 
   // Text formatting shortcuts
   const toggleBoldShortcut = settings.shortcuts.toggleBold;
@@ -158,6 +159,18 @@
             primary={threadOptionPinShortcut.primary}
             secondary={threadOptionPinShortcut.secondary}
             key={threadOptionPinShortcut.key.toUpperCase()}
+          />
+        </div>
+      </div>
+    {/if}
+    {#if unpinThreadShortcut}
+      <div class="shortcut-item">
+        <span class="shortcut-description">{$t('shortcuts.thread.unpin')}</span>
+        <div class="shortcut-keys">
+          <KeyboardShortcut
+            primary={unpinThreadShortcut.primary}
+            secondary={unpinThreadShortcut.secondary}
+            key={unpinThreadShortcut.key.toUpperCase()}
           />
         </div>
       </div>

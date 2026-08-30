@@ -44,17 +44,23 @@
   };
 
   /**
-   * Loads and opens the note containing the selected pinned thread.
+   * Loads and displays the selected pinned thread in a single thread view.
    */
   const selectPinnedThread = async (thread: PinnedThreadItem) => {
     if (!settings.notesFolder) return;
-    const path = `${settings.notesFolder}/${thread.filename}`;
-    const content = await notesService.readNoteContent(path);
-    if (content !== null) {
-      sessionState.todayNotePath = path;
-      sessionState.todayNoteContent = content;
-      sessionState.pendingThreadJump = thread.threadId;
-      sessionState.activePopup = null;
+
+    // Get the thread content
+    const threadContent = await notesService.getThreadContent(
+      thread.filename,
+      thread.threadId,
+    );
+
+    if (threadContent !== null) {
+      sessionState.threadViewContent = threadContent;
+      sessionState.threadViewName = thread.threadName;
+      sessionState.threadViewThreadId = thread.threadId;
+      sessionState.threadViewFilename = thread.filename;
+      sessionState.activePopup = 'threadView';
     } else {
       toast.error($t('notes.error.load'));
     }

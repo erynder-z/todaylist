@@ -6,6 +6,7 @@ export type PopupType =
 	| "tagManager"
 	| "shortcuts"
 	| "threadAggregation"
+	| "threadView"
 	| "about"
 	| "statistics"
 	| "threadOptions"

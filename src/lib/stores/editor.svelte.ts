@@ -47,6 +47,9 @@ export class EditorStore {
 			this.pendingExternalUpdate = true;
 			this.threads = noteContent.threads ?? [];
 			this.hasChanges = false;
+		} else {
+			// External metadata change (e.g., thread pin status) - sync threads
+			this.threads = noteContent?.threads ?? [];
 		}
 	}
 

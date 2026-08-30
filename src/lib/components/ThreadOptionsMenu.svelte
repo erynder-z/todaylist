@@ -16,6 +16,11 @@
     thread: NoteThread;
   }>();
 
+  let currentThread = $derived(
+    sessionState.todayNoteContent?.threads.find((t) => t.id === thread.id) ??
+      thread,
+  );
+
   let aggregatedThread = $state<Awaited<
     ReturnType<typeof notesService.aggregateThread>
   > | null>(null);
@@ -31,7 +36,10 @@
 
     const lines = content.split('\n');
     // Content lines are between startLine + 1 (skip !!! header) and endLine
-    const contentLines = lines.slice(thread.startLine + 1, thread.endLine);
+    const contentLines = lines.slice(
+      currentThread.startLine + 1,
+      currentThread.endLine,
+    );
     return contentLines.some((line) => line.trim().length > 0);
   });
 
@@ -47,7 +55,7 @@
    */
   const loadLinkedThreads = async () => {
     try {
-      aggregatedThread = await notesService.aggregateThread(thread.name);
+      aggregatedThread = await notesService.aggregateThread(currentThread.name);
       hasLinkedThreads =
         aggregatedThread !== null && aggregatedThread.items.length > 1;
     } catch {
@@ -80,7 +88,7 @@
       const lines = content.split('\n');
 
       const threadContent = lines
-        .slice(thread.startLine + 1, thread.endLine)
+        .slice(currentThread.startLine + 1, currentThread.endLine)
         .join('\n');
 
       const plainText = stripMarkdown(threadContent);
@@ -111,7 +119,7 @@
       }
 
       const result = await notesService.toggleThreadPin(
-        thread.id,
+        currentThread.id,
         currentContent,
       );
 
@@ -120,7 +128,9 @@
         // Force a refresh by creating a new object with the same data
         const newContent = JSON.parse(JSON.stringify(result));
         sessionState.todayNoteContent = newContent;
-        const updatedThread = result.threads.find((t) => t.id === thread.id);
+        const updatedThread = result.threads.find(
+          (t) => t.id === currentThread.id,
+        );
         if (updatedThread)
           sessionState.selectedThreadForOptions = updatedThread;
       }
@@ -141,7 +151,10 @@
         return;
       }
 
-      const result = await notesService.removeThread(thread.id, currentContent);
+      const result = await notesService.removeThread(
+        currentThread.id,
+        currentContent,
+      );
 
       // Update the session state with the new content
       if (result) {
@@ -157,7 +170,7 @@
   };
 
   $effect(() => {
-    thread;
+    currentThread.name;
     loadLinkedThreads();
   });
 
@@ -176,7 +189,7 @@
 >
   <div class="taskbar-content">
     <div class="thread-info">
-      <h3 class="thread-name">{thread.name}</h3>
+      <h3 class="thread-name">{currentThread.name}</h3>
       <button class="close-button" onclick={closeMenu} aria-label="Close">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -195,14 +208,14 @@
     <div class="taskbar-actions">
       <button
         class="action-button"
-        class:active={thread.pinned}
+        class:active={currentThread.pinned}
         disabled={!hasContent}
-        title={thread.pinned
+        title={currentThread.pinned
           ? $t('thread.options.unpin')
           : $t('thread.options.pin')}
         onclick={handleTogglePin}
       >
-        {#if thread.pinned}
+        {#if currentThread.pinned}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="1.2rem"

@@ -291,6 +291,16 @@ impl Default for AppConfig {
                 description: "Pin/Unpin note-thread".to_string(),
             },
         );
+        shortcuts.insert(
+            "unpinThread".to_string(),
+            ShortcutConfig {
+                key: "U".to_string(),
+                primary: true,
+                secondary: false,
+                shift: false,
+                description: "Unpin thread".to_string(),
+            },
+        );
         //
         shortcuts.insert(
             "toggleBold".to_string(),
