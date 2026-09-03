@@ -90,8 +90,12 @@ export class EditorService {
 
 				// Position cursor at end and focus
 				const selection = Selection.atEnd(tr.doc);
-				view.dispatch(tr.setSelection(selection).scrollIntoView());
+				view.dispatch(tr.setSelection(selection));
 				view.focus();
+
+				requestAnimationFrame(() => {
+					view.dom.scrollIntoView({ block: "end", behavior: "smooth" });
+				});
 
 				// Call completion callback after DOM update
 				requestAnimationFrame(() => {
@@ -127,7 +131,11 @@ export class EditorService {
 			view.focus();
 			const tr = view.state.tr;
 			const selection = Selection.atEnd(tr.doc);
-			view.dispatch(tr.setSelection(selection).scrollIntoView());
+			view.dispatch(tr.setSelection(selection));
+
+			requestAnimationFrame(() => {
+				view.dom.scrollIntoView({ block: "end", behavior: "smooth" });
+			});
 		});
 	}
 }
