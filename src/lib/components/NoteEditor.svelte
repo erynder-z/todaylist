@@ -1,24 +1,19 @@
 <script lang="ts">
   /**
-   * The main note editor component. Coordinates the Milkdown instance with the EditorStore.
-   * Handles high-level actions like shortcuts and thread navigation.
+   * The main note editor component. Coordinates the Milkdown instance with
+   * the EditorStore. Handles reactive content syncing, focus, transitions,
+   * and wires up editor shortcuts and the custom keymap.
    */
   import type { Editor } from '@milkdown/kit/core';
-  import { keymap } from '@milkdown/kit/prose/keymap';
-  import { Selection } from '@milkdown/kit/prose/state';
-  import { $prose as prosePlugin } from '@milkdown/kit/utils';
-  import { tick } from 'svelte';
+  import { untrack } from 'svelte';
   import type { NoteContentResponse, NoteThread } from '$lib/interfaces/notes';
-  import { tagSuggestionShortcuts } from '../config/shortcuts';
+  import { customKeymapPlugin } from '../plugins/customKeymapPlugin';
   import { linkOpenerPlugin } from '../plugins/linkOpenerPlugin';
   import type { EditorStore } from '../stores/editor.svelte';
   import { sessionState } from '../stores/sessionState.svelte';
   import { settings } from '../stores/settings.svelte';
-  import {
-    navigateToLastAvailable,
-    navigateToOffset,
-  } from '../utils/dailyNote';
   import { EditorService } from '../utils/editor';
+  import { createEditorShortcuts } from '../utils/editorShortcuts';
   import { useShortcuts } from '../utils/shortcuts';
   import FloatingToolbar from './FloatingToolbar.svelte';
   import MilkdownEditor from './MilkdownEditor.svelte';
@@ -46,80 +41,33 @@
     };
   });
 
-  // Disable built-in milkdown keymaps
-  const customKeymap = prosePlugin(() =>
-    keymap({
-      'Mod-Alt-1': () => true,
-      'Mod-Alt-2': () => true,
-      'Mod-Alt-3': () => true,
-      'Mod-Alt-4': () => true,
-      'Mod-Alt-5': () => true,
-      'Mod-Alt-6': () => true,
-      'Mod-b': () => true,
-      'Mod-i': () => true,
-      'Mod-e': () => true,
-      'Mod-x`': () => true,
-      // Allow deleting an empty thread marker that is the first block in the
-      // document. ProseMirror's default joinBackward can't remove it here
-      // (there is no preceding block to join with, and the doc can't be
-      // emptied), so without this the last remaining thread marker becomes
-      // impossible to delete. Only this edge case is handled — everything
-      // else falls through to the default Backspace behavior, preserving
-      // the existing multi-thread delete behavior.
-      Backspace: (state, dispatch) => {
-        const { selection, doc } = state;
-        if (!selection.empty) return false;
-        const resolved = selection.$from;
-        if (resolved.parent.type.name !== 'thread_marker') return false;
-        if (
-          resolved.parentOffset !== 0 ||
-          resolved.parent.textContent.length > 0
-        )
-          return false;
-        // Only when it's the first top-level block; otherwise let the
-        // default handler join/lift as usual.
-        if (resolved.index(0) !== 0) return false;
+  const plugins = $derived([customKeymapPlugin, linkOpenerPlugin]);
 
-        const start = resolved.before(resolved.depth);
-        const end = start + resolved.parent.nodeSize;
-        const tr = state.tr;
+  // Build shortcut handlers once; getters read the reactive instance/service at event time.
+  const shortcuts = createEditorShortcuts({
+    editor: untrack(() => editor),
+    getInstance: () => milkdownInstance,
+    getService: () => editorService,
+  });
 
-        if (doc.childCount === 1) {
-          // Removing the only block would empty the doc — swap in a paragraph.
-          const paragraph = state.schema.nodes.paragraph.create();
-          tr.replaceWith(start, end, paragraph);
-          tr.setSelection(Selection.near(tr.doc.resolve(start)));
-        } else {
-          tr.delete(start, end);
-          tr.setSelection(Selection.near(tr.doc.resolve(Math.max(0, start))));
-        }
+  useShortcuts(shortcuts.actions);
 
-        if (dispatch) dispatch(tr.scrollIntoView());
-        return true;
-      },
-    }),
-  );
-  const stablePlugins = $derived([customKeymap, linkOpenerPlugin]);
-
-  /**
-   * Update editor service when milkdown instance changes.
-   */
+  /** Create the editor service whenever the Milkdown instance becomes ready. */
   $effect(() => {
     editorService = milkdownInstance
       ? new EditorService(milkdownInstance)
       : null;
   });
 
-  /**
-   * Sync props to the internal store before rendering
-   */
+  /** Sync props to the internal store before rendering. */
   $effect.pre(() => {
     editor.sync(noteContent, notePath);
   });
 
   /**
-   * Coordinate reactive updates
-   * Reacts to editor content changes and editor service availability
+   * Apply pending external content updates to the editor.
+   * On a note path change (when there was a previous note) we delay the
+   * update to match the CSS fade transition; otherwise we apply immediately.
    */
   $effect(() => {
     const instance = milkdownInstance;
@@ -130,7 +78,6 @@
 
     if (!instance || !service || !hasPendingUpdate) return;
 
-    // Clear the flag and apply the update
     editor.pendingExternalUpdate = false;
 
     const isPathChange = currentPath !== lastNotePath;
@@ -141,23 +88,18 @@
         if (editorElement) editorElement.scrollTop = 0;
       }
 
-      // If we have a pending thread jump (thread ID), handle it after content update
-      if (pendingJump) {
-        // Clear the pending jump immediately to avoid re-triggering
-        sessionState.pendingThreadJump = null;
+      const onComplete = () => {
+        if (isPathChange) isTransitioning = false;
+      };
 
-        // Update content and jump to thread when complete
+      if (pendingJump) {
+        sessionState.pendingThreadJump = null;
         service.updateContent(editor.content, () => {
           editor.jumpToThread(pendingJump);
-          if (isPathChange) {
-            isTransitioning = false;
-          }
+          onComplete();
         });
       } else {
-        // No pending jump, just update content normally
-        service.updateContent(editor.content, () => {
-          if (isPathChange) isTransitioning = false;
-        });
+        service.updateContent(editor.content, onComplete);
       }
       lastNotePath = currentPath;
     };
@@ -165,19 +107,15 @@
     if (isPathChange && lastNotePath !== null) {
       isTransitioning = true;
       if (transitionTimeout) clearTimeout(transitionTimeout);
-      transitionTimeout = setTimeout(() => {
-        performUpdate();
-      }, 150); // Match CSS transition duration
+      transitionTimeout = setTimeout(performUpdate, 150); // Match CSS transition duration
     } else {
-      // Immediate update for non-path changes or initial load
       performUpdate();
     }
   });
 
   /**
    * Auto-focus the editor when no popup is active and we have a note path.
-   * Blur the editor when a popup opens to prevent keystrokes from reaching
-   * ProseMirror's contenteditable behind the modal overlay.
+   * Blur when a popup opens so keystrokes don't reach ProseMirror behind the modal overlay.
    */
   $effect(() => {
     const instance = milkdownInstance;
@@ -188,143 +126,15 @@
     else if (sessionState.activePopup !== null) service.blur();
   });
 
-  /**
-   * Main entry point for jumping to a thread.
-   */
-  const handleJump = async (threadId: string) => {
-    const instance = milkdownInstance;
-    if (!instance || !editorService) return;
-
-    const threadIndex = editor.threads.findIndex(
-      (nt: NoteThread) => nt.id === threadId,
-    );
-    if (threadIndex !== -1) {
-      editorService.jumpToThreadByIndex(threadIndex);
-    } else {
-      tick().then(() => {
-        if (milkdownInstance && editorService) {
-          const newThreadIndex = editor.threads.findIndex(
-            (s: NoteThread) => s.id === threadId,
-          );
-          if (newThreadIndex !== -1) {
-            editorService.jumpToThreadByIndex(newThreadIndex);
-          }
-        }
-      });
-    }
-  };
-
-  /**
-   * When in Navigation Mode: Jumps to a thread based on its index.
-   * When in Thread Options Mode: Opens the thread options popup.
-   */
-  const jumpToThreadByIndex = async (idx: number) => {
-    const thread = editor.threads[idx];
-    if (thread?.id) {
-      if (sessionState.threadShortcutsMode === 'navigation') {
-        await handleJump(thread.id);
-      } else {
-        sessionState.selectedThreadForOptions = thread;
-        sessionState.activePopup = 'threadOptions';
-      }
-    }
-  };
-
-  /**
-   * Shortcut handler: Focus the last line of the editor
-   */
-  const handleFocusLastLine = (): boolean => {
-    if (sessionState.activePopup !== null) return false;
-    if (milkdownInstance && editorService) {
-      editorService.focusEnd();
-      return true;
-    }
-    return false;
-  };
-
-  /**
-   * Shortcut handler: Jump to thread by number shortcut
-   */
-  const handleJumpByNumber = (e: KeyboardEvent): boolean => {
-    if (
-      sessionState.activePopup !== null &&
-      sessionState.activePopup !== 'threadOptions'
-    )
-      return false;
-
-    const idx = tagSuggestionShortcuts.codes.indexOf(e.code);
-    if (idx !== -1 && idx < editor.threads.length) {
-      jumpToThreadByIndex(idx);
-      return true;
-    }
-
-    return false;
-  };
-
-  /**
-   * Shortcut handler: Navigate to yesterday's note
-   */
-  const handleNavigateYesterday = async (e: Event) => {
-    if (sessionState.activePopup !== null) {
-      e.preventDefault();
-      return;
-    }
-
-    await navigateToOffset(-1);
-  };
-
-  /**
-   * Shortcut handler: Navigate to last available note
-   */
-  const handleNavigateLastAvailable = async (e: Event) => {
-    if (sessionState.activePopup !== null) {
-      e.preventDefault();
-      return;
-    }
-
-    await navigateToLastAvailable();
-  };
-
-  /**
-   * Shortcut handler: Navigate to today's note
-   */
-  const handleNavigateToday = async (e: Event) => {
-    if (sessionState.activePopup !== null) {
-      e.preventDefault();
-      return;
-    }
-    await navigateToOffset(0);
-  };
-
-  useShortcuts({
-    focusLastLine: handleFocusLastLine,
-    jumpByNumber: handleJumpByNumber,
-    navigateYesterday: handleNavigateYesterday,
-    navigateLastAvailable: handleNavigateLastAvailable,
-    navigateToday: handleNavigateToday,
-  });
-
-  /**
-   * Connect the store's sync back to the component's bindable props
-   */
+  /** Sync the store's content updates back to the bindable prop. */
   $effect(() => {
     editor.onContentUpdate = (updated: NoteContentResponse) =>
       (noteContent = updated);
   });
 
-  /**
-   * Expose jump functionality to parent components
-   */
+  /** Expose jump functionality to parent components. */
   $effect(() => {
-    editor.jumpToThread = (threadId: string) => {
-      const instance = milkdownInstance;
-      if (instance && editorService) {
-        const threadIndex = editor.threads.findIndex(
-          (nt: NoteThread) => nt.id === threadId,
-        );
-        if (threadIndex !== -1) editorService.jumpToThreadByIndex(threadIndex);
-      }
-    };
+    editor.jumpToThread = shortcuts.jumpToThread;
   });
 </script>
 
@@ -339,7 +149,7 @@
         milkdownInstance = inst;
       }}
       onUpdate={(markdown: string) => editor.updateContent(markdown)}
-      plugins={stablePlugins}
+      {plugins}
       activeThreadIndex={sessionState.activePopup === 'threadOptions'
         ? editor.threads.findIndex(
             (t: NoteThread) =>
