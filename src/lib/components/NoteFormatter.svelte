@@ -252,6 +252,7 @@
     });
 
     showLinkInput = false;
+    onLinkInputActive?.(false);
     updateSelectionState();
   };
 
@@ -270,6 +271,7 @@
     }
 
     showLinkInput = false;
+    onLinkInputActive?.(false);
 
     // Hide the toolbar when link input is cancelled with Escape
     anchor?.hide();
@@ -330,6 +332,7 @@
     if (!editorInstance) return false;
     inputManager.activateScope(editorScope);
     showLinkInput = true;
+    onLinkInputActive?.(true);
     return true;
   };
 
@@ -338,11 +341,6 @@
     copyToClipboard();
     return true;
   };
-
-  // Call the callback prop to notify parent about link input active state
-  $effect(() => {
-    if (onLinkInputActive) onLinkInputActive(showLinkInput);
-  });
 
   // Focus and highlight text inside link input when shown
   $effect(() => {
@@ -695,6 +693,7 @@
     onclick={(e) => {
       e.stopPropagation();
       showLinkInput = true;
+      onLinkInputActive?.(true);
     }}
     title={$t('note_formatter.link')}
   >

@@ -233,9 +233,17 @@
     }
 
     // Case 3: Selection is collapsed or not in editor, and link input is not active
-    if (visible) {
-      visible = false;
-    }
+    // Don't hide if an element inside the toolbar has focus (e.g., the link input).
+    // This prevents the toolbar from closing when the user is typing in the link
+    // input and a selectionchange event fires from the input's cursor movement.
+    if (
+      container &&
+      document.activeElement &&
+      container.contains(document.activeElement)
+    )
+      return;
+
+    if (visible) visible = false;
   };
 
   /**
