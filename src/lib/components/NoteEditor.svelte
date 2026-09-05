@@ -5,6 +5,7 @@
    */
   import type { Editor } from '@milkdown/kit/core';
   import { keymap } from '@milkdown/kit/prose/keymap';
+  import { Selection } from '@milkdown/kit/prose/state';
   import { $prose as prosePlugin } from '@milkdown/kit/utils';
   import { tick } from 'svelte';
   import type { NoteContentResponse, NoteThread } from '$lib/interfaces/notes';
@@ -58,6 +59,44 @@
       'Mod-i': () => true,
       'Mod-e': () => true,
       'Mod-x`': () => true,
+      // Allow deleting an empty thread marker that is the first block in the
+      // document. ProseMirror's default joinBackward can't remove it here
+      // (there is no preceding block to join with, and the doc can't be
+      // emptied), so without this the last remaining thread marker becomes
+      // impossible to delete. Only this edge case is handled — everything
+      // else falls through to the default Backspace behavior, preserving
+      // the existing multi-thread delete behavior.
+      Backspace: (state, dispatch) => {
+        const { selection, doc } = state;
+        if (!selection.empty) return false;
+        const resolved = selection.$from;
+        if (resolved.parent.type.name !== 'thread_marker') return false;
+        if (
+          resolved.parentOffset !== 0 ||
+          resolved.parent.textContent.length > 0
+        )
+          return false;
+        // Only when it's the first top-level block; otherwise let the
+        // default handler join/lift as usual.
+        if (resolved.index(0) !== 0) return false;
+
+        const start = resolved.before(resolved.depth);
+        const end = start + resolved.parent.nodeSize;
+        const tr = state.tr;
+
+        if (doc.childCount === 1) {
+          // Removing the only block would empty the doc — swap in a paragraph.
+          const paragraph = state.schema.nodes.paragraph.create();
+          tr.replaceWith(start, end, paragraph);
+          tr.setSelection(Selection.near(tr.doc.resolve(start)));
+        } else {
+          tr.delete(start, end);
+          tr.setSelection(Selection.near(tr.doc.resolve(Math.max(0, start))));
+        }
+
+        if (dispatch) dispatch(tr.scrollIntoView());
+        return true;
+      },
     }),
   );
   const stablePlugins = $derived([customKeymap, linkOpenerPlugin]);
