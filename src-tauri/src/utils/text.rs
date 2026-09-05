@@ -104,9 +104,10 @@ pub fn count_words(content: &str) -> (usize, bool) {
                 return String::new();
             }
 
-            // Remove thread markers (!!!)
+            // Skip thread markers entirely — the "!!! <name>" line is a structural
+            // marker (see threadMarkerPlugin), not prose to be word-counted.
             if line.starts_with("!!! ") {
-                line = line[4..].trim_start().to_string();
+                return String::new();
             }
 
             // Remove heading markers (#, ##, etc.)
