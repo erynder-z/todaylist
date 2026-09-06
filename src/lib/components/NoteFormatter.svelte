@@ -1,11 +1,12 @@
 <script lang="ts">
   import type { Editor } from '@milkdown/kit/core';
-  import { editorViewCtx } from '@milkdown/kit/core';
+  import { editorViewCtx, serializerCtx } from '@milkdown/kit/core';
   import type { Ctx } from '@milkdown/kit/ctx';
   import { lift, toggleMark, wrapIn } from '@milkdown/kit/prose/commands';
   import type { Mark, Node as PMNode } from '@milkdown/kit/prose/model';
   import type { EditorState } from '@milkdown/kit/prose/state';
   import { inputManager } from '$lib/stores/input.svelte';
+  import { settings } from '$lib/stores/settings.svelte';
   import { t } from '$lib/utils/i18n';
   import { useShortcuts } from '$lib/utils/shortcuts';
 
@@ -278,7 +279,9 @@
   };
 
   /**
-   * Copies the selected text to the clipboard (Plain text)
+   * Copies the selected text to the clipboard.
+   * In plain mode the markdown syntax is stripped; in markdown mode the
+   * raw markdown source of the selection is copied.
    */
   const copyToClipboard = async () => {
     if (!editorInstance) return;
@@ -290,7 +293,17 @@
 
       if (from === to) return;
 
-      const text = state.doc.textBetween(from, to, '\n');
+      let text: string;
+
+      if (settings.textCopyMode === 'markdown') {
+        const serializer = ctx.get(serializerCtx);
+        const slice = state.doc.slice(from, to);
+        const doc = state.schema.topNodeType.create(null, slice.content);
+        text = serializer(doc);
+      } else {
+        text = state.doc.textBetween(from, to, '\n');
+      }
+
       await navigator.clipboard.writeText(text);
     });
   };

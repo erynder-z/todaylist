@@ -92,6 +92,7 @@ export class AppInitializer {
 			settings.threadShortcutsMode = state.threadShortcutsMode || "navigation";
 			settings.identiconStyle = state.identiconStyle;
 			settings.dateFormatStyle = state.dateFormatStyle || "medium";
+			settings.textCopyMode = state.textCopyMode || "markdown";
 			settings.floatingToolbarEnabled =
 				state.floatingToolbarEnabled !== undefined
 					? state.floatingToolbarEnabled

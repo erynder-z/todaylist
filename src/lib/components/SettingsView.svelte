@@ -15,6 +15,7 @@
   import PurgeEmptyNotesSelector from './PurgeEmptyNotesSelector.svelte';
   import RememberSettingsSelector from './RememberSettingsSelector.svelte';
   import ShortcutSelector from './ShortcutSelector.svelte';
+  import TextCopyModeSelector from './TextCopyModeSelector.svelte';
   import ThemeSelector from './ThemeSelector.svelte';
   import WindowSizeSelector from './WindowSizeSelector.svelte';
 
@@ -43,6 +44,7 @@
     WindowSizeSelector,
     RememberSettingsSelector,
     FloatingToolbarSelector,
+    TextCopyModeSelector,
     ShortcutSelector,
     PurgeEmptyNotesSelector,
     AboutSelector,

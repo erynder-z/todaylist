@@ -42,6 +42,7 @@ export interface AppPayload {
 	identiconStyle: "dotmatrix" | "round" | "none";
 	threadShortcutsMode: "navigation" | "actions";
 	dateFormatStyle: "medium" | "narrow";
+	textCopyMode: "plain" | "markdown";
 	floatingToolbarEnabled: boolean;
 	fontFamily: string | null;
 	useCustomFont: boolean;

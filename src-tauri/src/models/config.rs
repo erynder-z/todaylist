@@ -55,6 +55,8 @@ pub struct AppConfig {
     pub thread_shortcuts_mode: String,
     /// Date format style ("medium" for standard format, "narrow" for abbreviated).
     pub date_format_style: String,
+    /// Text copy mode ("plain" for plain text, "markdown" for Markdown).
+    pub text_copy_mode: String,
     /// Whether the floating toolbar is enabled.
     pub floating_toolbar_enabled: bool,
     /// Global keyboard shortcuts configuration.
@@ -390,6 +392,7 @@ impl Default for AppConfig {
             identicon_style: "dotmatrix".to_string(),
             thread_shortcuts_mode: "navigation".to_string(),
             date_format_style: "medium".to_string(),
+            text_copy_mode: "markdown".to_string(),
             floating_toolbar_enabled: true,
             shortcuts,
             font_family: None,

@@ -27,6 +27,7 @@ export class SettingsStore {
 	identiconStyle = $state<"dotmatrix" | "round" | "none">("dotmatrix");
 	threadShortcutsMode = $state<"navigation" | "actions">("navigation");
 	dateFormatStyle = $state<"medium" | "narrow">("medium");
+	textCopyMode = $state<"plain" | "markdown">("markdown");
 	floatingToolbarEnabled = $state(true);
 	fontFamily = $state<string | null>(null);
 	useCustomFont = $state(false);
@@ -58,6 +59,7 @@ export class SettingsStore {
 			identiconStyle: this.identiconStyle,
 			threadShortcutsMode: this.threadShortcutsMode,
 			dateFormatStyle: this.dateFormatStyle,
+			textCopyMode: this.textCopyMode,
 			floatingToolbarEnabled: this.floatingToolbarEnabled,
 			fontFamily: this.fontFamily,
 			useCustomFont: this.useCustomFont,
@@ -196,6 +198,16 @@ export class SettingsStore {
 			return await this.save({ dateFormatStyle: style });
 
 		this.dateFormatStyle = style;
+		return true;
+	}
+
+	/**
+	 * Granular setter for the text copy mode that handles conditional persistence.
+	 */
+	async saveTextCopyMode(mode: "plain" | "markdown"): Promise<boolean> {
+		if (this.rememberSettings) return await this.save({ textCopyMode: mode });
+
+		this.textCopyMode = mode;
 		return true;
 	}
 

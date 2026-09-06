@@ -18,6 +18,7 @@ export interface AppSettings {
 	identiconStyle: "dotmatrix" | "round" | "none";
 	threadShortcutsMode: "navigation" | "actions";
 	dateFormatStyle: "medium" | "narrow";
+	textCopyMode: "plain" | "markdown";
 	floatingToolbarEnabled: boolean;
 	shortcuts: Partial<Record<ShortcutAction, ShortcutConfig>>;
 	fontFamily: string | null;
